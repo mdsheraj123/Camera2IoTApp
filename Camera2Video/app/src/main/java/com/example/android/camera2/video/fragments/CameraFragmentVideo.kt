@@ -41,6 +41,7 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.media.MediaActionSound
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -49,7 +50,8 @@ import com.example.android.camera.utils.AutoFitSurfaceView
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
-import kotlinx.android.synthetic.main.fragment_camera_video.recorder_button
+import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
+import kotlinx.android.synthetic.main.fragment_camera_video.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -167,6 +169,17 @@ class CameraFragmentVideo : Fragment() {
         }
     }
 
+    private fun startChronometer() {
+        chronometer.base = SystemClock.elapsedRealtime()
+        chronometer.visibility = View.VISIBLE;
+        chronometer.start()
+    }
+
+    private fun stopChronometer() {
+        chronometer.visibility = View.INVISIBLE;
+        chronometer.stop()
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
         cameraBase.openCamera(settings.cameraId)
@@ -183,19 +196,24 @@ class CameraFragmentVideo : Fragment() {
         }
         cameraBase.startCamera()
 
-        var recording = false
         val sound = MediaActionSound()
         recorder_button.setOnClickListener {
             if (recording) {
-                cameraBase.stopRecording()
-                sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
-                recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-                recording = false
-                Log.d(TAG, "Recorder stop")
+                if(SystemClock.elapsedRealtime() - chronometer.base>MIN_REQUIRED_RECORDING_TIME_MILLIS) {
+                    cameraBase.stopRecording()
+                    sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
+                    recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+                    recording = false
+                    stopChronometer()
+                    Log.d(TAG, "Recorder stop")
+                } else {
+                    Log.d(TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
+                }
             } else {
                 sound.play(MediaActionSound.START_VIDEO_RECORDING)
                 cameraBase.startRecording()
                 recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
+                startChronometer()
                 recording = true
                 Log.d(TAG, "Recorder start")
             }
@@ -203,6 +221,13 @@ class CameraFragmentVideo : Fragment() {
     }
 
     override fun onStop() {
+        if (recording) {
+            cameraBase.stopRecording()
+            recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+            recording = false
+            stopChronometer()
+            Log.d(TAG, "Recorder stop")
+        }
         super.onStop()
         try {
             cameraBase.close()
@@ -212,7 +237,8 @@ class CameraFragmentVideo : Fragment() {
     }
 
     companion object {
-        private val TAG = CameraFragmentVideo::class.java.simpleName
+        val TAG = CameraFragmentVideo::class.java.simpleName
+        var recording = false
     }
 }
 

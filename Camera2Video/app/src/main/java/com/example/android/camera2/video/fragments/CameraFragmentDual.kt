@@ -41,14 +41,18 @@ import androidx.fragment.app.Fragment
 import android.annotation.SuppressLint
 import android.hardware.camera2.*
 import android.media.MediaActionSound
+import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import com.example.android.camera.utils.AutoFitSurfaceView
 import com.example.android.camera.utils.getDisplaySmartSize
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
+import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
 import kotlinx.android.synthetic.main.fragment_camera_dual.capture_button
 import kotlinx.android.synthetic.main.fragment_camera_dual.*
+import kotlinx.android.synthetic.main.fragment_camera_dual.recorder_button
+import kotlinx.android.synthetic.main.fragment_camera_video.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -204,6 +208,19 @@ class CameraFragmentDual : Fragment() {
         }
     }
 
+
+    private fun startChronometer() {
+        chronometer_dual.base = SystemClock.elapsedRealtime()
+        chronometer_dual.visibility = View.VISIBLE;
+        chronometer_dual.start()
+    }
+
+    private fun stopChronometer() {
+        chronometer_dual.visibility = View.INVISIBLE;
+        chronometer_dual.stop()
+    }
+
+
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
         cameraBase0.openCamera(camera0Id)
@@ -241,20 +258,25 @@ class CameraFragmentDual : Fragment() {
 
         val sound = MediaActionSound()
 
-        var recording = false
         recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
         recorder_button.setOnClickListener {
             if (recording) {
-                cameraBase1.stopRecording()
-                cameraBase0.stopRecording()
-                sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
-                recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-                recording = false
+                if(SystemClock.elapsedRealtime() - chronometer_dual.base>MIN_REQUIRED_RECORDING_TIME_MILLIS) {
+                    cameraBase1.stopRecording()
+                    cameraBase0.stopRecording()
+                    sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
+                    recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+                    recording = false
+                    stopChronometer()
+                } else {
+                    Log.d(CameraFragmentVideo.TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
+                }
             } else {
                 sound.play(MediaActionSound.START_VIDEO_RECORDING)
                 cameraBase0.startRecording()
                 cameraBase1.startRecording()
                 recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
+                startChronometer()
                 recording = true
             }
         }
@@ -288,6 +310,13 @@ class CameraFragmentDual : Fragment() {
     }
 
     override fun onStop() {
+        if (recording) {
+            cameraBase1.stopRecording()
+            cameraBase0.stopRecording()
+            recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+            recording = false
+            stopChronometer()
+        }
         super.onStop()
         try {
             cameraBase0.close()
@@ -299,5 +328,6 @@ class CameraFragmentDual : Fragment() {
 
     companion object {
         private val TAG = CameraFragmentDual::class.java.simpleName
+        var recording = false
     }
 }

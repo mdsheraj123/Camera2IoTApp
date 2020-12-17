@@ -88,12 +88,24 @@
         android:id="@+id/recorder_button"
         android:layout_width="72dp"
         android:layout_height="83dp"
-        android:layout_marginBottom="96dp"
         android:background="@android:drawable/presence_video_online"
         android:outlineAmbientShadowColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/capture_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.588"
-        app:layout_constraintStart_toEndOf="@+id/capture_button" />
+        app:layout_constraintStart_toEndOf="@+id/capture_button"
+        app:layout_constraintTop_toTopOf="@+id/capture_button" />
+
+    <Chronometer
+        android:id="@+id/chronometer_dual"
+        android:layout_width="96dp"
+        android:layout_height="48dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@android:color/holo_red_light"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/capture_button"
+        app:layout_constraintEnd_toStartOf="@+id/capture_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/capture_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

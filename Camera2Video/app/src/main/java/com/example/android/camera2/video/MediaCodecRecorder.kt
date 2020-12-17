@@ -387,6 +387,7 @@ class MediaCodecRecorder(private val context: Context,
     }
 
     companion object {
+        const val MIN_REQUIRED_RECORDING_TIME_MILLIS: Long = 1000L
         private const val RECORDER_VIDEO_BITRATE = 10_000_000
         private const val IFRAME_INTERVAL = 0
         private const val TIMEOUT_USEC = 10000L

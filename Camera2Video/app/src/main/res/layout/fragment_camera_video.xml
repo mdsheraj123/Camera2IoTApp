@@ -74,4 +74,16 @@
         app:layout_constraintStart_toStartOf="@+id/view_finder"
         app:layout_constraintTop_toTopOf="@+id/view_finder" />
 
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="96dp"
+        android:layout_height="48dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@android:color/holo_red_light"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/recorder_button"
+        app:layout_constraintEnd_toStartOf="@+id/recorder_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recorder_button" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
