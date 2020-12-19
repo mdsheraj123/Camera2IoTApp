@@ -37,6 +37,7 @@ package com.example.android.camera2.video
 import android.content.ContentValues
 import android.content.Context
 import android.media.*
+import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -49,8 +50,6 @@ import java.io.FileDescriptor
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 
 class MediaCodecRecorder(private val context: Context,
@@ -75,6 +74,8 @@ class MediaCodecRecorder(private val context: Context,
 
     private val videoStopSyncObject = Object()
     private val audioStopSyncObject = Object()
+    private var currentVideoFilePath: String? = null
+    private var currentVideoFileUri: Uri? = null
 
     private var videoMimeType: String = when (streamInfo.encoding) {
         "H264" -> "video/avc"
@@ -93,8 +94,8 @@ class MediaCodecRecorder(private val context: Context,
             setInteger(MediaFormat.KEY_BIT_RATE, streamInfo.bitrate * 1_000_000)
             setInteger(MediaFormat.KEY_FRAME_RATE, streamInfo.fps)
             when(streamInfo.rcmode) {
-                0,3,4 -> setInteger("vendor.qti-ext-enc-bitrate-mode.value", streamInfo.rcmode)
-                1,2 -> setInteger(MediaFormat.KEY_BITRATE_MODE, streamInfo.rcmode);
+                0, 3, 4 -> setInteger("vendor.qti-ext-enc-bitrate-mode.value", streamInfo.rcmode)
+                1, 2 -> setInteger(MediaFormat.KEY_BITRATE_MODE, streamInfo.rcmode);
                 5 -> setInteger(MediaFormat.KEY_BITRATE_MODE, ((0x7F000000).toInt() + 1))
                 6 -> setInteger(MediaFormat.KEY_BITRATE_MODE, ((0x7F000000).toInt() + 2))
                 else -> Log.e(TAG, "Not a valid RC Mode")
@@ -364,6 +365,14 @@ class MediaCodecRecorder(private val context: Context,
         return surface
     }
 
+    override fun getCurrentVideoFilePath(): String? {
+        return currentVideoFilePath
+    }
+
+    override fun getCurrentVideoFileUri(): Uri? {
+        return currentVideoFileUri
+    }
+
     private fun createVideoFile(): FileDescriptor {
         val dateTaken = System.currentTimeMillis()
         val filename = "VID_${SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date())}.mp4"
@@ -377,6 +386,8 @@ class MediaCodecRecorder(private val context: Context,
         values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
         values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Camera")
         val uri = context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+        currentVideoFileUri = uri
+        currentVideoFilePath = "/storage/emulated/0/DCIM/Camera/$filename"
         val file = uri?.let { context.contentResolver.openFileDescriptor(it, "w") }
 
         if (file != null) {

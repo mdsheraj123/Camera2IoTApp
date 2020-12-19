@@ -36,15 +36,22 @@ package com.example.android.camera2.video.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.MediaActionSound
+import android.media.MediaScannerConnection
+import android.media.ThumbnailUtils
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.MimeTypeMap
+import androidx.core.graphics.drawable.RoundedBitmapDrawable
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.android.camera.utils.AutoFitSurfaceView
@@ -190,10 +197,40 @@ class CameraFragmentSnapshot : Fragment() {
                     Log.d(TAG, "Result received: $result")
                     cameraBase.saveResult(result)
                 }
-                it.post { it.isEnabled = true }
+                it.post {
+                    broadcastFile()
+                    thumbnailButton2.setImageDrawable(createRoundThumb())
+                    it.isEnabled = true
+                }
             }
             sound.play(MediaActionSound.SHUTTER_CLICK)
         }
+
+        if(cameraBase.currentSnapshotFilePath !=null) {
+            thumbnailButton2.setImageDrawable(createRoundThumb())
+        }
+        thumbnailButton2.setOnClickListener {
+            Log.d(TAG, "Thumbnail icon pressed")
+            val intent = Intent()
+            intent.action = Intent.ACTION_VIEW
+            intent.type = "image/*"
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
+    }
+
+    private fun broadcastFile() {
+        // Broadcasts the media file to the rest of the system 	219
+        MediaScannerConnection.scanFile(
+                view?.context, arrayOf(cameraBase.currentSnapshotFilePath), null, null)
+    }
+
+    private fun createImageThumb() = cameraBase.currentSnapshotFilePath?.let { ThumbnailUtils.createImageThumbnail(it, MediaStore.Images.Thumbnails.MICRO_KIND) }
+
+    private fun createRoundThumb() : RoundedBitmapDrawable {
+        val drawable = RoundedBitmapDrawableFactory.create(resources, createImageThumb())
+        drawable.isCircular = true
+        return drawable
     }
 
     override fun onStop() {

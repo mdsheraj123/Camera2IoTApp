@@ -34,6 +34,7 @@
 
 package com.example.android.camera2.video
 
+import android.net.Uri
 import android.view.Surface
 
 interface VideoRecorder {
@@ -41,4 +42,6 @@ interface VideoRecorder {
     fun stop()
     fun destroy()
     fun getRecorderSurface(): Surface
+    fun getCurrentVideoFilePath(): String?
+    fun getCurrentVideoFileUri(): Uri?
 }

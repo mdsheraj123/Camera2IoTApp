@@ -62,6 +62,7 @@ import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Spinner
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.MotionEventCompat
 import androidx.fragment.app.FragmentActivity
@@ -72,7 +73,7 @@ import com.example.android.camera2.video.fragments.*
 import com.google.android.material.tabs.TabLayout
 
 
-class CameraActivity : FragmentActivity () {
+class CameraActivity : AppCompatActivity() {
 
     private lateinit var container: FrameLayout
 

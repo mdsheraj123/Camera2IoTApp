@@ -36,14 +36,22 @@ package com.example.android.camera2.video.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.media.MediaActionSound
+import android.media.MediaScannerConnection
+import android.media.ThumbnailUtils
 import android.os.Bundle
 import android.os.SystemClock
+import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.view.*
+import android.webkit.MimeTypeMap
+import androidx.core.graphics.drawable.RoundedBitmapDrawable
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.android.camera.utils.AutoFitSurfaceView
@@ -54,6 +62,7 @@ import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIR
 import kotlinx.android.synthetic.main.fragment_camera_video.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 class CameraFragmentVideo : Fragment() {
@@ -180,6 +189,14 @@ class CameraFragmentVideo : Fragment() {
         chronometer.stop()
     }
 
+    private fun createVideoThumb() = ThumbnailUtils.createVideoThumbnail(cameraBase.getCurrentVideoFilePath(), MediaStore.Video.Thumbnails.MICRO_KIND)
+
+    private fun createRoundThumb() : RoundedBitmapDrawable {
+        val drawable = RoundedBitmapDrawableFactory.create(resources, createVideoThumb())
+        drawable.isCircular = true
+        return drawable
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
         cameraBase.openCamera(settings.cameraId)
@@ -201,8 +218,10 @@ class CameraFragmentVideo : Fragment() {
             if (recording) {
                 if(SystemClock.elapsedRealtime() - chronometer.base>MIN_REQUIRED_RECORDING_TIME_MILLIS) {
                     cameraBase.stopRecording()
+                    broadcastFile()
                     sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
                     recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+                    thumbnailButton.setImageDrawable(createRoundThumb())
                     recording = false
                     stopChronometer()
                     Log.d(TAG, "Recorder stop")
@@ -218,12 +237,29 @@ class CameraFragmentVideo : Fragment() {
                 Log.d(TAG, "Recorder start")
             }
         }
+
+        thumbnailButton.setOnClickListener {
+            Log.d(TAG, "Thumbnail icon pressed")
+            val intent = Intent()
+            intent.action = Intent.ACTION_VIEW
+            intent.type = "image/*"
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
+    }
+
+    private fun broadcastFile() {
+        // Broadcasts the media file to the rest of the system 	219
+        MediaScannerConnection.scanFile(
+                view?.context, arrayOf(cameraBase.getCurrentVideoFilePath()), null, null)
     }
 
     override fun onStop() {
         if (recording) {
             cameraBase.stopRecording()
+            broadcastFile()
             recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+            thumbnailButton.setImageDrawable(createRoundThumb())
             recording = false
             stopChronometer()
             Log.d(TAG, "Recorder stop")

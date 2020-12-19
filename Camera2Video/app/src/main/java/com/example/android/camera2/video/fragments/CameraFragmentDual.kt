@@ -34,15 +34,17 @@
 
 package com.example.android.camera2.video.fragments
 
-import android.content.Context
-import android.os.Bundle
-import android.view.*
-import androidx.fragment.app.Fragment
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.hardware.camera2.*
 import android.media.MediaActionSound
+import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
+import android.view.*
+import android.webkit.MimeTypeMap
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.android.camera.utils.AutoFitSurfaceView
 import com.example.android.camera.utils.getDisplaySmartSize
@@ -51,7 +53,9 @@ import com.example.android.camera2.video.*
 import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
 import kotlinx.android.synthetic.main.fragment_camera_dual.capture_button
 import kotlinx.android.synthetic.main.fragment_camera_dual.*
+import kotlinx.android.synthetic.main.fragment_camera_dual.capture_button
 import kotlinx.android.synthetic.main.fragment_camera_dual.recorder_button
+import kotlinx.android.synthetic.main.fragment_camera_snapshot.*
 import kotlinx.android.synthetic.main.fragment_camera_video.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -306,6 +310,15 @@ class CameraFragmentDual : Fragment() {
                 }
             }
             sound.play(MediaActionSound.SHUTTER_CLICK)
+        }
+
+        thumbnailButton3.setOnClickListener {
+            Log.d(TAG, "Thumbnail icon pressed")
+            val intent = Intent()
+            intent.action = Intent.ACTION_VIEW
+            intent.type = "image/*"
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
         }
     }
 

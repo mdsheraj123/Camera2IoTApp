@@ -138,6 +138,14 @@ class MediaRecorderRecorder(val context: Context,
         return surface
     }
 
+    override fun getCurrentVideoFilePath(): String? {
+        return null
+    }
+
+    override fun getCurrentVideoFileUri(): Uri? {
+        return null
+    }
+
     private fun createFile(context: Context, extension: String): File {
         val sdf = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US)
         return File(context.filesDir, "VID_${sdf.format(Date())}.$extension")

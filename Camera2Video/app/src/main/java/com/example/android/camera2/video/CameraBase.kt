@@ -37,13 +37,14 @@ package com.example.android.camera2.video
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.graphics.ImageFormat
 import android.hardware.camera2.*
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
-import android.media.ExifInterface
 import android.media.Image
 import android.media.ImageReader
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
@@ -52,10 +53,12 @@ import android.provider.MediaStore
 import android.util.Log
 import android.util.Range
 import android.view.Surface
-import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.*
+import java.io.Closeable
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
@@ -103,6 +106,9 @@ class CameraBase(val context: Context): CameraModule {
     private val imageReaderThread = HandlerThread("imageReaderThread").apply { start() }
 
     private val imageReaderHandler = Handler(imageReaderThread.looper)
+
+    var currentSnapshotFilePath: String? = null
+    var currentSnapshotUri: Uri? = null
 
     override fun getAvailableCameras(): Array<String> = cameraManager.cameraIdList
 
@@ -288,12 +294,14 @@ class CameraBase(val context: Context): CameraModule {
                 val buffer = result.image.planes[0].buffer
                 val bytes = ByteArray(buffer.remaining()).apply { buffer.get(this) }
                 try {
-                    val output = createFile(context, "jpg")
+                    val filename = "${createFileName()}.jpg"
                     val values = ContentValues()
-                    values.put(MediaStore.Images.Media.DISPLAY_NAME, output.absolutePath)
+                    values.put(MediaStore.Images.Media.DISPLAY_NAME, filename)
                     values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                     values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Camera")
                     val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                    currentSnapshotUri = uri
+                    currentSnapshotFilePath = "/storage/emulated/0/DCIM/Camera/$filename"
                     val imageOutStream = uri?.let { context.contentResolver.openOutputStream(it) };
                     imageOutStream?.write(bytes)
                     cont.resume(true)
@@ -307,6 +315,8 @@ class CameraBase(val context: Context): CameraModule {
                 val dngCreator = DngCreator(characteristics, result.metadata)
                 try {
                     val output = createFile(context, "dng")
+                    currentSnapshotFilePath = output.absolutePath
+                    currentSnapshotUri = getImageContentUri(context, output)
                     FileOutputStream(output).use { dngCreator.writeImage(it, result.image) }
                     cont.resume(true)
                 } catch (exc: IOException) {
@@ -323,6 +333,60 @@ class CameraBase(val context: Context): CameraModule {
         }
     }
 
+    fun getCurrentVideoFilePath():String? {
+        for (recorder in recorderList) {
+            if(recorder.getCurrentVideoFilePath()!=null) {
+                return recorder.getCurrentVideoFilePath()
+            }
+        }
+        return null
+    }
+
+    fun getCurrentVideoFileUri():Uri? {
+        for (recorder in recorderList) {
+            if(recorder.getCurrentVideoFileUri()!=null) {
+                return recorder.getCurrentVideoFileUri()
+            }
+        }
+        return null
+    }
+
+    private fun getImageContentUri(context: Context, imageFile: File): Uri? {
+        val filePath = imageFile.absolutePath
+        val cursor: Cursor? = context.contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Images.Media._ID),
+                MediaStore.Images.Media.DATA + "=? ", arrayOf(filePath), null)
+        return if (cursor != null && cursor.moveToFirst()) {
+            val id: Int = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID))
+            cursor.close()
+            Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + id)
+        } else {
+            if (imageFile.exists()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val resolver = context.contentResolver
+                    val picCollection = MediaStore.Images.Media
+                            .getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                    val picDetail = ContentValues()
+                    picDetail.put(MediaStore.Images.Media.DISPLAY_NAME, imageFile.name)
+                    picDetail.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg")
+                    picDetail.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/" + UUID.randomUUID().toString())
+                    picDetail.put(MediaStore.Images.Media.IS_PENDING, 1)
+                    val finaluri = resolver.insert(picCollection, picDetail)
+                    picDetail.clear()
+                    picDetail.put(MediaStore.Images.Media.IS_PENDING, 0)
+                    resolver.update(picCollection, picDetail, null, null)
+                    finaluri
+                } else {
+                    val values = ContentValues()
+                    values.put(MediaStore.Images.Media.DATA, filePath)
+                    context.contentResolver.insert(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                }
+            } else {
+                null
+            }
+        }
+    }
     override fun close() {
         camera.close()
         streamConfigOpMode = 0x00
@@ -477,8 +541,14 @@ class CameraBase(val context: Context): CameraModule {
         private const val STREAM_CONFIG_LDC_MODE: Int = 0xF800
 
         private fun createFile(context: Context, extension: String): File {
+            val dir = File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DCIM), "Camera")
+            return File.createTempFile(createFileName(),".$extension",dir)
+        }
+
+        private fun createFileName(): String {
             val sdf = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US)
-            return File(context.filesDir, "IMG_${sdf.format(Date())}.$extension")
+            return "IMG_${sdf.format(Date())}"
         }
     }
 }
