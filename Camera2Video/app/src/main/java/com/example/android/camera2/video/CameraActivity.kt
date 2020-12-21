@@ -1,7 +1,7 @@
 /*
 # Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -76,6 +76,7 @@ import com.google.android.material.tabs.TabLayout
 class CameraActivity : AppCompatActivity() {
 
     private lateinit var container: FrameLayout
+    var lastNonSettingTab = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,17 +111,28 @@ class CameraActivity : AppCompatActivity() {
         when (tab!!.position) {
             0 -> supportFragmentManager.commit {
                 replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
+                lastNonSettingTab = 0
             }
             1 -> supportFragmentManager.commit {
                 replace<CameraFragmentSnapshot>(R.id.fragment_container, null, null)
+                lastNonSettingTab = 1
             }
             2 -> supportFragmentManager.commit {
                 replace<CameraFragmentDual>(R.id.fragment_container, null, null)
+                lastNonSettingTab = 2
             }
             3 -> supportFragmentManager.commit {
                 replace<CameraFragmentSettings>(R.id.fragment_container, null, null)
-                addToBackStack(null)
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
+        if (tabLayout.selectedTabPosition == 3) {
+            tabLayout.getTabAt(lastNonSettingTab)?.select()
+        } else {
+            super.onBackPressed()
         }
     }
 
