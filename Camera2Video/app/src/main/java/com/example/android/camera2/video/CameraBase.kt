@@ -52,7 +52,9 @@ import android.os.HandlerThread
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Range
+import android.view.OrientationEventListener
 import android.view.Surface
+import com.example.android.camera.utils.OrientationLiveData.Companion.getOrientationValueForRotation
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -226,9 +228,9 @@ class CameraBase(val context: Context): CameraModule {
         recorderList.clear()
     }
 
-    override fun startRecording()  {
+    override fun startRecording(orientation: Int?) {
         for (recorder in recorderList) {
-            recorder.start()
+            recorder.start(orientation)
         }
     }
     override fun isRecording() = false
@@ -239,7 +241,7 @@ class CameraBase(val context: Context): CameraModule {
         }
     }
 
-    override suspend fun takeSnapshot():
+    override suspend fun takeSnapshot(orientation: Int?):
         CombinedCaptureResult = suspendCoroutine { cont ->
             @Suppress("ControlFlowWithEmptyBody")
             while (imageReader.acquireNextImage() != null) {}
@@ -290,15 +292,18 @@ class CameraBase(val context: Context): CameraModule {
                                 imageQueue.take().close()
                             }
 
+                            // Compute EXIF orientation metadata
+                            val exifOrientation = getOrientationValueForRotation(orientation?:0)
+
                             cont.resume(CombinedCaptureResult(
-                                    image, result, 0, imageReader.imageFormat))
+                                    image, result, exifOrientation, imageReader.imageFormat))
                         }
                     }
                 }
             }, cameraHandler)
     }
 
-    suspend fun saveResult(result: CombinedCaptureResult): Boolean = suspendCoroutine { cont ->
+    suspend fun saveResult(result: CombinedCaptureResult): String? = suspendCoroutine { cont ->
         when (result.format) {
             ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
                 val buffer = result.image.planes[0].buffer
@@ -313,7 +318,7 @@ class CameraBase(val context: Context): CameraModule {
                     currentSnapshotFilePath = "/storage/emulated/0/DCIM/Camera/$filename"
                     val imageOutStream = uri?.let { context.contentResolver.openOutputStream(it) };
                     imageOutStream?.write(bytes)
-                    cont.resume(true)
+                    cont.resume(currentSnapshotFilePath)
                 } catch (exc: IOException) {
                     Log.e(TAG, "Unable to write JPEG image to file", exc)
                     cont.resumeWithException(exc)
@@ -326,7 +331,7 @@ class CameraBase(val context: Context): CameraModule {
                     val output = createFile(context, "dng")
                     currentSnapshotFilePath = output.absolutePath
                     FileOutputStream(output).use { dngCreator.writeImage(it, result.image) }
-                    cont.resume(true)
+                    cont.resume(currentSnapshotFilePath)
                 } catch (exc: IOException) {
                     Log.e(TAG, "Unable to write DNG image to file", exc)
                     cont.resumeWithException(exc)

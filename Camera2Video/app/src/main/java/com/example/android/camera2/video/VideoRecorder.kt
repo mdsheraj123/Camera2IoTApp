@@ -38,7 +38,7 @@ import android.net.Uri
 import android.view.Surface
 
 interface VideoRecorder {
-    fun start()
+    fun start(orientation: Int?)
     fun stop()
     fun destroy()
     fun getRecorderSurface(): Surface

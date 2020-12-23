@@ -77,10 +77,10 @@ interface CameraModule {
     fun addRecorderStream(stream: StreamInfo)
     fun addSnapshotStream(stream: StreamInfo)
     fun startCamera()
-    fun startRecording()
+    fun startRecording(value: Int?)
     fun isRecording() : Boolean
     fun stopRecording()
-    suspend fun takeSnapshot(): CombinedCaptureResult
+    suspend fun takeSnapshot(value: Int?): CombinedCaptureResult
     fun close()
     fun setEISEnable(value: Boolean)
     fun setLDCEnable(value: Boolean)

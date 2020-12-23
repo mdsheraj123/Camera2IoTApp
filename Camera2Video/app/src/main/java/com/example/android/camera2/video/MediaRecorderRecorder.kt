@@ -119,7 +119,7 @@ class MediaRecorderRecorder(val context: Context,
         setInputSurface(srfs)
     }
 
-    override fun start() {
+    override fun start(orientation: Int?) {
         recorder = createVideoFile()?.let { createRecorder(surface, it) }!!
         recorder.prepare()
         recorder.start()

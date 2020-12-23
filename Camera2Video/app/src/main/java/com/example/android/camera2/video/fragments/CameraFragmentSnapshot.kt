@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -39,6 +39,7 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.media.ExifInterface
 import android.media.MediaActionSound
 import android.media.MediaScannerConnection
 import android.media.ThumbnailUtils
@@ -53,8 +54,10 @@ import android.webkit.MimeTypeMap
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.example.android.camera.utils.AutoFitSurfaceView
+import com.example.android.camera.utils.OrientationLiveData
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
 import kotlinx.android.synthetic.main.fragment_camera_snapshot.*
@@ -76,6 +79,9 @@ class CameraFragmentSnapshot : Fragment() {
     private lateinit var overlay: View
 
     private lateinit var settings: CameraSettings
+
+    /** Live data listener for changes in the device orientation relative to the camera */
+    private lateinit var relativeOrientation: OrientationLiveData
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -174,6 +180,12 @@ class CameraFragmentSnapshot : Fragment() {
         view.setOnClickListener() {
             cameraMenu.show()
         }
+        // Used to rotate the output media to match device orientation
+        relativeOrientation = OrientationLiveData(requireContext(), characteristics).apply {
+            observe(viewLifecycleOwner, Observer {
+                orientation -> Log.d(TAG, "Orientation changed: $orientation")
+            })
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -193,9 +205,17 @@ class CameraFragmentSnapshot : Fragment() {
         capture_button.setOnClickListener {
             it.isEnabled = false
             lifecycleScope.launch(Dispatchers.IO) {
-                cameraBase.takeSnapshot().use { result ->
+                cameraBase.takeSnapshot(relativeOrientation.value).use { result ->
                     Log.d(TAG, "Result received: $result")
-                    cameraBase.saveResult(result)
+                    val outputFilePath = cameraBase.saveResult(result)
+
+                    // If the result is a JPEG file, update EXIF metadata with orientation info
+                    if (outputFilePath?.substring(outputFilePath!!.lastIndexOf(".")) == ".jpg") {
+                        val exif = ExifInterface(outputFilePath)
+                        exif.setAttribute(ExifInterface.TAG_ORIENTATION, result.orientation.toString())
+                        exif.saveAttributes()
+                        Log.d(TAG, "EXIF metadata saved: $outputFilePath")
+                    }
                 }
                 it.post {
                     broadcastFile()

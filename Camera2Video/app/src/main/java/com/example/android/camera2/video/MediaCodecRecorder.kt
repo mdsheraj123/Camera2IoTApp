@@ -331,8 +331,9 @@ class MediaCodecRecorder(private val context: Context,
         muxerTrackCount = 0
     }
 
-    override fun start() {
+    override fun start(orientation: Int?) {
         muxer = createMuxer()
+        orientation?.let { muxer.setOrientationHint(it) }
         videoEncoder = createVideoEncoder()
         audioEncoder = createAudoioEncoder()
         videoEncoder.start()

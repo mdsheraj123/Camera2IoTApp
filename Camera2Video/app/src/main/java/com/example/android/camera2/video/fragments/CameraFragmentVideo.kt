@@ -41,7 +41,6 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CameraMetadata
 import android.media.MediaActionSound
 import android.media.MediaScannerConnection
 import android.media.ThumbnailUtils
@@ -49,14 +48,15 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
 import android.view.*
 import android.webkit.MimeTypeMap
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.example.android.camera.utils.AutoFitSurfaceView
+import com.example.android.camera.utils.OrientationLiveData
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
@@ -64,7 +64,6 @@ import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIR
 import kotlinx.android.synthetic.main.fragment_camera_video.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 
 
 class CameraFragmentVideo : Fragment() {
@@ -82,6 +81,8 @@ class CameraFragmentVideo : Fragment() {
     private lateinit var overlay: View
 
     private lateinit var settings: CameraSettings
+
+    private lateinit var relativeOrientation: OrientationLiveData
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -182,6 +183,13 @@ class CameraFragmentVideo : Fragment() {
         view.setOnClickListener() {
             cameraMenu.show()
         }
+
+        // Used to rotate the output media to match device orientation
+        relativeOrientation = OrientationLiveData(requireContext(), characteristics).apply {
+            observe(viewLifecycleOwner, Observer {
+                orientation -> Log.d(TAG, "Orientation changed: $orientation")
+            })
+        }
     }
 
     private fun startChronometer() {
@@ -240,7 +248,7 @@ class CameraFragmentVideo : Fragment() {
                     }
                 } else {
                     sound.play(MediaActionSound.START_VIDEO_RECORDING)
-                    cameraBase.startRecording()
+                    cameraBase.startRecording(relativeOrientation.value)
                     recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
                     startChronometer()
                     recording = true

@@ -2,7 +2,7 @@
 <!--
 ~ Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-~ Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+~ Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 ~
 ~ Redistribution and use in source and binary forms, with or without
 ~ modification, are permitted (subject to the limitations in the
@@ -73,7 +73,8 @@
         <activity
             android:name="com.example.android.camera2.video.CameraActivity"
             android:clearTaskOnLaunch="true"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
 
             <!-- Main app intent filter -->
             <intent-filter>

@@ -38,15 +38,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.hardware.camera2.*
+import android.media.ExifInterface
 import android.media.MediaActionSound
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.view.*
-import android.webkit.MimeTypeMap
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.example.android.camera.utils.AutoFitSurfaceView
+import com.example.android.camera.utils.OrientationLiveData
 import com.example.android.camera.utils.getDisplaySmartSize
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
@@ -77,6 +79,8 @@ class CameraFragmentDual : Fragment() {
 
     private lateinit var overlay: View
     private lateinit var settings: CameraSettings
+    private lateinit var relativeOrientation0: OrientationLiveData
+    private lateinit var relativeOrientation1: OrientationLiveData
 
     private val camera0Id = "0"
     private val camera1Id = "1"
@@ -213,6 +217,19 @@ class CameraFragmentDual : Fragment() {
         view.setOnClickListener() {
             cameraMenu.show()
         }
+
+        // Used to rotate the output media to match device orientation
+        relativeOrientation0 = OrientationLiveData(requireContext(), characteristics0).apply {
+            observe(viewLifecycleOwner, Observer {
+                orientation -> Log.d(CameraFragmentVideo.TAG, "Orientation changed: $orientation")
+            })
+        }
+        // Used to rotate the output media to match device orientation
+        relativeOrientation1 = OrientationLiveData(requireContext(), characteristics1).apply {
+            observe(viewLifecycleOwner, Observer {
+                orientation -> Log.d(CameraFragmentVideo.TAG, "Orientation changed: $orientation")
+            })
+        }
     }
 
 
@@ -305,8 +322,8 @@ class CameraFragmentDual : Fragment() {
                     }
                 } else {
                     sound.play(MediaActionSound.START_VIDEO_RECORDING)
-                    cameraBase0.startRecording()
-                    cameraBase1.startRecording()
+                    cameraBase0.startRecording(relativeOrientation0.value)
+                    cameraBase1.startRecording(relativeOrientation1.value)
                     recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
                     startChronometer()
                     recording = true
@@ -318,9 +335,17 @@ class CameraFragmentDual : Fragment() {
             var snapshot0Flag = false
             var snapshot1Flag = false
             lifecycleScope.launch(Dispatchers.IO) {
-                cameraBase0.takeSnapshot().use { result ->
+                cameraBase0.takeSnapshot(relativeOrientation0.value).use { result ->
                     Log.d(TAG, "Result received: $result")
-                    cameraBase0.saveResult(result)
+                    val outputFilePath = cameraBase0.saveResult(result)
+
+                    // If the result is a JPEG file, update EXIF metadata with orientation info
+                    if (outputFilePath?.substring(outputFilePath!!.lastIndexOf(".")) == ".jpg") {
+                        val exif = ExifInterface(outputFilePath)
+                        exif.setAttribute(ExifInterface.TAG_ORIENTATION, result.orientation.toString())
+                        exif.saveAttributes()
+                        Log.d(TAG, "EXIF metadata saved: $outputFilePath")
+                    }
                 }
                 snapshot0Flag = true
                 if (snapshot0Flag and snapshot1Flag) {
@@ -328,9 +353,17 @@ class CameraFragmentDual : Fragment() {
                 }
             }
             lifecycleScope.launch(Dispatchers.IO) {
-                cameraBase1.takeSnapshot().use { result ->
+                cameraBase1.takeSnapshot(relativeOrientation1.value).use { result ->
                     Log.d(TAG, "Result received: $result")
-                    cameraBase1.saveResult(result)
+                    val outputFilePath = cameraBase1.saveResult(result)
+
+                    // If the result is a JPEG file, update EXIF metadata with orientation info
+                    if (outputFilePath?.substring(outputFilePath!!.lastIndexOf(".")) == ".jpg") {
+                        val exif = ExifInterface(outputFilePath)
+                        exif.setAttribute(ExifInterface.TAG_ORIENTATION, result.orientation.toString())
+                        exif.saveAttributes()
+                        Log.d(TAG, "EXIF metadata saved: $outputFilePath")
+                    }
                 }
                 snapshot1Flag = true
                 if (snapshot0Flag and snapshot1Flag) {
