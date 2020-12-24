@@ -122,6 +122,10 @@ class CameraBase(val context: Context): CameraModule {
                     throw Exception("Fail to open Camera: $cameraId")
                     cont.resume(camera)
                 }
+                override fun onClosed(camera: CameraDevice) {
+                    super.onClosed(camera)
+                    clearStreams()
+                }
             }
             cameraManager.openCamera(cameraId, callback, cameraHandler)
         }
@@ -199,6 +203,11 @@ class CameraBase(val context: Context): CameraModule {
 
     override fun startCamera() {
         createSession(streamSurfaceList)
+    }
+
+    private fun clearStreams() {
+        streamSurfaceList.clear()
+        recorderList.clear()
     }
 
     override fun startRecording()  {
