@@ -25,7 +25,7 @@ android {
     defaultConfig {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         applicationId "com.android.example.camera2.video"
-        minSdkVersion 23
+        minSdkVersion 29
         targetSdkVersion 29
         versionCode 1
         versionName "1.0.0"
@@ -83,6 +83,9 @@ dependencies {
     testImplementation 'androidx.test:runner:1.2.0'
     testImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     testImplementation "org.robolectric:robolectric:4.3.1"
+
+    def preference_version = "1.1.1"
+    implementation "androidx.preference:preference-ktx:$preference_version"
 
     // Instrumented testing
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

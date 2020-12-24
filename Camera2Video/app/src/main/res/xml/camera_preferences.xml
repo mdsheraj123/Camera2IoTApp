@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+~
+~ Redistribution and use in source and binary forms, with or without
+~ modification, are permitted (subject to the limitations in the
+~ disclaimer below) provided that the following conditions are met:
+~
+~    * Redistributions of source code must retain the above copyright
+~      notice, this list of conditions and the following disclaimer.
+~
+~    * Redistributions in binary form must reproduce the above
+~      copyright notice, this list of conditions and the following
+~      disclaimer in the documentation and/or other materials provided
+~      with the distribution.
+~
+~    * Neither the name Qualcomm Innovation Center nor the names of its
+~      contributors may be used to endorse or promote products derived
+~      from this software without specific prior written permission.
+~
+~ NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
+~ GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+~ HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+~ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+~ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+~ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+~ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+~ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+~ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+~ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+~ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+~ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<androidx.preference.PreferenceScreen  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+    <PreferenceCategory android:title="Camera" >
+        <androidx.preference.DropDownPreference
+            android:key="camera_id"
+            android:title="Camera"
+            android:summary="%s"
+            android:defaultValue="0" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Snapshot" >
+        <androidx.preference.DropDownPreference
+            android:key="preview_resolution"
+            android:title="Preview resolution"
+            android:summary="%s"
+            android:entries="@array/preview_resolutions"
+            android:entryValues="@array/preview_resolutions"
+            android:defaultValue="640x480" />
+        <androidx.preference.DropDownPreference
+            android:key="snapshot_resolution"
+            android:title="Snapshot resolution"
+            android:summary="%s"
+            android:entries="@array/snapshot_resolutions"
+            android:entryValues="@array/snapshot_resolutions"
+            android:defaultValue="640x480" />
+        <androidx.preference.DropDownPreference
+            android:key="snapshot_format"
+            android:title="Snapshot format"
+            android:summary="%s"
+            android:entries="@array/snapshot_formats"
+            android:entryValues="@array/snapshot_formats"
+            android:defaultValue="JPEG" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Video" >
+        <androidx.preference.SwitchPreference
+            android:key="eis_enable"
+            android:title="EIS Enable"
+            android:summary="EIS Enable"
+            android:defaultValue="false"/>
+        <androidx.preference.SwitchPreference
+            android:key="ldc_enable"
+            android:title="LDC enable"
+            android:summary="LDC enable"
+            android:defaultValue="false"/>
+        <androidx.preference.SwitchPreference
+            android:key="shdr_enable"
+            android:title="SHDR enable"
+            android:summary="SHDR enable"
+            android:defaultValue="false"/>
+        <androidx.preference.DropDownPreference
+            android:key="video_framerate"
+            android:title="Video fps"
+            android:summary="%s"
+            android:entries="@array/video_framerates"
+            android:entryValues="@array/video_framerates"
+            android:defaultValue="30"/>
+        <androidx.preference.SwitchPreference
+            android:key="video_stream0_enable"
+            android:title="Stream 0 enable"
+            android:summary="Enable stream 0 recording"
+            android:defaultValue="true"/>
+        <androidx.preference.DropDownPreference
+            android:key="video_stream0_format"
+            android:title="Stream 0 format"
+            android:summary="%s"
+            android:entries="@array/recording_formats"
+            android:entryValues="@array/recording_formats"
+            android:defaultValue="H264" />
+        <androidx.preference.DropDownPreference
+            android:key="video_stream0_audio_format"
+            android:title="Stream 0 audio format"
+            android:summary="%s"
+            android:entries="@array/audio_formats"
+            android:entryValues="@array/audio_formats"
+            android:defaultValue="AAC" />
+        <androidx.preference.DropDownPreference
+            android:key="video_stream0_resolution"
+            android:title="Stream 0 resolution"
+            android:summary="%s"
+            android:entries="@array/video_resolutions"
+            android:entryValues="@array/video_resolutions"
+            android:defaultValue="640x480" />
+        <androidx.preference.SwitchPreference
+            android:key="video_stream1_enable"
+            android:title="Stream 1 enable"
+            android:summary="Enable stream 1 recording"
+            android:defaultValue="false" />
+        <androidx.preference.DropDownPreference
+            android:key="video_stream1_format"
+            android:title="Stream 1 format"
+            android:summary="%s"
+            android:entries="@array/recording_formats"
+            android:entryValues="@array/recording_formats"
+            android:defaultValue="H264" />
+        <androidx.preference.DropDownPreference
+            android:key="video_stream1_audio_format"
+            android:title="Stream 1 audio format"
+            android:summary="%s"
+            android:entries="@array/audio_formats"
+            android:entryValues="@array/audio_formats"
+            android:defaultValue="AAC" />
+        <androidx.preference.DropDownPreference
+            android:key="video_stream1_resolution"
+            android:title="Stream 1 resolution"
+            android:summary="%s"
+            android:entries="@array/video_resolutions"
+            android:entryValues="@array/video_resolutions"
+            android:defaultValue="640x480"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Dual camera" >
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>
