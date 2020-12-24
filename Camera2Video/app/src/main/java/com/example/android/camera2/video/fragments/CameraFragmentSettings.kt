@@ -73,6 +73,18 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         cameraPreference?.entries = detectedCameras.toTypedArray()
         cameraPreference?.entryValues = detectedCameraIds.toTypedArray()
 
+        try {
+            val pInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+            val version = pInfo.versionName
+            val versionPref = screen.findPreference<EditTextPreference>("version_info");
+            if (versionPref != null) {
+                versionPref.summary = version.toString()
+                versionPref.isEnabled = false
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+
         updateCameraPreferences()
     }
 

@@ -302,4 +302,10 @@
             android:defaultValue="640x480"/>
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Version" >
+        <androidx.preference.EditTextPreference
+            android:summary=""
+            android:key="version_info" />
+    </PreferenceCategory>
+
 </androidx.preference.PreferenceScreen>
