@@ -48,7 +48,9 @@ object CameraSettingsUtil {
 
         val previewInfo = StreamInfo(
                 ParseWidth(sharedPref.getString("preview_resolution", null)),
-                ParseHeight(sharedPref.getString("preview_resolution", null)))
+                ParseHeight(sharedPref.getString("preview_resolution", null)),
+                sharedPref.getString("video_framerate", null)!!.toInt(),
+        )
 
         val streamInfo0 = StreamInfo(
                 ParseWidth(sharedPref.getString("video_stream0_resolution", null)),
