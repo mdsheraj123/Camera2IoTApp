@@ -208,9 +208,9 @@ class CameraFragmentDual : Fragment() {
     private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
         cameraBase0.openCamera(camera0Id)
 
-        cameraBase0.setEISEnable(if (settings.cameraParams.eis_enable) 1 else 0)
-        cameraBase0.setLDCEnable(if (settings.cameraParams.ldc_enable) 1 else 0)
-        cameraBase0.setSHDREnable(if (settings.cameraParams.shdr_enable) 1 else 0)
+        cameraBase0.setEISEnable(settings.cameraParams.eis_enable)
+        cameraBase0.setLDCEnable(settings.cameraParams.ldc_enable)
+        cameraBase0.setSHDREnable(settings.cameraParams.shdr_enable)
 
         cameraBase0.setFramerate(settings.previewInfo.fps)
         cameraBase0.addPreviewStream(viewFinder.holder.surface)
@@ -222,9 +222,10 @@ class CameraFragmentDual : Fragment() {
         }
 
         cameraBase1.openCamera(camera1Id)
-        cameraBase1.setEISEnable(if (settings.cameraParams.eis_enable) 1 else 0)
-        cameraBase1.setLDCEnable(if (settings.cameraParams.ldc_enable) 1 else 0)
-        cameraBase1.setSHDREnable(if (settings.cameraParams.shdr_enable) 1 else 0)
+
+        cameraBase1.setEISEnable(settings.cameraParams.eis_enable)
+        cameraBase1.setLDCEnable(settings.cameraParams.ldc_enable)
+        cameraBase1.setSHDREnable(settings.cameraParams.shdr_enable)
 
         cameraBase1.setFramerate(settings.previewInfo.fps)
         cameraBase1.addPreviewStream(viewFinder1.holder.surface)

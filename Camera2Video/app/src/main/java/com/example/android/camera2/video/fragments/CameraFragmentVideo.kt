@@ -171,9 +171,9 @@ class CameraFragmentVideo : Fragment() {
     private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
         cameraBase.openCamera(settings.cameraId)
 
-        cameraBase.setEISEnable(if (settings.cameraParams.eis_enable) 1 else 0)
-        cameraBase.setLDCEnable(if (settings.cameraParams.ldc_enable) 1 else 0)
-        cameraBase.setSHDREnable(if (settings.cameraParams.shdr_enable) 1 else 0)
+        cameraBase.setEISEnable(settings.cameraParams.eis_enable)
+        cameraBase.setLDCEnable(settings.cameraParams.ldc_enable)
+        cameraBase.setSHDREnable(settings.cameraParams.shdr_enable)
 
         cameraBase.setFramerate(settings.previewInfo.fps)
         cameraBase.addPreviewStream(viewFinder.holder.surface)

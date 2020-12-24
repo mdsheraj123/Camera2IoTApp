@@ -93,6 +93,11 @@ class CameraBase(val context: Context): CameraModule {
 
     private var previewFps = 30
 
+    private var streamConfigOpMode: Int = 0x00
+    private var isEISEnabled: Boolean = false
+    private var isLDCEnabled: Boolean = false
+    private var isSHDREnabled: Boolean = false
+
     private lateinit var imageReader: ImageReader
 
     private val imageReaderThread = HandlerThread("imageReaderThread").apply { start() }
@@ -138,8 +143,15 @@ class CameraBase(val context: Context): CameraModule {
 
         previewRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(previewFps, previewFps))
 
+        // Set Opmode
+        if (isEISEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_EIS_MODE
+        if (isSHDREnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_ZZHDR_MODE
+        if (isLDCEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_LDC_MODE
+
+        Log.d(TAG, "Operation Mode: $streamConfigOpMode")
+
         val config = SessionConfiguration(
-                SessionConfiguration.SESSION_REGULAR, outConfigurations, HandlerExecutor(cameraHandler),
+                streamConfigOpMode, outConfigurations, HandlerExecutor(cameraHandler),
                 object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(s: CameraCaptureSession) {
                         Log.d(TAG, "onConfigured session")
@@ -304,6 +316,7 @@ class CameraBase(val context: Context): CameraModule {
 
     override fun close() {
         camera.close()
+        streamConfigOpMode = 0x00
     }
 
     fun updateRepeatingRequest() {
@@ -312,14 +325,12 @@ class CameraBase(val context: Context): CameraModule {
         }
     }
 
-    override fun setEISEnable(value: Byte) {
-        VendorTagUtil.setEISEnable(previewRequest, value)
-        updateRepeatingRequest()
+    override fun setEISEnable(value: Boolean) {
+        isEISEnabled = value
     }
 
-    override fun setLDCEnable(value: Byte) {
-        VendorTagUtil.setLDCEnable(previewRequest, value)
-        updateRepeatingRequest()
+    override fun setLDCEnable(value: Boolean) {
+        isLDCEnabled = value
     }
 
     override fun setTNREnable(value: Byte) {
@@ -422,9 +433,8 @@ class CameraBase(val context: Context): CameraModule {
         updateRepeatingRequest()
     }
 
-    override fun setSHDREnable(value: Byte) {
-        VendorTagUtil.setSHDREnable(previewRequest, value)
-        updateRepeatingRequest()
+    override fun setSHDREnable(value: Boolean) {
+        isSHDREnabled = value
     }
 
     override fun setAELock(value: Boolean) {
@@ -451,6 +461,11 @@ class CameraBase(val context: Context): CameraModule {
 
         private const val IMAGE_BUFFER_SIZE: Int = 3
         private const val IMAGE_CAPTURE_TIMEOUT_MILLIS: Long = 5000
+
+        // Opmode
+        private const val STREAM_CONFIG_ZZHDR_MODE: Int = 0xF002
+        private const val STREAM_CONFIG_EIS_MODE: Int = 0xF200
+        private const val STREAM_CONFIG_LDC_MODE: Int = 0xF800
 
         private fun createFile(context: Context, extension: String): File {
             val sdf = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US)
