@@ -164,8 +164,8 @@ class CameraBase(val context: Context): CameraModule {
         streamSurfaceList.add(surface)
     }
     override fun addRecorderStream(stream: StreamInfo)  {
-        val recorder = VideoRecorder(context, stream.width, stream.height, stream.fps, stream.encoding, stream.audioEnc)
-        streamSurfaceList.add(recorder.surface)
+        val recorder = MediaCodecRecorder(context, stream.width, stream.height, stream.fps, stream.encoding, stream.audioEnc)
+        streamSurfaceList.add(recorder.getRecorderSurface())
         recorderList.add(recorder)
     }
 
