@@ -49,7 +49,11 @@ class CameraMenu(context: Context?, view: View) {
         fun onAELock(value: Boolean)
         fun onAWBLock(value: Boolean)
         fun onEffectMode(value: Int)
-        fun onNRmode(value: Int)
+        fun onNRMode(value: Int)
+        fun onAntiBandingMode(value: Int)
+        fun onAEMode(value: Int)
+        fun onAWBMode(value: Int)
+        fun onAFMode(value: Int)
     }
 
     fun setOnCameraMenuListener(listener: OnCameraMenuListener) {
@@ -117,27 +121,132 @@ class CameraMenu(context: Context?, view: View) {
                 }
                 R.id.nr_mode_off -> {
                     item.isChecked = true
-                    cameraMenuListener?.onNRmode(CameraMetadata.NOISE_REDUCTION_MODE_OFF)
+                    cameraMenuListener?.onNRMode(CameraMetadata.NOISE_REDUCTION_MODE_OFF)
                     true
                 }
                 R.id.nr_mode_fast -> {
                     item.isChecked = true
-                    cameraMenuListener?.onNRmode(CameraMetadata.NOISE_REDUCTION_MODE_FAST)
+                    cameraMenuListener?.onNRMode(CameraMetadata.NOISE_REDUCTION_MODE_FAST)
                     true
                 }
                 R.id.nr_mode_hq -> {
                     item.isChecked = true
-                    cameraMenuListener?.onNRmode(CameraMetadata.NOISE_REDUCTION_MODE_HIGH_QUALITY)
+                    cameraMenuListener?.onNRMode(CameraMetadata.NOISE_REDUCTION_MODE_HIGH_QUALITY)
                     true
                 }
                 R.id.nr_mode_minimal -> {
                     item.isChecked = true
-                    cameraMenuListener?.onNRmode(CameraMetadata.NOISE_REDUCTION_MODE_MINIMAL)
+                    cameraMenuListener?.onNRMode(CameraMetadata.NOISE_REDUCTION_MODE_MINIMAL)
                     true
                 }
                 R.id.nr_mode_zsl -> {
                     item.isChecked = true
-                    cameraMenuListener?.onNRmode(CameraMetadata.NOISE_REDUCTION_MODE_ZERO_SHUTTER_LAG)
+                    cameraMenuListener?.onNRMode(CameraMetadata.NOISE_REDUCTION_MODE_ZERO_SHUTTER_LAG)
+                    true
+                }
+                R.id.ANTIBANDING_MODE_OFF -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAntiBandingMode(CameraMetadata.CONTROL_AE_ANTIBANDING_MODE_OFF)
+                    true
+                }
+                R.id.ANTIBANDING_MODE_50HZ -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAntiBandingMode(CameraMetadata.CONTROL_AE_ANTIBANDING_MODE_50HZ)
+                    true
+                }
+                R.id.ANTIBANDING_MODE_60HZ -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAntiBandingMode(CameraMetadata.CONTROL_AE_ANTIBANDING_MODE_60HZ)
+                    true
+                }
+                R.id.ANTIBANDING_MODE_AUTO -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAntiBandingMode(CameraMetadata.CONTROL_AE_ANTIBANDING_MODE_AUTO)
+                    true
+                }
+                R.id.AE_OFF -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAEMode(CameraMetadata.CONTROL_AE_MODE_OFF)
+                    true
+                }
+                R.id.AE_ON -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAEMode(CameraMetadata.CONTROL_AE_MODE_ON)
+                    true
+                }
+                R.id.AWB_MODE_OFF -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_OFF)
+                    true
+                }
+                R.id.AWB_MODE_AUTO -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_AUTO)
+                    true
+                }
+                R.id.AWB_MODE_CLOUDY_DAYLIGHT -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT)
+                    true
+                }
+                R.id.AWB_MODE_DAYLIGHT -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_DAYLIGHT)
+                    true
+                }
+                R.id.AWB_MODE_FLUORESCENT -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_FLUORESCENT)
+                    true
+                }
+                R.id.AWB_MODE_SHADE -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_SHADE)
+                    true
+                }
+                R.id.AWB_MODE_TWILIGHT -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_TWILIGHT)
+                    true
+                }
+                R.id.AWB_MODE_WARM_FLUORESCENT -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_WARM_FLUORESCENT)
+                    true
+                }
+                R.id.AWB_MODE_INCANDESCENT -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_INCANDESCENT)
+                    true
+                }
+                R.id.AF_MODE_OFF -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_OFF)
+                    true
+                }
+                R.id.AF_MODE_AUTO -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_AUTO)
+                    true
+                }
+                R.id.AF_MODE_MACRO -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_MACRO)
+                    true
+                }
+                R.id.AF_MODE_CONTINUOUS_VIDEO -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+                    true
+                }
+                R.id.AF_MODE_CONTINUOUS_PICTURE -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+                    true
+                }
+                R.id.AF_MODE_EDOF -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_EDOF)
                     true
                 }
                 else -> false

@@ -39,16 +39,56 @@
     <item
         android:id="@+id/ae_lock"
         android:checkable="true"
-        android:title="AE Lock" />
+        android:title="@string/ae_lock" />
+
+    <item
+        android:id="@+id/ae_mode"
+        android:title="@string/ae_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/AE_OFF"
+                    android:title="Off" />
+                <item android:id="@+id/AE_ON"
+                    android:title="On" />
+            </group>
+        </menu>
+    </item>
 
     <item
         android:id="@+id/awb_lock"
         android:checkable="true"
-        android:title="AWB Lock" />
+        android:title="@string/awb_lock" />
+
+    <item
+        android:id="@+id/awb_mode"
+        android:title="@string/awb_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/AWB_MODE_OFF"
+                    android:title="Off" />
+                <item android:id="@+id/AWB_MODE_AUTO"
+                    android:title="Auto" />
+                <item android:id="@+id/AWB_MODE_INCANDESCENT"
+                    android:title="Incandescent" />
+                <item android:id="@+id/AWB_MODE_FLUORESCENT"
+                    android:title="Fluorescent" />
+                <item android:id="@+id/AWB_MODE_WARM_FLUORESCENT"
+                    android:title="Warm Fluorescent" />
+                <item android:id="@+id/AWB_MODE_DAYLIGHT"
+                    android:title="DayLight" />
+                <item android:id="@+id/AWB_MODE_CLOUDY_DAYLIGHT"
+                    android:title="Cloudy DayLight" />
+                <item android:id="@+id/AWB_MODE_TWILIGHT"
+                    android:title="Twilight" />
+                <item android:id="@+id/AWB_MODE_SHADE"
+                    android:title="Shade" />
+            </group>
+        </menu>
+    </item>
 
     <item
         android:id="@+id/effect_mode"
-        android:title="Effect mode" >
+        android:title="@string/effect_mode" >
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/EFFECT_MODE_OFF"
@@ -75,7 +115,7 @@
 
     <item
         android:id="@+id/nr_mode"
-        android:title="Noise reduction mode" >
+        android:title="@string/nr_mode" >
     <menu>
         <group android:checkableBehavior="single">
         <item android:id="@+id/nr_mode_off"
@@ -92,6 +132,43 @@
     </menu>
     </item>
 
+    <item
+        android:id="@+id/antibanding"
+        android:title="@string/antibanding" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/ANTIBANDING_MODE_OFF"
+                    android:title="Off" />
+                <item android:id="@+id/ANTIBANDING_MODE_50HZ"
+                    android:title="50 HZ" />
+                <item android:id="@+id/ANTIBANDING_MODE_60HZ"
+                    android:title="60 Hz" />
+                <item android:id="@+id/ANTIBANDING_MODE_AUTO"
+                    android:title="Auto" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/af_mode"
+        android:title="@string/af_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/AF_MODE_OFF"
+                    android:title="Off" />
+                <item android:id="@+id/AF_MODE_AUTO"
+                    android:title="Auto" />
+                <item android:id="@+id/AF_MODE_MACRO"
+                    android:title="Macro" />
+                <item android:id="@+id/AF_MODE_CONTINUOUS_VIDEO"
+                    android:title="Continuous Video" />
+                <item android:id="@+id/AF_MODE_CONTINUOUS_PICTURE"
+                    android:title="Continuous Picture" />
+                <item android:id="@+id/AF_MODE_EDOF"
+                    android:title="EDOF" />
+            </group>
+        </menu>
+    </item>
 </menu>
 
 

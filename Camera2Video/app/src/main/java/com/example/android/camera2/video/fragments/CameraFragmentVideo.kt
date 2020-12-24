@@ -118,9 +118,28 @@ class CameraFragmentVideo : Fragment() {
                 cameraBase.setEffectMode(value)
                 Log.d(TAG, "Effect mode: $value")
             }
-            override fun onNRmode(value: Int) {
-                cameraBase.setNRmode(value)
+            override fun onNRMode(value: Int) {
+                cameraBase.setNRMode(value)
                 Log.d(TAG, "NR mode: $value")
+            }
+            override fun onAntiBandingMode(value: Int) {
+                cameraBase.setAntiBandingmode(value)
+                Log.d(TAG, "Antibanding mode: $value")
+            }
+
+            override fun onAEMode(value: Int) {
+                cameraBase.setAEMode(value)
+                Log.d(TAG, "AE mode: $value")
+            }
+
+            override fun onAWBMode(value: Int) {
+                cameraBase.setAWBMode(value)
+                Log.d(TAG, "AWB mode: $value")
+            }
+
+            override fun onAFMode(value: Int) {
+                cameraBase.setAFMode(value)
+                Log.d(TAG, "AF mode: $value")
             }
         })
         view.setOnClickListener() {

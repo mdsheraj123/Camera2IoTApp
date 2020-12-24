@@ -73,8 +73,12 @@ interface CameraModule {
     fun setLDCEnable(value: Byte)
     fun setTNREnable(value: Byte)
     fun setEffectMode(value: Int)
-    fun setNRmode(value: Int)
+    fun setNRMode(value: Int)
     fun setSHDREnable(value: Byte)
     fun setAELock(value: Boolean)
     fun setAWBLock(value: Boolean)
+    fun setAntiBandingmode(value: Int)
+    fun setAEMode(value: Int)
+    fun setAWBMode(value: Int)
+    fun setAFMode(value: Int)
 }

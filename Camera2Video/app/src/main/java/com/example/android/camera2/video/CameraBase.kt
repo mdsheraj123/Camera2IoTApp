@@ -152,6 +152,7 @@ class CameraBase(val context: Context): CameraModule {
                     override fun onConfigureFailed(s: CameraCaptureSession) =
                             s.device.close()
                 })
+
         config.sessionParameters = previewRequest.build()
         camera.createCaptureSession(config)
     }
@@ -337,7 +338,43 @@ class CameraBase(val context: Context): CameraModule {
         updateRepeatingRequest()
     }
 
-    override fun setNRmode(value: Int) {
+    override fun setAntiBandingmode(value: Int) {
+        Log.d(TAG, "Antibanding mode: $value")
+        previewRequest.set(CaptureRequest.CONTROL_AE_ANTIBANDING_MODE, value)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AE_ANTIBANDING_MODE, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setAEMode(value: Int) {
+        Log.d(TAG, "AE mode: $value")
+        previewRequest.set(CaptureRequest.CONTROL_AE_MODE, value)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AE_MODE, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setAWBMode(value: Int) {
+        Log.d(TAG, "AWB mode: $value")
+        previewRequest.set(CaptureRequest.CONTROL_AWB_MODE, value)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AWB_MODE, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setAFMode(value: Int) {
+        Log.d(TAG, "AF mode: $value")
+        previewRequest.set(CaptureRequest.CONTROL_AF_MODE, value)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AF_MODE, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setNRMode(value: Int) {
         previewRequest.set(CaptureRequest.NOISE_REDUCTION_MODE, value)
         if (::captureRequest.isInitialized) {
             captureRequest.set(CaptureRequest.NOISE_REDUCTION_MODE, value)

@@ -145,10 +145,34 @@ class CameraFragmentDual : Fragment() {
                 cameraBase1.setEffectMode(value)
                 Log.d(TAG, "Effect mode: $value")
             }
-            override fun onNRmode(value: Int) {
-                cameraBase0.setNRmode(value)
-                cameraBase1.setNRmode(value)
+            override fun onNRMode(value: Int) {
+                cameraBase0.setNRMode(value)
+                cameraBase1.setNRMode(value)
                 Log.d(TAG, "NR mode: $value")
+            }
+
+            override fun onAntiBandingMode(value: Int) {
+                cameraBase0.setAntiBandingmode(value)
+                cameraBase1.setAntiBandingmode(value)
+                Log.d(TAG, "Antibanding mode: $value")
+            }
+
+            override fun onAEMode(value: Int) {
+                cameraBase0.setAEMode(value)
+                cameraBase1.setAEMode(value)
+                Log.d(TAG, "AE mode: $value")
+            }
+
+            override fun onAWBMode(value: Int) {
+                cameraBase0.setAWBMode(value)
+                cameraBase1.setAWBMode(value)
+                Log.d(TAG, "AWB mode: $value")
+            }
+
+            override fun onAFMode(value: Int) {
+                cameraBase0.setAFMode(value)
+                cameraBase1.setAFMode(value)
+                Log.d(TAG, "AF mode: $value")
             }
         })
         view.setOnClickListener() {
