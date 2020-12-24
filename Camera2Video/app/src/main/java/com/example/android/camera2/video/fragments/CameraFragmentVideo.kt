@@ -123,7 +123,7 @@ class CameraFragmentVideo : Fragment() {
                 Log.d(TAG, "NR mode: $value")
             }
             override fun onAntiBandingMode(value: Int) {
-                cameraBase.setAntiBandingmode(value)
+                cameraBase.setAntiBandingMode(value)
                 Log.d(TAG, "Antibanding mode: $value")
             }
 
@@ -140,6 +140,26 @@ class CameraFragmentVideo : Fragment() {
             override fun onAFMode(value: Int) {
                 cameraBase.setAFMode(value)
                 Log.d(TAG, "AF mode: $value")
+            }
+
+            override fun onIRMode(value: Int) {
+                cameraBase.setIRMode(value)
+                Log.d(TAG, "IR mode: $value")
+            }
+
+            override fun onADRCMode(value: Byte) {
+                cameraBase.setADRCMode(value)
+                Log.d(TAG, "ADRC mode: $value")
+            }
+
+            override fun onExpMeteringMode(value: Int) {
+                cameraBase.setExpMeteringMode(value)
+                Log.d(TAG, "Exp Metering mode: $value")
+            }
+
+            override fun onISOMode(value: Long) {
+                cameraBase.setISOMode(value)
+                Log.d(TAG, "ISO mode: $value")
             }
         })
         view.setOnClickListener() {

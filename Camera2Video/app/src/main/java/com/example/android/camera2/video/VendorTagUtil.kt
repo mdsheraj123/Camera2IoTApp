@@ -66,6 +66,12 @@ object VendorTagUtil {
             Int::class.java)
     private val WB_COLOR_TEMPERATURE = CaptureRequest.Key("org.codeaurora.qcamera3.manualWB.color_temperature",
             Int::class.java)
+    private val IRLEDKey = CaptureRequest.Key("org.codeaurora.qcamera3.ir_led.mode",
+            Int::class.java)
+    private  val ADRCKey = CaptureRequest.Key("org.codeaurora.qcamera3.adrc.disable",
+            Byte::class.java)
+    private val EXPOSER_METERING_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.exposure_metering.exposure_metering_mode",
+            Int::class.java)
     private val MANUAL_WB_GAINS = CaptureRequest.Key("org.codeaurora.qcamera3.manualWB.gains", FloatArray::class.java)
     private val PARTIAL_MANUAL_WB_MODE = CaptureRequest.Key("org.codeaurora.qcamera3.manualWB.partial_mwb_mode", Int::class.java)
     private val HDRVideoMode = CaptureRequest.Key("org.quic.camera2.streamconfigs.HDRVideoMode", Byte::class.java)
@@ -155,6 +161,36 @@ object VendorTagUtil {
         }
     }
 
+    fun setIRLED(builder: CaptureRequest.Builder, value: Int) {
+        if (isIRLEDSupported(builder)) {
+            builder.set(IRLEDKey, value)
+        }
+    }
+
+    fun setADRC(builder: CaptureRequest.Builder, value: Byte) {
+        if (isADRCSupported(builder)) {
+            builder.set(ADRCKey, value)
+        }
+    }
+
+    fun setExposureMetering(builder: CaptureRequest.Builder, value: Int) {
+        if (isExposureMeteringSupported(builder)) {
+            builder.set(EXPOSER_METERING_KEY, value)
+        }
+    }
+
+    private fun isExposureMeteringSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, EXPOSER_METERING_KEY)
+    }
+
+    private fun isADRCSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, ADRCKey)
+    }
+
+    private fun isIRLEDSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, IRLEDKey)
+    }
+
     private fun isIsoExpPrioritySupported(builder: CaptureRequest.Builder): Boolean {
         return isSupported(builder, ISO_EXP)
     }
@@ -205,7 +241,7 @@ object VendorTagUtil {
         }
     }
 
-    fun isHDRVideoModeSupported(builder: CaptureRequest.Builder): Boolean {
+    private fun isHDRVideoModeSupported(builder: CaptureRequest.Builder): Boolean {
         return isSupported(builder, HDRVideoMode)
     }
 
@@ -219,7 +255,7 @@ object VendorTagUtil {
         }
     }
 
-    fun isSHDREnable(builder: CaptureRequest.Builder) : Boolean {
+    private fun isSHDREnable(builder: CaptureRequest.Builder) : Boolean {
         return isSupported(builder, SHDREnableKey)
     }
 
@@ -229,7 +265,7 @@ object VendorTagUtil {
         }
     }
 
-    fun isLDCEnable(builder: CaptureRequest.Builder) : Boolean {
+    private fun isLDCEnable(builder: CaptureRequest.Builder) : Boolean {
         return isSupported(builder, LDCEnableKey)
     }
 
@@ -239,7 +275,7 @@ object VendorTagUtil {
         }
     }
 
-    fun isTNREnable(builder: CaptureRequest.Builder) : Boolean {
+    private fun isTNREnable(builder: CaptureRequest.Builder) : Boolean {
         return isSupported(builder, TNREnableKey)
     }
 
@@ -249,7 +285,7 @@ object VendorTagUtil {
         }
     }
 
-    fun isEISEnable(builder: CaptureRequest.Builder) : Boolean {
+    private fun isEISEnable(builder: CaptureRequest.Builder) : Boolean {
         return isSupported(builder, EISEnableKey)
     }
 
@@ -258,4 +294,5 @@ object VendorTagUtil {
             builder.set(EISEnableKey, value)
         }
     }
+
 }

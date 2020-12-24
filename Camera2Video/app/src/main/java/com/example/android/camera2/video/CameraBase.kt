@@ -338,7 +338,7 @@ class CameraBase(val context: Context): CameraModule {
         updateRepeatingRequest()
     }
 
-    override fun setAntiBandingmode(value: Int) {
+    override fun setAntiBandingMode(value: Int) {
         Log.d(TAG, "Antibanding mode: $value")
         previewRequest.set(CaptureRequest.CONTROL_AE_ANTIBANDING_MODE, value)
         if (::captureRequest.isInitialized) {
@@ -371,6 +371,48 @@ class CameraBase(val context: Context): CameraModule {
         if (::captureRequest.isInitialized) {
             captureRequest.set(CaptureRequest.CONTROL_AF_MODE, value)
         }
+        updateRepeatingRequest()
+    }
+
+    override fun setIRMode(value: Int) {
+        Log.d(TAG, "IR mode: $value")
+        VendorTagUtil.setIRLED(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIRLED(captureRequest, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setADRCMode(value: Byte) {
+        Log.d(TAG, "ADRC mode: $value")
+        VendorTagUtil.setADRC(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setADRC(captureRequest, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setExpMeteringMode(value: Int) {
+        Log.d(TAG, "Exp Metering mode: $value")
+        VendorTagUtil.setExposureMetering(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setExposureMetering(captureRequest, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setISOMode(value: Long) {
+        Log.d(TAG, "ISO mode: $value")
+        VendorTagUtil.setIsoExpPrioritySelectPriority(previewRequest, 0)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPrioritySelectPriority(captureRequest, 0)
+        }
+
+        VendorTagUtil.setIsoExpPriority(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPriority(captureRequest, value)
+        }
+
         updateRepeatingRequest()
     }
 

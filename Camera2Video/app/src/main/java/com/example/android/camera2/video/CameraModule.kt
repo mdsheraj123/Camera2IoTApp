@@ -77,8 +77,12 @@ interface CameraModule {
     fun setSHDREnable(value: Byte)
     fun setAELock(value: Boolean)
     fun setAWBLock(value: Boolean)
-    fun setAntiBandingmode(value: Int)
+    fun setAntiBandingMode(value: Int)
     fun setAEMode(value: Int)
     fun setAWBMode(value: Int)
     fun setAFMode(value: Int)
+    fun setIRMode(value: Int)
+    fun setADRCMode(value: Byte)
+    fun setExpMeteringMode(value: Int)
+    fun setISOMode(value: Long)
 }

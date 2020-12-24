@@ -61,4 +61,8 @@
     <string name="awb_lock">AWB Lock</string>
     <string name="effect_mode">Effect Mode</string>
     <string name="nr_mode">Noise Reduction Mode</string>
+    <string name="ir_led_mode">IR LED Mode</string>
+    <string name="adrc_mode">ADRC Mode</string>
+    <string name="exposure_metering_mode">Exposure Metering Mode</string>
+    <string name="iso_mode">ISO Mode</string>
 </resources>

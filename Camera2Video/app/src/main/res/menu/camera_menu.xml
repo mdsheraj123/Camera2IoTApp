@@ -169,6 +169,69 @@
             </group>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/ir_mode"
+        android:title="@string/ir_led_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/ir_mode_off"
+                    android:title="Off" />
+                <item android:id="@+id/ir_mode_on"
+                    android:title="On" />
+                <item android:id="@+id/ir_mode_auto"
+                    android:title="Auto" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+    android:id="@+id/adrc_mode"
+    android:checkable="true"
+    android:title="@string/adrc_mode" />
+
+    <item
+        android:id="@+id/exp_metering_mode"
+        android:title="@string/exposure_metering_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/ae_exp_mode_avg"
+                    android:title="Average" />
+                <item android:id="@+id/ae_exp_mode_center_weight"
+                    android:title="Center Weight" />
+                <item android:id="@+id/ae_exp_mode_spot"
+                    android:title="Spot" />
+                <item android:id="@+id/ae_exp_mode_custom"
+                    android:title="Custom" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/iso_mode"
+        android:title="@string/iso_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/iso_mode_auto"
+                    android:title="Auto" />
+                <item android:id="@+id/iso_mode_deblur"
+                    android:title="Deblur" />
+                <item android:id="@+id/iso_mode_100"
+                    android:title="100" />
+                <item android:id="@+id/iso_mode_200"
+                    android:title="200" />
+                <item android:id="@+id/iso_mode_400"
+                    android:title="400" />
+                <item android:id="@+id/iso_mode_800"
+                    android:title="800" />
+                <item android:id="@+id/iso_mode_1600"
+                    android:title="1600" />
+                <item android:id="@+id/iso_mode_3200"
+                    android:title="3200" />
+            </group>
+        </menu>
+    </item>
+
 </menu>
 
 

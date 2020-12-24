@@ -54,6 +54,10 @@ class CameraMenu(context: Context?, view: View) {
         fun onAEMode(value: Int)
         fun onAWBMode(value: Int)
         fun onAFMode(value: Int)
+        fun onIRMode(value: Int)
+        fun onADRCMode(value: Byte)
+        fun onExpMeteringMode(value: Int)
+        fun onISOMode(value: Long)
     }
 
     fun setOnCameraMenuListener(listener: OnCameraMenuListener) {
@@ -247,6 +251,86 @@ class CameraMenu(context: Context?, view: View) {
                 R.id.AF_MODE_EDOF -> {
                     item.isChecked = true
                     cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_EDOF)
+                    true
+                }
+                R.id.ir_mode_off -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onIRMode(0)
+                    true
+                }
+                R.id.ir_mode_on -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onIRMode(1)
+                    true
+                }
+                R.id.ir_mode_auto -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onIRMode(2)
+                    true
+                }
+                R.id.adrc_mode -> {
+                    item.isChecked = !item.isChecked
+                    cameraMenuListener?.onADRCMode(if (item.isChecked) 1 else 0);
+                    true
+                }
+                R.id.ae_exp_mode_avg -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onExpMeteringMode(0)
+                    true
+                }
+                R.id.ae_exp_mode_center_weight -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onExpMeteringMode(1)
+                    true
+                }
+                R.id.ae_exp_mode_spot -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onExpMeteringMode(2)
+                    true
+                }
+                R.id.ae_exp_mode_custom -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onExpMeteringMode(3)
+                    true
+                }
+                R.id.iso_mode_auto -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onISOMode(0)
+                    true
+                }
+                R.id.iso_mode_deblur -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onISOMode(1)
+                    true
+                }
+                R.id.iso_mode_100 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onISOMode(2)
+                    true
+                }
+                R.id.iso_mode_200 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onISOMode(3)
+                    true
+                }
+                R.id.iso_mode_400 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onISOMode(4)
+                    true
+                }
+                R.id.iso_mode_800 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onISOMode(5)
+                    true
+                }
+                R.id.iso_mode_1600 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onISOMode(6)
+                    true
+                }
+                R.id.iso_mode_3200 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onISOMode(7)
                     true
                 }
                 else -> false
