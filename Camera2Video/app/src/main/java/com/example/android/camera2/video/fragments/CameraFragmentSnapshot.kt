@@ -172,6 +172,9 @@ class CameraFragmentSnapshot : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
         cameraBase.openCamera(settings.cameraId)
+        cameraBase.setEISEnable(if (settings.cameraParams.eis_enable) 1 else 0)
+        cameraBase.setLDCEnable(if (settings.cameraParams.ldc_enable) 1 else 0)
+        cameraBase.setSHDREnable(if (settings.cameraParams.shdr_enable) 1 else 0)
         cameraBase.setFramerate(settings.previewInfo.fps)
         cameraBase.addPreviewStream(viewFinder.holder.surface)
         cameraBase.addSnapshotStream(settings.snapshotInfo)

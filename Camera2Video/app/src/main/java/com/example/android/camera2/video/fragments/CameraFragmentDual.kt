@@ -216,6 +216,7 @@ class CameraFragmentDual : Fragment() {
         cameraBase0.addPreviewStream(viewFinder.holder.surface)
         cameraBase0.addSnapshotStream(settings.snapshotInfo)
 
+        // With Dual cam add only one encoding stream if enabled
         if (settings.recorderInfo.isNotEmpty()) {
             cameraBase0.addRecorderStream(settings.recorderInfo[0])
         }
@@ -229,6 +230,7 @@ class CameraFragmentDual : Fragment() {
         cameraBase1.addPreviewStream(viewFinder1.holder.surface)
         cameraBase1.addSnapshotStream(settings.snapshotInfo)
 
+        // With Dual cam add only one encoding stream if enabled
         if (settings.recorderInfo.isNotEmpty()) {
             cameraBase1.addRecorderStream(settings.recorderInfo[0])
         }

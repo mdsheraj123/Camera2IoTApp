@@ -47,38 +47,62 @@ object CameraSettingsUtil {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
 
         val previewInfo = StreamInfo(
-                ParseWidth(sharedPref.getString("preview_resolution", null)),
-                ParseHeight(sharedPref.getString("preview_resolution", null)),
-                sharedPref.getString("video_framerate", null)!!.toInt(),
+                0,0,
+                sharedPref.getString("camera_fps", null)!!.toInt(),
         )
 
         val streamInfo0 = StreamInfo(
-                ParseWidth(sharedPref.getString("video_stream0_resolution", null)),
-                ParseHeight(sharedPref.getString("video_stream0_resolution", null)),
-                sharedPref.getString("video_framerate",null)!!.toInt(),
-                sharedPref.getString("video_stream0_format", null)!!,
-                sharedPref.getString("video_stream0_audio_format", null)!!
+                ParseWidth(sharedPref.getString("vid_0_size", null)),
+                ParseHeight(sharedPref.getString("vid_0_size", null)),
+                sharedPref.getString("vid_0_fps", null)!!.toInt(),
+                sharedPref.getString("vid_0_format", null)!!,
+                sharedPref.getString("vid_0_audio_format", null)!!,
+                sharedPref.getString("vid_0_bitrate", null)!!.toInt(),
+                sharedPref.getString("vid_0_rate_control", null)!!.toInt(),
+                sharedPref.getString("vid_0_i_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_0_i_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_0_b_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_0_b_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_0_p_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_0_p_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_0_i_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_0_b_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_0_p_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_0_iframe_interval", null)!!.toInt(),
         )
 
         val streamInfo1 = StreamInfo(
-                ParseWidth(sharedPref.getString("video_stream1_resolution", null)),
-                ParseHeight(sharedPref.getString("video_stream1_resolution", null)),
-                sharedPref.getString("video_framerate","")!!.toInt(),
-                sharedPref.getString("video_stream1_format", "")!!,
-                sharedPref.getString("video_stream1_audio_format", null)!!
-        )
+                ParseWidth(sharedPref.getString("vid_1_size", null)),
+                ParseHeight(sharedPref.getString("vid_1_size", null)),
+                sharedPref.getString("vid_1_fps","")!!.toInt(),
+                sharedPref.getString("vid_1_format", "")!!,
+                sharedPref.getString("vid_1_audio_format", null)!!,
+                sharedPref.getString("vid_1_bitrate",null)!!.toInt(),
+                sharedPref.getString("vid_1_rate_control", null)!!.toInt(),
+                sharedPref.getString("vid_1_i_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_1_i_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_1_b_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_1_b_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_1_p_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_1_p_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_1_i_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_1_b_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_1_p_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_1_iframe_interval", null)!!.toInt(),
+
+                )
 
         val snapshotInfo = StreamInfo(
-                ParseWidth(sharedPref.getString("snapshot_resolution", null)),
-                ParseHeight(sharedPref.getString("snapshot_resolution", null)),
-                sharedPref.getString("video_framerate",null)!!.toInt(),
+                ParseWidth(sharedPref.getString("snapshot_size", null)),
+                ParseHeight(sharedPref.getString("snapshot_size", null)),
+                sharedPref.getString("camera_fps",null)!!.toInt(),
                 sharedPref.getString("snapshot_format", null))
 
         val recorderStreams = mutableListOf<StreamInfo>()
 
         recorderStreams.add(streamInfo0)
 
-        if (sharedPref.getBoolean("video_stream1_enable",false)) {
+        if (sharedPref.getBoolean("vid_1_enable",false)) {
             recorderStreams.add(streamInfo1)
         }
 

@@ -37,11 +37,24 @@ package com.example.android.camera2.video
 import android.view.Surface
 import com.example.android.camera2.video.CameraBase.Companion.CombinedCaptureResult
 
-data class StreamInfo(val width: Int = 0,
-                      val height: Int = 0,
-                      val fps: Int = 0,
-                      val encoding: String? = "",
-                      val audioEnc: String = ""
+data class StreamInfo(
+        val width: Int = 0,
+        val height: Int = 0,
+        val fps: Int = 0,
+        val encoding: String? = "",
+        val audioEnc: String = "",
+        val bitrate: Int = 0,
+        val rcmode: Int = 0,
+        val minqp_i_frame: Int = 0,
+        val maxqp_i_frame: Int = 0,
+        val minqp_b_frame: Int = 0,
+        val maxqp_b_frame: Int = 0,
+        val minqp_p_frame: Int = 0,
+        val maxqp_p_frame: Int = 0,
+        val initqp_i_frame: Int = 0,
+        val initqp_b_frame: Int = 0,
+        val initqp_p_frame: Int = 0,
+        val interval_iframe: Int = 0,
 )
 
 data class CameraParameters(val eis_enable: Boolean = false,

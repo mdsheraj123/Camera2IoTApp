@@ -37,8 +37,8 @@ package com.example.android.camera2.video.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.ImageFormat
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.MediaRecorder
@@ -46,6 +46,7 @@ import android.os.Bundle
 import android.util.Log
 import android.util.Size
 import androidx.preference.DropDownPreference
+import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
@@ -111,27 +112,21 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
             for (size in selectedCamera.videoSizes) {
                 videoSizes.add("${size.width}x${size.height}")
             }
-            for (size in selectedCamera.previewSizes) {
-                previewSizes.add("${size.width}x${size.height}")
-            }
         }
 
         val screen: PreferenceScreen = this.preferenceScreen
-        val snapshotResPreference = screen.findPreference<DropDownPreference>("snapshot_resolution");
+        val snapshotResPreference = screen.findPreference<DropDownPreference>("snapshot_size");
         snapshotResPreference?.entries = pictureSizes.toTypedArray()
         snapshotResPreference?.entryValues = pictureSizes.toTypedArray()
 
-        val videoResPreference0 = screen.findPreference<DropDownPreference>("video_stream0_resolution");
+        val videoResPreference0 = screen.findPreference<DropDownPreference>("vid_0_size");
         videoResPreference0?.entries = videoSizes.toTypedArray()
         videoResPreference0?.entryValues = videoSizes.toTypedArray()
 
-        val videoResPreference1 = screen.findPreference<DropDownPreference>("video_stream1_resolution");
+        val videoResPreference1 = screen.findPreference<DropDownPreference>("vid_1_size");
         videoResPreference1?.entries = videoSizes.toTypedArray()
         videoResPreference1?.entryValues = videoSizes.toTypedArray()
 
-        val previewResPreference = screen.findPreference<DropDownPreference>("preview_resolution");
-        previewResPreference?.entries = previewSizes.toTypedArray()
-        previewResPreference?.entryValues = previewSizes.toTypedArray()
     }
 
     companion object {
@@ -140,7 +135,6 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
                 val cameraId: String,
                 val videoSizes: Array<Size>,
                 val pictureSizes: Array<Size>,
-                val previewSizes: Array<Size>
         )
 
         /** Converts a lens orientation enum into a human-readable string */
@@ -164,9 +158,8 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
                         characteristics.get(CameraCharacteristics.LENS_FACING)!!)
                 val videoSizes = cameraConfig.getOutputSizes(MediaRecorder::class.java)
                 val pictureSizes = cameraConfig.getOutputSizes(ImageFormat.JPEG)
-                val previewSizes = cameraConfig.getOutputSizes(SurfaceTexture::class.java)
 
-                availableCameras.add(CameraInfo(orientation, id, videoSizes, pictureSizes, previewSizes))
+                availableCameras.add(CameraInfo(orientation, id, videoSizes, pictureSizes))
             }
             return availableCameras
         }

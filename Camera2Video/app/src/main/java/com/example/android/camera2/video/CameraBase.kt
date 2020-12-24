@@ -34,11 +34,9 @@
 
 package com.example.android.camera2.video
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.hardware.camera2.*
 import android.hardware.camera2.params.OutputConfiguration
@@ -164,7 +162,7 @@ class CameraBase(val context: Context): CameraModule {
         streamSurfaceList.add(surface)
     }
     override fun addRecorderStream(stream: StreamInfo)  {
-        val recorder = MediaCodecRecorder(context, stream.width, stream.height, stream.fps, stream.encoding, stream.audioEnc)
+        val recorder = MediaCodecRecorder(context, stream)
         streamSurfaceList.add(recorder.getRecorderSurface())
         recorderList.add(recorder)
     }

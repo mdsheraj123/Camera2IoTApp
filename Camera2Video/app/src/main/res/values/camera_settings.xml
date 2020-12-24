@@ -57,6 +57,56 @@
     </string-array>
 
     <string-array name="video_framerates">
+        <item>15</item>
+        <item>24</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+    <string-array name="video_bitrates">
+        <item>6</item>>
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+        <item>50</item>
+    </string-array>
+
+    <string-array name="iframe_intervals">
+        <item>0</item>>
+        <item>1</item>>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
+    <string-array name="video_rc_mode">
+        <item>RC Off</item>>
+        <item>VBR_CFR</item>
+        <item>CBR_CFR</item>
+        <item>VBR_VFR</item>
+        <item>CBR_VFR</item>
+        <item>MBR_CFR</item>
+        <item>MBR_VFR</item>
+    </string-array>
+
+    <string-array name="video_rc_mode_values">
+        <item>0</item>>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="camera_fps_range">
         <item>30</item>
         <item>60</item>
     </string-array>

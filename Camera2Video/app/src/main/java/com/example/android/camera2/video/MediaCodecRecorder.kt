@@ -54,11 +54,7 @@ import kotlin.concurrent.withLock
 
 
 class MediaCodecRecorder(private val context: Context,
-                         private val width: Int,
-                         private val height: Int,
-                         private val fps: Int,
-                         private val video_encoder: String?,
-                         private val audio_encoder: String) : VideoRecorder {
+                         streamInfo: StreamInfo) : VideoRecorder {
 
     private var surface: Surface = MediaCodec.createPersistentInputSurface()
     private var videoEncoder: MediaCodec
@@ -80,23 +76,46 @@ class MediaCodecRecorder(private val context: Context,
     private val videoStopSyncObject = Object()
     private val audioStopSyncObject = Object()
 
-    private var videoMimeType: String = when (video_encoder) {
+    private var videoMimeType: String = when (streamInfo.encoding) {
         "H264" -> "video/avc"
-        "H265" -> "video/hvc"
+        "H265" -> "video/hevc"
         else -> {
-            throw Exception("Unsupported video format: $video_encoder")
+            throw Exception("Unsupported video format: ${streamInfo.encoding}")
         }
     }
 
     private val audioMimeType = AUDIO_MIME_TYPE
 
     init {
-        videoFormat = MediaFormat.createVideoFormat(videoMimeType, width, height).apply {
+        videoFormat = MediaFormat.createVideoFormat(videoMimeType, streamInfo.width, streamInfo.height).apply {
             setInteger(MediaFormat.KEY_COLOR_FORMAT,
                     MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-            setInteger(MediaFormat.KEY_BIT_RATE, RECORDER_VIDEO_BITRATE)
-            setInteger(MediaFormat.KEY_FRAME_RATE, fps)
-            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL)
+            setInteger(MediaFormat.KEY_BIT_RATE, streamInfo.bitrate * 1_000_000)
+            setInteger(MediaFormat.KEY_FRAME_RATE, streamInfo.fps)
+            when(streamInfo.rcmode) {
+                0,3,4 -> setInteger("vendor.qti-ext-enc-bitrate-mode.value", streamInfo.rcmode)
+                1,2 -> setInteger(MediaFormat.KEY_BITRATE_MODE, streamInfo.rcmode);
+                5 -> setInteger(MediaFormat.KEY_BITRATE_MODE, ((0x7F000000).toInt() + 1))
+                6 -> setInteger(MediaFormat.KEY_BITRATE_MODE, ((0x7F000000).toInt() + 2))
+                else -> Log.e(TAG, "Not a valid RC Mode")
+            }
+            setInteger("vendor.qti-ext-enc-qp-range.qp-i-min", streamInfo.minqp_i_frame);
+            setInteger("vendor.qti-ext-enc-qp-range.qp-i-max", streamInfo.maxqp_i_frame);
+            setInteger("vendor.qti-ext-enc-qp-range.qp-b-min", streamInfo.minqp_b_frame);
+            setInteger("vendor.qti-ext-enc-qp-range.qp-b-max", streamInfo.maxqp_b_frame);
+            setInteger("vendor.qti-ext-enc-qp-range.qp-p-min", streamInfo.minqp_p_frame);
+            setInteger("vendor.qti-ext-enc-qp-range.qp-p-max", streamInfo.maxqp_p_frame);
+
+            setInteger("vendor.qti-ext-enc-initial-qp.qp-i-enable", 1);
+            setInteger("vendor.qti-ext-enc-initial-qp.qp-i", streamInfo.initqp_i_frame);
+
+            setInteger("vendor.qti-ext-enc-initial-qp.qp-b-enable", 1);
+            setInteger("vendor.qti-ext-enc-initial-qp.qp-b", streamInfo.initqp_b_frame);
+
+            setInteger("vendor.qti-ext-enc-initial-qp.qp-p-enable", 1);
+            setInteger("vendor.qti-ext-enc-initial-qp.qp-p", streamInfo.initqp_p_frame);
+
+            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, streamInfo.interval_iframe)
         }
 
         videoEncoder = createVideoEncoder()
