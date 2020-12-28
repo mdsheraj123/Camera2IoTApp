@@ -66,7 +66,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         }
 
         val screen: PreferenceScreen = this.preferenceScreen
-        val cameraPreference = screen.findPreference<DropDownPreference>("camera_id");
+        val cameraPreference = screen.findPreference<ListPreference>("camera_id");
         cameraPreference?.entries = detectedCameras.toTypedArray()
         cameraPreference?.entryValues = detectedCameraIds.toTypedArray()
 
@@ -160,19 +160,19 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         }
 
         val screen: PreferenceScreen = this.preferenceScreen
-        val snapshotResPreference = screen.findPreference<DropDownPreference>("snapshot_size");
+        val snapshotResPreference = screen.findPreference<ListPreference>("snapshot_size");
         snapshotResPreference?.entries = pictureSizes.toTypedArray()
         snapshotResPreference?.entryValues = pictureSizes.toTypedArray()
 
-        val videoResPreference0 = screen.findPreference<DropDownPreference>("vid_0_size");
+        val videoResPreference0 = screen.findPreference<ListPreference>("vid_0_size");
         videoResPreference0?.entries = videoSizes.toTypedArray()
         videoResPreference0?.entryValues = videoSizes.toTypedArray()
 
-        val videoResPreference1 = screen.findPreference<DropDownPreference>("vid_1_size");
+        val videoResPreference1 = screen.findPreference<ListPreference>("vid_1_size");
         videoResPreference1?.entries = videoSizes.toTypedArray()
         videoResPreference1?.entryValues = videoSizes.toTypedArray()
 
-        val videoResPreference2 = screen.findPreference<DropDownPreference>("vid_2_size");
+        val videoResPreference2 = screen.findPreference<ListPreference>("vid_2_size");
         videoResPreference2?.entries = videoSizes.toTypedArray()
         videoResPreference2?.entryValues = videoSizes.toTypedArray()
 
