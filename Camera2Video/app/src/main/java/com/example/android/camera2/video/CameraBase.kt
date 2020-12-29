@@ -210,13 +210,23 @@ class CameraBase(val context: Context): CameraModule {
         if (!::imageReader.isInitialized) {
             val format = when(stream.encoding) {
                 "JPEG" -> ImageFormat.JPEG
-                "RAW" -> ImageFormat.RAW_SENSOR
+                "RAW" -> ImageFormat.RAW10
                 else -> {
                     throw Exception("Unsupported image format: ${stream.encoding}")
                 }
             }
-            imageReader = ImageReader.newInstance(
-                    stream.width, stream.height, format, IMAGE_BUFFER_SIZE)
+            if (format == ImageFormat.JPEG) {
+                imageReader = ImageReader.newInstance(
+                        stream.width, stream.height, format, IMAGE_BUFFER_SIZE)
+            } else if (format == ImageFormat.RAW10) {
+                val size = characteristics.get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                        .getOutputSizes(format).maxByOrNull { it.height * it.width }!!
+                imageReader = ImageReader.newInstance(
+                        size.width, size.height, format, IMAGE_BUFFER_SIZE)
+            } else {
+                throw Exception("Unsupported image format: ${stream.encoding}")
+            }
             snapshotSurfaceList.add(imageReader.surface)
             captureRequest = camera.createCaptureRequest(
                     CameraDevice.TEMPLATE_STILL_CAPTURE).apply { addTarget(imageReader.surface) }
@@ -329,15 +339,18 @@ class CameraBase(val context: Context): CameraModule {
                 }
             }
 
-            ImageFormat.RAW_SENSOR -> {
-                val dngCreator = DngCreator(characteristics, result.metadata)
+            ImageFormat.RAW10 -> {
                 try {
-                    val output = createFile(context, "dng")
+                    val output = createFile(context, "raw")
                     currentSnapshotFilePath = output.absolutePath
-                    FileOutputStream(output).use { dngCreator.writeImage(it, result.image) }
+                    val buffer = result.image.planes[0].buffer
+                    val bytes = ByteArray(buffer.remaining()).apply { buffer.get(this) }
+                    val out = FileOutputStream(output)
+                    out.write(bytes)
+                    out.close()
                     cont.resume(currentSnapshotFilePath)
                 } catch (exc: IOException) {
-                    Log.e(TAG, "Unable to write DNG image to file", exc)
+                    Log.e(TAG, "Unable to write raw image to file", exc)
                     cont.resumeWithException(exc)
                 }
             }

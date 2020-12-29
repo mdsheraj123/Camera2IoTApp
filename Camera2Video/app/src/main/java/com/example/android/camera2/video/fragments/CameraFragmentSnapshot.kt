@@ -221,8 +221,10 @@ class CameraFragmentSnapshot : Fragment() {
                     }
                 }
                 it.post {
-                    broadcastFile()
-                    thumbnailButton2.setImageDrawable(createRoundThumb())
+                    if (settings.snapshotInfo.encoding == "JPEG") {
+                        broadcastFile()
+                        thumbnailButton2.setImageDrawable(createRoundThumb())
+                    }
                     it.isEnabled = true
                 }
             }
