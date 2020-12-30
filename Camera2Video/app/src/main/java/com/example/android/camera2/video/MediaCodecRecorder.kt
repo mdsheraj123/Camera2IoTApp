@@ -37,7 +37,6 @@ package com.example.android.camera2.video
 import android.content.ContentValues
 import android.content.Context
 import android.media.*
-import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -50,6 +49,7 @@ import java.io.FileDescriptor
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.Semaphore
 
 
 class MediaCodecRecorder(private val context: Context,
@@ -72,8 +72,7 @@ class MediaCodecRecorder(private val context: Context,
     private var muxerTrackCount = 0
     val muxerLock = Mutex()
 
-    private val videoStopSyncObject = Object()
-    private val audioStopSyncObject = Object()
+    private val audioVideoSemaphore = Semaphore(2)
     private var currentVideoFilePath: String? = null
 
     private var videoMimeType: String = when (streamInfo.encoding) {
@@ -171,6 +170,7 @@ class MediaCodecRecorder(private val context: Context,
     }
 
     private suspend fun videoEncoderHandler(endOfStream: Boolean) {
+        audioVideoSemaphore.acquireUninterruptibly()
         videoEncoderRunning = true
         val encoderOutputBuffers: Array<ByteBuffer> = videoEncoder.getOutputBuffers()
         while (videoEncoderRunning) {
@@ -216,12 +216,11 @@ class MediaCodecRecorder(private val context: Context,
             }
         }
         releaseVideoEncoder()
-        synchronized(videoStopSyncObject) {
-            videoStopSyncObject.notifyAll()
-        }
+        audioVideoSemaphore.release()
     }
 
     private suspend fun audioEncoderHandler(endOfStream: Boolean) {
+        audioVideoSemaphore.acquireUninterruptibly()
         audioEncoderRunning = true
         val encoderOutputBuffers: Array<ByteBuffer> = audioEncoder.getOutputBuffers()
         var oldTimeStampUs = 0L
@@ -269,9 +268,7 @@ class MediaCodecRecorder(private val context: Context,
             }
         }
         releaseAudioEncoder()
-        synchronized(audioStopSyncObject) {
-            audioStopSyncObject.notifyAll()
-        }
+        audioVideoSemaphore.release()
     }
 
     private suspend fun audioRecorderHandler(endOfStream: Boolean) {
@@ -356,13 +353,8 @@ class MediaCodecRecorder(private val context: Context,
         videoEncoderRunning = false
         audioRecorderRunning = false
 
-        synchronized(videoStopSyncObject) {
-            videoStopSyncObject.wait()
-        }
-
-        synchronized(audioStopSyncObject) {
-            audioStopSyncObject.wait()
-        }
+        audioVideoSemaphore.acquireUninterruptibly(2)
+        audioVideoSemaphore.release(2)
 
         releaseMuxer()
     }
