@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -100,7 +100,9 @@ object CameraSettingsUtil {
 
         val recorderStreams = mutableListOf<StreamInfo>()
 
-        recorderStreams.add(streamInfo0)
+        if (sharedPref.getBoolean("vid_0_enable",false)) {
+            recorderStreams.add(streamInfo0)
+        }
 
         if (sharedPref.getBoolean("vid_1_enable",false)) {
             recorderStreams.add(streamInfo1)

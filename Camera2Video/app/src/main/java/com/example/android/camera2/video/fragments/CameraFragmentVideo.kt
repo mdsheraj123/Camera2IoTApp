@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -37,6 +37,8 @@ package com.example.android.camera2.video.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.ColorFilter
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
@@ -92,6 +94,10 @@ class CameraFragmentVideo : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         cameraBase = CameraBase(requireContext().applicationContext)
         settings = getCameraSettings(requireContext().applicationContext)
+
+        // Make Video Record button invisible if there is no encoder stream
+        if (settings.recorderInfo.isEmpty()) recorder_button.visibility = View.INVISIBLE
+
         characteristics = cameraManager.getCameraCharacteristics(settings.cameraId)
 
         overlay = view.findViewById(R.id.overlay)
@@ -208,36 +214,39 @@ class CameraFragmentVideo : Fragment() {
         cameraBase.setFramerate(settings.previewInfo.fps)
         cameraBase.addPreviewStream(viewFinder.holder.surface)
 
-        for (stream in settings.recorderInfo) {
-            cameraBase.addRecorderStream(stream)
-        }
-        cameraBase.startCamera()
-
-        val sound = MediaActionSound()
-        recorder_button.setOnClickListener {
-            if (recording) {
-                if(SystemClock.elapsedRealtime() - chronometer.base>MIN_REQUIRED_RECORDING_TIME_MILLIS) {
-                    cameraBase.stopRecording()
-                    broadcastFile()
-                    sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
-                    recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-                    thumbnailButton.setImageDrawable(createRoundThumb())
-                    recording = false
-                    stopChronometer()
-                    Log.d(TAG, "Recorder stop")
-                } else {
-                    Log.d(TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
-                }
-            } else {
-                sound.play(MediaActionSound.START_VIDEO_RECORDING)
-                cameraBase.startRecording()
-                recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
-                startChronometer()
-                recording = true
-                Log.d(TAG, "Recorder start")
+        if (settings.recorderInfo.isNotEmpty()) {
+            for (stream in settings.recorderInfo) {
+                cameraBase.addRecorderStream(stream)
             }
         }
 
+        cameraBase.startCamera()
+        if (settings.recorderInfo.isNotEmpty()) {
+            val sound = MediaActionSound()
+            recorder_button.setOnClickListener {
+                if (recording) {
+                    if (SystemClock.elapsedRealtime() - chronometer.base > MIN_REQUIRED_RECORDING_TIME_MILLIS) {
+                        cameraBase.stopRecording()
+                        broadcastFile()
+                        sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
+                        recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+                        thumbnailButton.setImageDrawable(createRoundThumb())
+                        recording = false
+                        stopChronometer()
+                        Log.d(TAG, "Recorder stop")
+                    } else {
+                        Log.d(TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
+                    }
+                } else {
+                    sound.play(MediaActionSound.START_VIDEO_RECORDING)
+                    cameraBase.startRecording()
+                    recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
+                    startChronometer()
+                    recording = true
+                    Log.d(TAG, "Recorder start")
+                }
+            }
+        }
         thumbnailButton.setOnClickListener {
             Log.d(TAG, "Thumbnail icon pressed")
             val intent = Intent()

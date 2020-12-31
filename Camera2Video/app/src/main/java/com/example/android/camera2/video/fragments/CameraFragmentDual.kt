@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -93,6 +93,8 @@ class CameraFragmentDual : Fragment() {
         cameraBase0 = CameraBase(requireContext().applicationContext)
         cameraBase1 = CameraBase(requireContext().applicationContext)
         settings = CameraSettingsUtil.getCameraSettings(requireContext().applicationContext)
+        if (settings.recorderInfo.isEmpty()) recorder_button.visibility = View.INVISIBLE
+
         characteristics0 = cameraManager.getCameraCharacteristics(camera0Id)
         characteristics1 = cameraManager.getCameraCharacteristics(camera1Id)
 
@@ -262,29 +264,30 @@ class CameraFragmentDual : Fragment() {
 
         val sound = MediaActionSound()
 
-        recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-        recorder_button.setOnClickListener {
-            if (recording) {
-                if(SystemClock.elapsedRealtime() - chronometer_dual.base>MIN_REQUIRED_RECORDING_TIME_MILLIS) {
-                    cameraBase1.stopRecording()
-                    cameraBase0.stopRecording()
-                    sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
-                    recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-                    recording = false
-                    stopChronometer()
+        if (settings.recorderInfo.isNotEmpty()) {
+            recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+            recorder_button.setOnClickListener {
+                if (recording) {
+                    if (SystemClock.elapsedRealtime() - chronometer_dual.base > MIN_REQUIRED_RECORDING_TIME_MILLIS) {
+                        cameraBase1.stopRecording()
+                        cameraBase0.stopRecording()
+                        sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
+                        recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
+                        recording = false
+                        stopChronometer()
+                    } else {
+                        Log.d(CameraFragmentVideo.TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
+                    }
                 } else {
-                    Log.d(CameraFragmentVideo.TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
+                    sound.play(MediaActionSound.START_VIDEO_RECORDING)
+                    cameraBase0.startRecording()
+                    cameraBase1.startRecording()
+                    recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
+                    startChronometer()
+                    recording = true
                 }
-            } else {
-                sound.play(MediaActionSound.START_VIDEO_RECORDING)
-                cameraBase0.startRecording()
-                cameraBase1.startRecording()
-                recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
-                startChronometer()
-                recording = true
             }
         }
-
         capture_button.setOnClickListener {
             it.isEnabled = false
             var snapshot0Flag = false
