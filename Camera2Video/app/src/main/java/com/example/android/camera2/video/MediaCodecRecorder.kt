@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -94,12 +94,14 @@ class MediaCodecRecorder(private val context: Context,
             setInteger(MediaFormat.KEY_BIT_RATE, streamInfo.bitrate * 1_000_000)
             setInteger(MediaFormat.KEY_FRAME_RATE, streamInfo.fps)
             when(streamInfo.rcmode) {
-                0, 3, 4 -> setInteger("vendor.qti-ext-enc-bitrate-mode.value", streamInfo.rcmode)
-                1, 2 -> setInteger(MediaFormat.KEY_BITRATE_MODE, streamInfo.rcmode);
-                5 -> setInteger(MediaFormat.KEY_BITRATE_MODE, ((0x7F000000).toInt() + 1))
-                6 -> setInteger(MediaFormat.KEY_BITRATE_MODE, ((0x7F000000).toInt() + 2))
+                0, 1, 2 ,3, 4 -> setInteger("vendor.qti-ext-enc-bitrate-mode.value", streamInfo.rcmode)
+                5 -> setInteger("vendor.qti-ext-enc-bitrate-mode.value", ((0x7F000001).toInt()))
+                6 -> setInteger("vendor.qti-ext-enc-bitrate-mode.value", ((0x7F000002).toInt()))
                 else -> Log.e(TAG, "Not a valid RC Mode")
             }
+            // Real Time Priority
+            setInteger(MediaFormat.KEY_PRIORITY, 0)
+
             setInteger("vendor.qti-ext-enc-qp-range.qp-i-min", streamInfo.minqp_i_frame);
             setInteger("vendor.qti-ext-enc-qp-range.qp-i-max", streamInfo.maxqp_i_frame);
             setInteger("vendor.qti-ext-enc-qp-range.qp-b-min", streamInfo.minqp_b_frame);
@@ -117,6 +119,15 @@ class MediaCodecRecorder(private val context: Context,
             setInteger("vendor.qti-ext-enc-initial-qp.qp-p", streamInfo.initqp_p_frame);
 
             setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, streamInfo.interval_iframe)
+            // Calculate P frames based on FPS and I frame Interval
+            var p_frame_cnt = 0
+            if (streamInfo.interval_iframe > 0) {
+                p_frame_cnt = (streamInfo.fps * streamInfo.interval_iframe) -1
+            }
+            setInteger("vendor.qti-ext-enc-intra-period.n-pframes", p_frame_cnt);
+            // Always set B frames to 0.
+            setInteger("vendor.qti-ext-enc-intra-period.n-bframes", 0);
+            setInteger(MediaFormat.KEY_MAX_B_FRAMES, 0)
         }
 
         videoEncoder = createVideoEncoder()
