@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -55,6 +55,7 @@ import android.util.Range
 import android.view.Surface
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
@@ -108,13 +109,12 @@ class CameraBase(val context: Context): CameraModule {
     private val imageReaderHandler = Handler(imageReaderThread.looper)
 
     var currentSnapshotFilePath: String? = null
-    var currentSnapshotUri: Uri? = null
 
     override fun getAvailableCameras(): Array<String> = cameraManager.cameraIdList
 
     override suspend fun openCamera(cameraId: String) {
         Log.d(TAG, "openCamera")
-        camera = suspendCoroutine { cont ->
+        camera = suspendCancellableCoroutine { cont ->
             val callback = object : CameraDevice.StateCallback() {
                 override fun onOpened(camera: CameraDevice) {
                     cont.resume(camera)
@@ -125,9 +125,19 @@ class CameraBase(val context: Context): CameraModule {
                 }
 
                 override fun onError(camera: CameraDevice, error: Int) {
-                    throw Exception("Fail to open Camera: $cameraId")
-                    cont.resume(camera)
+                    val msg = when(error) {
+                        ERROR_CAMERA_DEVICE -> "Fatal (device)"
+                        ERROR_CAMERA_DISABLED -> "Device policy"
+                        ERROR_CAMERA_IN_USE -> "Camera in use"
+                        ERROR_CAMERA_SERVICE -> "Fatal (service)"
+                        ERROR_MAX_CAMERAS_IN_USE -> "Maximum cameras in use"
+                        else -> "Unknown"
+                    }
+                    val exc = RuntimeException("Camera $cameraId error: ($error) $msg")
+                    Log.e(TAG, exc.message, exc)
+                    if (cont.isActive) cont.resumeWithException(exc)
                 }
+
                 override fun onClosed(camera: CameraDevice) {
                     super.onClosed(camera)
                     clearStreams()
@@ -300,7 +310,6 @@ class CameraBase(val context: Context): CameraModule {
                     values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                     values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Camera")
                     val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-                    currentSnapshotUri = uri
                     currentSnapshotFilePath = "/storage/emulated/0/DCIM/Camera/$filename"
                     val imageOutStream = uri?.let { context.contentResolver.openOutputStream(it) };
                     imageOutStream?.write(bytes)
@@ -316,7 +325,6 @@ class CameraBase(val context: Context): CameraModule {
                 try {
                     val output = createFile(context, "dng")
                     currentSnapshotFilePath = output.absolutePath
-                    currentSnapshotUri = getImageContentUri(context, output)
                     FileOutputStream(output).use { dngCreator.writeImage(it, result.image) }
                     cont.resume(true)
                 } catch (exc: IOException) {
@@ -342,57 +350,12 @@ class CameraBase(val context: Context): CameraModule {
         return null
     }
 
-    fun getCurrentVideoFileUri():Uri? {
-        for (recorder in recorderList) {
-            if(recorder.getCurrentVideoFileUri()!=null) {
-                return recorder.getCurrentVideoFileUri()
-            }
-        }
-        return null
-    }
-
-    private fun getImageContentUri(context: Context, imageFile: File): Uri? {
-        val filePath = imageFile.absolutePath
-        val cursor: Cursor? = context.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Images.Media._ID),
-                MediaStore.Images.Media.DATA + "=? ", arrayOf(filePath), null)
-        return if (cursor != null && cursor.moveToFirst()) {
-            val id: Int = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID))
-            cursor.close()
-            Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "" + id)
-        } else {
-            if (imageFile.exists()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val resolver = context.contentResolver
-                    val picCollection = MediaStore.Images.Media
-                            .getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-                    val picDetail = ContentValues()
-                    picDetail.put(MediaStore.Images.Media.DISPLAY_NAME, imageFile.name)
-                    picDetail.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg")
-                    picDetail.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/" + UUID.randomUUID().toString())
-                    picDetail.put(MediaStore.Images.Media.IS_PENDING, 1)
-                    val finaluri = resolver.insert(picCollection, picDetail)
-                    picDetail.clear()
-                    picDetail.put(MediaStore.Images.Media.IS_PENDING, 0)
-                    resolver.update(picCollection, picDetail, null, null)
-                    finaluri
-                } else {
-                    val values = ContentValues()
-                    values.put(MediaStore.Images.Media.DATA, filePath)
-                    context.contentResolver.insert(
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-                }
-            } else {
-                null
-            }
-        }
-    }
     override fun close() {
         camera.close()
         streamConfigOpMode = 0x00
     }
 
-    fun updateRepeatingRequest() {
+    private fun updateRepeatingRequest() {
         if (::session.isInitialized) {
             session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
         }

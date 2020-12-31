@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -43,5 +43,4 @@ interface VideoRecorder {
     fun destroy()
     fun getRecorderSurface(): Surface
     fun getCurrentVideoFilePath(): String?
-    fun getCurrentVideoFileUri(): Uri?
 }

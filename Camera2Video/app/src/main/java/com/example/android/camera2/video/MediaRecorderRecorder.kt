@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -139,10 +139,6 @@ class MediaRecorderRecorder(val context: Context,
     }
 
     override fun getCurrentVideoFilePath(): String? {
-        return null
-    }
-
-    override fun getCurrentVideoFileUri(): Uri? {
         return null
     }
 

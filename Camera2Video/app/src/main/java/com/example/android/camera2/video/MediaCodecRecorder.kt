@@ -75,7 +75,6 @@ class MediaCodecRecorder(private val context: Context,
     private val videoStopSyncObject = Object()
     private val audioStopSyncObject = Object()
     private var currentVideoFilePath: String? = null
-    private var currentVideoFileUri: Uri? = null
 
     private var videoMimeType: String = when (streamInfo.encoding) {
         "H264" -> "video/avc"
@@ -380,10 +379,6 @@ class MediaCodecRecorder(private val context: Context,
         return currentVideoFilePath
     }
 
-    override fun getCurrentVideoFileUri(): Uri? {
-        return currentVideoFileUri
-    }
-
     private fun createVideoFile(): FileDescriptor {
         val dateTaken = System.currentTimeMillis()
         val filename = "VID_${SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date())}.mp4"
@@ -397,7 +392,6 @@ class MediaCodecRecorder(private val context: Context,
         values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
         values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Camera")
         val uri = context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
-        currentVideoFileUri = uri
         currentVideoFilePath = "/storage/emulated/0/DCIM/Camera/$filename"
         val file = uri?.let { context.contentResolver.openFileDescriptor(it, "w") }
 
