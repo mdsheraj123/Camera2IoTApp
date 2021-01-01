@@ -87,7 +87,7 @@ class CameraActivity : AppCompatActivity() {
             if (savedInstanceState != null) {
                 return;
             }
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            if (PermissionsFragment.hasPermissions(applicationContext)) {
                 supportFragmentManager.commit {
                     add<CameraFragmentSettings>(R.id.fragment_container, null, intent.extras)
                 }

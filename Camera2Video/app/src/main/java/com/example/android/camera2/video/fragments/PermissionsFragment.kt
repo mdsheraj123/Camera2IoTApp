@@ -54,13 +54,19 @@ package com.example.android.camera2.video.fragments
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
+import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
+import androidx.fragment.app.FragmentTransaction
+import com.example.android.camera2.video.CameraActivity
 import com.example.android.camera2.video.R
+
 
 private const val PERMISSIONS_REQUEST_CODE = 10
 private val PERMISSIONS_REQUIRED = arrayOf(
@@ -79,8 +85,7 @@ class PermissionsFragment : Fragment() {
 
         if (hasPermissions(requireContext())) {
             // If permissions have already been granted, proceed
-            Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
-                    PermissionsFragmentDirections.actionPermissionsFragmentToCameraFragment())
+            switchToCameraFragmentVideo()
         } else {
             // Request camera-related permissions
             requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
@@ -91,16 +96,31 @@ class PermissionsFragment : Fragment() {
             requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (hasPermissions(requireContext())) {
                 // Takes the user to the success fragment when permission is granted
-                Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
-                        PermissionsFragmentDirections.actionPermissionsFragmentToCameraFragment())
+                switchToCameraFragmentVideo()
             } else {
-                Toast.makeText(context, "Permission request denied", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Please give permissions", Toast.LENGTH_LONG).show()
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", requireContext().packageName, null)
+                intent.data = uri
+                startActivity(intent)
+                finishAffinity(requireActivity());
             }
         }
     }
 
+    private fun switchToCameraFragmentVideo() {
+        val transaction0: FragmentTransaction = requireFragmentManager().beginTransaction()
+        transaction0.add(R.id.fragment_container, CameraFragmentSettings()) // give your fragment container id in first parameter
+//        transaction0.addToBackStack(null) // if written, this transaction will be added to backstack
+        transaction0.commit()
+
+        val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
+        transaction.replace(R.id.fragment_container, CameraFragmentVideo()) // give your fragment container id in first parameter
+//        transaction.addToBackStack(null) // if written, this transaction will be added to backstack
+        transaction.commit()
+    }
     companion object {
 
         /** Convenience method used to check if all permissions required by this app are granted */
