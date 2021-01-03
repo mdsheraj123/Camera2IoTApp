@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -45,10 +45,7 @@ import android.media.MediaRecorder
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
-import androidx.preference.DropDownPreference
-import androidx.preference.EditTextPreference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceScreen
+import androidx.preference.*
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
 import com.example.android.camera2.video.R
 
@@ -86,6 +83,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         }
 
         updateCameraPreferences()
+        updateEncodePreference()
     }
 
     override fun onResume() {
@@ -103,6 +101,41 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             "camera_id" -> updateCameraPreferences()
+            "display_enable" -> {
+                // If Display is on, then disable stream 2 encoding.
+                val screen: PreferenceScreen = this.preferenceScreen
+                val displayPreference = screen.findPreference<SwitchPreference>("display_enable")
+                val stream2Preference = screen.findPreference<SwitchPreference>("vid_2_enable")
+                if (displayPreference != null) {
+                    if (displayPreference.isChecked) {
+                        if (stream2Preference != null) {
+                            stream2Preference.isChecked = false
+                        }
+                    } else {
+                        if (stream2Preference != null) {
+                            stream2Preference.isChecked = true
+                        }
+                    }
+                }
+            }
+            "vid_2_enable" -> {
+                // If Stream 2  is on, then disable display.
+                val screen: PreferenceScreen = this.preferenceScreen
+                val displayPreference = screen.findPreference<SwitchPreference>("display_enable")
+                val stream2Preference = screen.findPreference<SwitchPreference>("vid_2_enable")
+                if (stream2Preference != null) {
+                    if (stream2Preference.isChecked) {
+                        if (displayPreference != null) {
+                            displayPreference.isChecked = false
+                        }
+                    } else {
+                        if (displayPreference != null) {
+                            displayPreference.isChecked = true
+                        }
+                    }
+                }
+            }
+            else -> updateEncodePreference()
         }
     }
 
@@ -139,6 +172,49 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         videoResPreference1?.entries = videoSizes.toTypedArray()
         videoResPreference1?.entryValues = videoSizes.toTypedArray()
 
+        val videoResPreference2 = screen.findPreference<DropDownPreference>("vid_2_size");
+        videoResPreference2?.entries = videoSizes.toTypedArray()
+        videoResPreference2?.entryValues = videoSizes.toTypedArray()
+
+    }
+
+    private fun updateEncodePreference() {
+        val encoderKeys = listOf(
+                "vid_0_i_min_qp_range",
+                "vid_0_i_max_qp_range",
+                "vid_0_b_min_qp_range",
+                "vid_0_b_max_qp_range",
+                "vid_0_p_min_qp_range",
+                "vid_0_p_max_qp_range",
+                "vid_0_i_init_qp",
+                "vid_0_b_init_qp",
+                "vid_0_p_init_qp",
+                "vid_1_i_min_qp_range",
+                "vid_1_i_max_qp_range",
+                "vid_1_b_min_qp_range",
+                "vid_1_b_max_qp_range",
+                "vid_1_p_min_qp_range",
+                "vid_1_p_max_qp_range",
+                "vid_1_i_init_qp",
+                "vid_1_b_init_qp",
+                "vid_1_p_init_qp",
+                "vid_2_i_min_qp_range",
+                "vid_2_i_max_qp_range",
+                "vid_2_b_min_qp_range",
+                "vid_2_b_max_qp_range",
+                "vid_2_p_min_qp_range",
+                "vid_2_p_max_qp_range",
+                "vid_2_i_init_qp",
+                "vid_2_b_init_qp",
+                "vid_2_p_init_qp",
+        )
+        val screen: PreferenceScreen = this.preferenceScreen
+        for (key in encoderKeys) {
+            val item = screen.findPreference<EditTextPreference>(key);
+            if (item !=null) {
+                item.summary = item.text
+            }
+        }
     }
 
     companion object {

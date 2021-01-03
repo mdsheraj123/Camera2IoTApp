@@ -40,8 +40,8 @@ import androidx.preference.PreferenceManager
 
 object CameraSettingsUtil {
 
-    fun ParseWidth(res: String?) = res!!.split("x")[0].toInt()
-    fun ParseHeight(res: String?) = res!!.split("x")[1].toInt()
+    private fun ParseWidth(res: String?) = res!!.split("x")[0].toInt()
+    private fun ParseHeight(res: String?) = res!!.split("x")[1].toInt()
 
     fun getCameraSettings(context: Context): CameraSettings {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
@@ -92,6 +92,26 @@ object CameraSettingsUtil {
 
                 )
 
+        val streamInfo2 = StreamInfo(
+                ParseWidth(sharedPref.getString("vid_2_size", null)),
+                ParseHeight(sharedPref.getString("vid_2_size", null)),
+                sharedPref.getString("vid_2_fps", null)!!.toInt(),
+                sharedPref.getString("vid_2_format", null)!!,
+                sharedPref.getString("vid_2_audio_format", null)!!,
+                sharedPref.getString("vid_2_bitrate", null)!!.toInt(),
+                sharedPref.getString("vid_2_rate_control", null)!!.toInt(),
+                sharedPref.getString("vid_2_i_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_2_i_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_2_b_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_2_b_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_2_p_min_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_2_p_max_qp_range", null)!!.toInt(),
+                sharedPref.getString("vid_2_i_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_2_b_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_2_p_init_qp", null)!!.toInt(),
+                sharedPref.getString("vid_2_iframe_interval", null)!!.toInt(),
+        )
+
         val snapshotInfo = StreamInfo(
                 ParseWidth(sharedPref.getString("snapshot_size", null)),
                 ParseHeight(sharedPref.getString("snapshot_size", null)),
@@ -107,6 +127,10 @@ object CameraSettingsUtil {
         if (sharedPref.getBoolean("vid_1_enable",false)) {
             recorderStreams.add(streamInfo1)
         }
+        // Add 3rd encoding stream only if there is no display enabled.
+        if (sharedPref.getBoolean("vid_2_enable", false) && !sharedPref.getBoolean("display_enable", false)) {
+            recorderStreams.add(streamInfo2)
+        }
 
         return CameraSettings(
                 previewInfo,
@@ -117,7 +141,8 @@ object CameraSettingsUtil {
                         sharedPref.getBoolean("ldc_enable",false),
                         sharedPref.getBoolean("shdr_enable",false)
                 ),
-                sharedPref.getString("camera_id", null)!!
+                sharedPref.getString("camera_id", null)!!,
+                sharedPref.getBoolean("display_enable",false)
         )
     }
 }

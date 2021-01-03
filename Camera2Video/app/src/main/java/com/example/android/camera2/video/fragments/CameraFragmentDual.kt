@@ -93,6 +93,7 @@ class CameraFragmentDual : Fragment() {
         cameraBase0 = CameraBase(requireContext().applicationContext)
         cameraBase1 = CameraBase(requireContext().applicationContext)
         settings = CameraSettingsUtil.getCameraSettings(requireContext().applicationContext)
+        // If there is not recording stream, disable recording button.
         if (settings.recorderInfo.isEmpty()) recorder_button.visibility = View.INVISIBLE
 
         characteristics0 = cameraManager.getCameraCharacteristics(camera0Id)
@@ -236,12 +237,24 @@ class CameraFragmentDual : Fragment() {
         cameraBase0.setSHDREnable(settings.cameraParams.shdr_enable)
 
         cameraBase0.setFramerate(settings.previewInfo.fps)
-        cameraBase0.addPreviewStream(viewFinder.holder.surface)
+
+        if (settings.displayOn) cameraBase0.addPreviewStream(viewFinder.holder.surface)
+
         cameraBase0.addSnapshotStream(settings.snapshotInfo)
 
-        // With Dual cam add only one encoding stream if enabled
-        if (settings.recorderInfo.isNotEmpty()) {
-            cameraBase0.addRecorderStream(settings.recorderInfo[0])
+        when (settings.recorderInfo.size) {
+            0 -> Log.d(TAG, "No Encoding stream configured.")
+            1 -> cameraBase0.addRecorderStream(settings.recorderInfo[0])
+            2 -> {
+                cameraBase0.addRecorderStream(settings.recorderInfo[0])
+                if (!settings.displayOn) cameraBase0.addRecorderStream(settings.recorderInfo[1])
+            }
+            3 -> {
+                // Display is off implicit. Add only 2 encode streams.
+                cameraBase0.addRecorderStream(settings.recorderInfo[0])
+                cameraBase0.addRecorderStream(settings.recorderInfo[1])
+            }
+            else -> Log.d(TAG, "Not a valid config for encoder")
         }
 
         cameraBase1.openCamera(camera1Id)
@@ -251,12 +264,24 @@ class CameraFragmentDual : Fragment() {
         cameraBase1.setSHDREnable(settings.cameraParams.shdr_enable)
 
         cameraBase1.setFramerate(settings.previewInfo.fps)
-        cameraBase1.addPreviewStream(viewFinder1.holder.surface)
+
+        if (settings.displayOn) cameraBase1.addPreviewStream(viewFinder1.holder.surface)
+
         cameraBase1.addSnapshotStream(settings.snapshotInfo)
 
-        // With Dual cam add only one encoding stream if enabled
-        if (settings.recorderInfo.isNotEmpty()) {
-            cameraBase1.addRecorderStream(settings.recorderInfo[0])
+        when (settings.recorderInfo.size) {
+            0 -> Log.d(TAG, "No Encoding stream configured.")
+            1 -> cameraBase1.addRecorderStream(settings.recorderInfo[0])
+            2 -> {
+                cameraBase1.addRecorderStream(settings.recorderInfo[0])
+                if (!settings.displayOn) cameraBase1.addRecorderStream(settings.recorderInfo[1])
+            }
+            3 -> {
+                // Display is off implicit. Add only 2 encode streams.
+                cameraBase1.addRecorderStream(settings.recorderInfo[0])
+                cameraBase1.addRecorderStream(settings.recorderInfo[1])
+            }
+            else -> Log.d(TAG, "Not a valid config for encoder")
         }
 
         cameraBase0.startCamera()

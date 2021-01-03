@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-~ Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+~ Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 ~
 ~ Redistribution and use in source and binary forms, with or without
 ~ modification, are permitted (subject to the limitations in the
@@ -64,6 +64,14 @@
             android:entries="@array/camera_fps_range"
             android:entryValues="@array/camera_fps_range"
             android:defaultValue="30"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Display" >
+        <androidx.preference.SwitchPreference
+            android:key="display_enable"
+            android:title="Display For Recording"
+            android:summary="Enable Display"
+            android:defaultValue="true"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Snapshot" >
@@ -196,7 +204,7 @@
             android:key="vid_1_enable"
             android:title="Stream 1 Enable"
             android:summary="Enable Stream 1 Recording"
-            android:defaultValue="false" />
+            android:defaultValue="true" />
         <androidx.preference.DropDownPreference
             android:key="vid_1_format"
             android:title="Stream 1 Format"
@@ -296,6 +304,114 @@
         <androidx.preference.DropDownPreference
             android:key="vid_1_size"
             android:title="Stream 1 Size"
+            android:summary="%s"
+            android:entries="@array/video_resolutions"
+            android:entryValues="@array/video_resolutions"
+            android:defaultValue="640x480"/>
+        <androidx.preference.SwitchPreference
+            android:key="vid_2_enable"
+            android:title="Stream 2 Enable"
+            android:summary="Enable Stream 2 Recording"
+            android:defaultValue="false" />
+        <androidx.preference.DropDownPreference
+            android:key="vid_2_format"
+            android:title="Stream 2 Format"
+            android:summary="%s"
+            android:entries="@array/recording_formats"
+            android:entryValues="@array/recording_formats"
+            android:defaultValue="H264" />
+        <androidx.preference.DropDownPreference
+            android:key="vid_2_fps"
+            android:title="Stream 2 FPS"
+            android:summary="%s"
+            android:entries="@array/video_framerates"
+            android:entryValues="@array/video_framerates"
+            android:defaultValue="30"/>
+        <androidx.preference.DropDownPreference
+            android:key="vid_2_bitrate"
+            android:title="Stream 2 Bitrate in Mbps"
+            android:summary="%s"
+            android:entries="@array/video_bitrates"
+            android:entryValues="@array/video_bitrates"
+            android:defaultValue="10"/>
+        <androidx.preference.DropDownPreference
+            android:key="vid_2_iframe_interval"
+            android:title="Stream 2 - I Frame Interval"
+            android:summary="%s"
+            android:entries="@array/iframe_intervals"
+            android:entryValues="@array/iframe_intervals"
+            android:defaultValue="0"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_i_init_qp"
+            android:title="Stream 2 - I Frame Initial QP"
+            android:persistent="true"
+            android:dialogTitle="Enter Initial QP for I Frame"
+            android:defaultValue="10"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_b_init_qp"
+            android:title="Stream 2 - B Frame Initial QP"
+            android:persistent="true"
+            android:dialogTitle="Enter Initial QP for B Frame"
+            android:defaultValue="10"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_p_init_qp"
+            android:title="Stream 2 - P Frame Initial QP"
+            android:persistent="true"
+            android:dialogTitle="Enter Initial QP for P Frame"
+            android:defaultValue="10"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_i_min_qp_range"
+            android:title="Stream 2 - I Frame Min QP Range"
+            android:persistent="true"
+            android:dialogTitle="Enter Min QP Range for I Frame"
+            android:defaultValue="10"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_i_max_qp_range"
+            android:title="Stream 2 - I Frame Max QP Range"
+            android:persistent="true"
+            android:dialogTitle="Enter Max QP Range for I Frame"
+            android:defaultValue="51"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_b_min_qp_range"
+            android:title="Stream 2 - B Frame Min QP Range"
+            android:persistent="true"
+            android:dialogTitle="Enter Min QP Range for B Frame"
+            android:defaultValue="10"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_b_max_qp_range"
+            android:title="Stream 2 - B Frame Max QP Range"
+            android:persistent="true"
+            android:dialogTitle="Enter Max QP Range for B Frame"
+            android:defaultValue="51"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_p_min_qp_range"
+            android:title="Stream 2 - P Frame Min QP Range"
+            android:persistent="true"
+            android:dialogTitle="Enter Min QP Range for P Frame"
+            android:defaultValue="10"/>
+        <androidx.preference.EditTextPreference
+            android:key="vid_2_p_max_qp_range"
+            android:title="Stream 2 - P Frame Max QP Range"
+            android:persistent="true"
+            android:dialogTitle="Enter Max QP Range for P Frame"
+            android:defaultValue="51"/>
+        <androidx.preference.DropDownPreference
+            android:key="vid_2_rate_control"
+            android:title="Stream 2 RC Mode"
+            android:summary="%s"
+            android:entries="@array/video_rc_mode"
+            android:entryValues="@array/video_rc_mode_values"
+            android:defaultValue="2"/>
+        <androidx.preference.DropDownPreference
+            android:key="vid_2_audio_format"
+            android:title="Stream 2 Audio Format"
+            android:summary="%s"
+            android:entries="@array/audio_formats"
+            android:entryValues="@array/audio_formats"
+            android:defaultValue="AAC" />
+        <androidx.preference.DropDownPreference
+            android:key="vid_2_size"
+            android:title="Stream 2 Size"
             android:summary="%s"
             android:entries="@array/video_resolutions"
             android:entryValues="@array/video_resolutions"

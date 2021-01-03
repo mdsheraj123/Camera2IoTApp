@@ -212,7 +212,8 @@ class CameraFragmentVideo : Fragment() {
         cameraBase.setSHDREnable(settings.cameraParams.shdr_enable)
 
         cameraBase.setFramerate(settings.previewInfo.fps)
-        cameraBase.addPreviewStream(viewFinder.holder.surface)
+
+        if (settings.displayOn) cameraBase.addPreviewStream(viewFinder.holder.surface)
 
         if (settings.recorderInfo.isNotEmpty()) {
             for (stream in settings.recorderInfo) {
