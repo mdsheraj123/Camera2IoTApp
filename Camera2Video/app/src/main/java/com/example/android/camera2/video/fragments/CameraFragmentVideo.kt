@@ -38,7 +38,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.ColorFilter
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.MediaActionSound
@@ -48,6 +47,7 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.view.*
 import android.webkit.MimeTypeMap
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
@@ -61,6 +61,7 @@ import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
 import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
+import com.example.android.camera2.video.overlay.VideoOverlay
 import kotlinx.android.synthetic.main.fragment_camera_video.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -83,6 +84,10 @@ class CameraFragmentVideo : Fragment() {
     private lateinit var settings: CameraSettings
 
     private lateinit var relativeOrientation: OrientationLiveData
+
+    private lateinit var previewSize: Size
+
+    private val videoOverlayList = mutableListOf<VideoOverlay>()
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -113,8 +118,9 @@ class CameraFragmentVideo : Fragment() {
                     height: Int) = Unit
 
             override fun surfaceCreated(holder: SurfaceHolder) {
-                val previewSize = getPreviewOutputSize(
+                previewSize = getPreviewOutputSize(
                         viewFinder.display, characteristics, SurfaceHolder::class.java)
+
                 Log.d(TAG, "View finder size: ${viewFinder.width} x ${viewFinder.height}")
                 Log.d(TAG, "Selected preview size: $previewSize")
                 viewFinder.setAspectRatio(previewSize.width, previewSize.height)
@@ -221,12 +227,21 @@ class CameraFragmentVideo : Fragment() {
 
         cameraBase.setFramerate(settings.previewInfo.fps)
 
-        if (settings.displayOn) cameraBase.addPreviewStream(viewFinder.holder.surface)
+        if (settings.displayOn) {
+            val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height)
+            previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+            videoOverlayList.add(previewOverlay)
+            cameraBase.addPreviewStream(previewOverlay.getInputSurface())
+        }
 
-        if (settings.recorderInfo.isNotEmpty()) {
-            for (stream in settings.recorderInfo) {
-                cameraBase.addRecorderStream(stream)
-            }
+        for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
+            val recorder = MediaCodecRecorder(requireContext().applicationContext, stream)
+            val videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.height, stream.width)
+            videoOverlay.setTextOverlay("Stream $streamCount overlay",
+                    0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+            videoOverlayList.add(videoOverlay)
+            cameraBase.addStream(videoOverlay.getInputSurface())
+            cameraBase.addVideoRecorder(recorder)
         }
 
         cameraBase.startCamera()
@@ -282,12 +297,15 @@ class CameraFragmentVideo : Fragment() {
             stopChronometer()
             Log.d(TAG, "Recorder stop")
         }
-        super.onStop()
         try {
             cameraBase.close()
         } catch (exc: Throwable) {
             Log.e(TAG, "Error closing camera", exc)
         }
+        for (overlay in videoOverlayList) {
+            overlay.release()
+        }
+        super.onStop()
     }
 
     companion object {

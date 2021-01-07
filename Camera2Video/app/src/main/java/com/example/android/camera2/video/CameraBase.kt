@@ -201,6 +201,10 @@ class CameraBase(val context: Context): CameraModule {
         recorderList.add(recorder)
     }
 
+    override fun addVideoRecorder(recorder: VideoRecorder) {
+        recorderList.add(recorder)
+    }
+
     @SuppressLint("Range")
     override fun addSnapshotStream(stream: StreamInfo)  {
         if (!::imageReader.isInitialized) {
@@ -356,6 +360,10 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     override fun close() {
+        if (::session.isInitialized) {
+            session.stopRepeating()
+            session.abortCaptures()
+        }
         camera.close()
         streamConfigOpMode = 0x00
     }

@@ -46,6 +46,7 @@ import android.media.ThumbnailUtils
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.View
@@ -80,6 +81,8 @@ class CameraFragmentSnapshot : Fragment() {
 
     private lateinit var settings: CameraSettings
 
+    private lateinit var previewSize: Size
+
     /** Live data listener for changes in the device orientation relative to the camera */
     private lateinit var relativeOrientation: OrientationLiveData
 
@@ -108,7 +111,7 @@ class CameraFragmentSnapshot : Fragment() {
                     height: Int) = Unit
 
             override fun surfaceCreated(holder: SurfaceHolder) {
-                val previewSize = getPreviewOutputSize(
+                previewSize = getPreviewOutputSize(
                         viewFinder.display, characteristics, SurfaceHolder::class.java)
                 Log.d(TAG, "View finder size: ${viewFinder.width} x ${viewFinder.height}")
                 Log.d(TAG, "Selected preview size: $previewSize")
@@ -254,12 +257,12 @@ class CameraFragmentSnapshot : Fragment() {
     }
 
     override fun onStop() {
-        super.onStop()
         try {
             cameraBase.close()
         } catch (exc: Throwable) {
             Log.e(TAG, "Error closing camera", exc)
         }
+        super.onStop()
     }
 
     override fun onDestroy() {

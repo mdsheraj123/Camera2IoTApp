@@ -76,6 +76,7 @@ interface CameraModule {
     fun addStream(surface: Surface)
     fun addRecorderStream(stream: StreamInfo)
     fun addSnapshotStream(stream: StreamInfo)
+    fun addVideoRecorder(recorder: VideoRecorder)
     fun startCamera()
     fun startRecording(value: Int?)
     fun isRecording() : Boolean

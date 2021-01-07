@@ -43,6 +43,7 @@ import android.media.MediaActionSound
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
+import android.util.Size
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -82,6 +83,9 @@ class CameraFragmentDual : Fragment() {
     private lateinit var relativeOrientation0: OrientationLiveData
     private lateinit var relativeOrientation1: OrientationLiveData
 
+    private lateinit var previewSize0: Size
+    private lateinit var previewSize1: Size
+
     private val camera0Id = "0"
     private val camera1Id = "1"
 
@@ -116,12 +120,11 @@ class CameraFragmentDual : Fragment() {
                     height: Int) = Unit
 
             override fun surfaceCreated(holder: SurfaceHolder) {
-                val screenSize = getDisplaySmartSize(viewFinder.display)
-                val previewSize = getPreviewOutputSize(
+                previewSize0 = getPreviewOutputSize(
                         viewFinder.display, characteristics0, SurfaceHolder::class.java)
                 Log.d(TAG, "View finder size: ${viewFinder.width} x ${viewFinder.height}")
-                Log.d(TAG, "Selected preview size: $previewSize")
-                viewFinder.setAspectRatio(previewSize.width, previewSize.height)
+                Log.d(TAG, "Selected preview size: $previewSize0")
+                viewFinder.setAspectRatio(previewSize0.width, previewSize0.height)
             }
         })
 
@@ -134,11 +137,11 @@ class CameraFragmentDual : Fragment() {
                     height: Int) = Unit
 
             override fun surfaceCreated(holder: SurfaceHolder) {
-                val previewSize = getPreviewOutputSize(
+                previewSize1 = getPreviewOutputSize(
                        viewFinder1.display, characteristics1, SurfaceHolder::class.java)
                 Log.d(TAG, "View finder size: ${viewFinder1.width} x ${viewFinder1.height}")
-                Log.d(TAG, "Selected preview size: $previewSize")
-                viewFinder1.setAspectRatio(previewSize.width, previewSize.height)
+                Log.d(TAG, "Selected preview size: $previewSize1")
+                viewFinder1.setAspectRatio(previewSize1.width, previewSize1.height)
                 viewFinder1.post { initializeCamera() }
             }
         })
@@ -391,13 +394,13 @@ class CameraFragmentDual : Fragment() {
             recording = false
             stopChronometer()
         }
-        super.onStop()
         try {
             cameraBase0.close()
             cameraBase1.close()
         } catch (exc: Throwable) {
             Log.e(TAG, "Error closing camera", exc)
         }
+        super.onStop()
     }
 
     companion object {
