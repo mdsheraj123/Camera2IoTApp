@@ -124,7 +124,7 @@
             android:summary="%s"
             android:entries="@array/iframe_intervals"
             android:entryValues="@array/iframe_intervals"
-            android:defaultValue="0"/>
+            android:defaultValue="1"/>
         <androidx.preference.EditTextPreference
             android:key="vid_0_i_init_qp"
             android:title="Stream 0 - I Frame Initial QP"
@@ -232,7 +232,7 @@
             android:summary="%s"
             android:entries="@array/iframe_intervals"
             android:entryValues="@array/iframe_intervals"
-            android:defaultValue="0"/>
+            android:defaultValue="1"/>
         <androidx.preference.EditTextPreference
             android:key="vid_1_i_init_qp"
             android:title="Stream 1 - I Frame Initial QP"
@@ -340,7 +340,7 @@
             android:summary="%s"
             android:entries="@array/iframe_intervals"
             android:entryValues="@array/iframe_intervals"
-            android:defaultValue="0"/>
+            android:defaultValue="1"/>
         <androidx.preference.EditTextPreference
             android:key="vid_2_i_init_qp"
             android:title="Stream 2 - I Frame Initial QP"
@@ -416,6 +416,14 @@
             android:entries="@array/video_resolutions"
             android:entryValues="@array/video_resolutions"
             android:defaultValue="640x480"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Storage" >
+        <androidx.preference.SwitchPreference
+            android:key="video_storage"
+            android:title="Store Video File"
+            android:summary="Enable Storage"
+            android:defaultValue="true"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Version" >

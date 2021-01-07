@@ -254,7 +254,7 @@ class CameraFragmentVideo : Fragment() {
                         broadcastFile()
                         sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
                         recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-                        thumbnailButton.setImageDrawable(createRoundThumb())
+                        if (settings.recorderInfo[0].storageEnable) thumbnailButton.setImageDrawable(createRoundThumb())
                         recording = false
                         stopChronometer()
                         Log.d(TAG, "Recorder stop")
@@ -292,7 +292,7 @@ class CameraFragmentVideo : Fragment() {
             cameraBase.stopRecording()
             broadcastFile()
             recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-            thumbnailButton.setImageDrawable(createRoundThumb())
+            if (settings.recorderInfo[0].storageEnable) thumbnailButton.setImageDrawable(createRoundThumb())
             recording = false
             stopChronometer()
             Log.d(TAG, "Recorder stop")

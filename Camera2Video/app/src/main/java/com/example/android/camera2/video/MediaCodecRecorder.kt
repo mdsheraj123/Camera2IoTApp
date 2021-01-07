@@ -45,7 +45,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.File
 import java.io.FileDescriptor
+import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -70,6 +72,7 @@ class MediaCodecRecorder(private val context: Context,
     private var audioFormat: MediaFormat
     lateinit var audioEncoder: MediaCodec
     private var muxerTrackCount = 0
+    private var storeVideo: Boolean = true
     val muxerLock = Mutex()
 
     private val audioVideoSemaphore = Semaphore(2)
@@ -86,6 +89,7 @@ class MediaCodecRecorder(private val context: Context,
     private val audioMimeType = AUDIO_MIME_TYPE
 
     init {
+        storeVideo = streamInfo.storageEnable
         videoFormat = MediaFormat.createVideoFormat(videoMimeType, streamInfo.width, streamInfo.height).apply {
             setInteger(MediaFormat.KEY_COLOR_FORMAT,
                     MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
@@ -163,7 +167,7 @@ class MediaCodecRecorder(private val context: Context,
         }
     }
 
-    private fun createAudoioEncoder(): MediaCodec {
+    private fun createAudioIOEncoder(): MediaCodec {
         return MediaCodec.createEncoderByType(audioMimeType).apply {
             configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         }
@@ -304,7 +308,8 @@ class MediaCodecRecorder(private val context: Context,
 
     private fun createMuxer(): MediaMuxer {
         muxerCreated = true
-        return  MediaMuxer(createVideoFile(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        return  if (storeVideo) MediaMuxer(createVideoFile(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        else  MediaMuxer(FileOutputStream(File("/dev/null")).fd!!, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
     }
 
     private fun releaseVideoEncoder() {
@@ -335,7 +340,7 @@ class MediaCodecRecorder(private val context: Context,
         muxer = createMuxer()
         orientation?.let { muxer.setOrientationHint(it) }
         videoEncoder = createVideoEncoder()
-        audioEncoder = createAudoioEncoder()
+        audioEncoder = createAudioIOEncoder()
         videoEncoder.start()
         GlobalScope.launch {
             videoEncoderHandler(false)

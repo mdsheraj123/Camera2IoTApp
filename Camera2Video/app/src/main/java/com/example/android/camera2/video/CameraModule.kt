@@ -55,6 +55,7 @@ data class StreamInfo(
         val initqp_b_frame: Int = 0,
         val initqp_p_frame: Int = 0,
         val interval_iframe: Int = 0,
+        val storageEnable: Boolean = true,
 )
 
 data class CameraParameters(val eis_enable: Boolean = false,
