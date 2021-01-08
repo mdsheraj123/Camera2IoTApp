@@ -135,6 +135,30 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
                     }
                 }
             }
+            "dual_camera" -> {
+                val screen: PreferenceScreen = this.preferenceScreen
+                val dualCam = screen.findPreference<SwitchPreference>("dual_camera")
+                val threeCam = screen.findPreference<SwitchPreference>("three_camera")
+
+                if (threeCam != null && dualCam != null) {
+                    threeCam.isChecked = when (dualCam.isChecked) {
+                        true -> false
+                        false -> true
+                    }
+                }
+            }
+            "three_camera" -> {
+                val screen: PreferenceScreen = this.preferenceScreen
+                val dualCam = screen.findPreference<SwitchPreference>("dual_camera")
+                val threeCam = screen.findPreference<SwitchPreference>("three_camera")
+
+                if (threeCam != null && dualCam != null) {
+                    dualCam.isChecked = when (threeCam.isChecked) {
+                        true -> false
+                        false -> true
+                    }
+                }
+            }
             else -> updateEncodePreference()
         }
     }

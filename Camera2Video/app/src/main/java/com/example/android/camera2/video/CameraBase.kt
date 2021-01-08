@@ -178,7 +178,8 @@ class CameraBase(val context: Context): CameraModule {
                     override fun onConfigured(s: CameraCaptureSession) {
                         Log.d(TAG, "onConfigured session")
                         session = s
-                        session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
+                        // if there is no active surface, do not set setRepeatingRequest.
+                        if (streamSurfaceList.isNotEmpty()) session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
                     }
 
                     override fun onConfigureFailed(s: CameraCaptureSession) =

@@ -426,6 +426,17 @@
             android:defaultValue="true"/>
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Multi Camera" >
+        <androidx.preference.SwitchPreference
+            android:key="dual_camera"
+            android:title="Dual Camera"
+            android:defaultValue="true"/>
+        <androidx.preference.SwitchPreference
+            android:key="three_camera"
+            android:title="Three Camera"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="Version" >
         <androidx.preference.EditTextPreference
             android:summary=""

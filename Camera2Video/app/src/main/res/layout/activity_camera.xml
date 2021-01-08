@@ -2,7 +2,7 @@
 <!--
 ~ Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-~ Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+~ Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 ~
 ~ Redistribution and use in source and binary forms, with or without
 ~ modification, are permitted (subject to the limitations in the
@@ -87,10 +87,10 @@
                     android:text="Snapshot" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:id="@+id/dual_cam"
+                    android:id="@+id/multi_cam"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dual Cam" />
+                    android:text="Multi Cam" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/settings"

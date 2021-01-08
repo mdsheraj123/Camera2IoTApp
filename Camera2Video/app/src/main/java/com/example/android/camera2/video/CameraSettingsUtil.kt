@@ -144,7 +144,8 @@ object CameraSettingsUtil {
                         sharedPref.getBoolean("shdr_enable",false)
                 ),
                 sharedPref.getString("camera_id", null)!!,
-                sharedPref.getBoolean("display_enable",false)
+                sharedPref.getBoolean("display_enable",false),
+                sharedPref.getBoolean("three_camera",false)
         )
     }
 }

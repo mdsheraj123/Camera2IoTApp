@@ -118,7 +118,7 @@ class CameraActivity : AppCompatActivity() {
                 lastNonSettingTab = 1
             }
             2 -> supportFragmentManager.commit {
-                replace<CameraFragmentDual>(R.id.fragment_container, null, null)
+                replace<CameraFragmentMultiCam>(R.id.fragment_container, null, null)
                 lastNonSettingTab = 2
             }
             3 -> supportFragmentManager.commit {
