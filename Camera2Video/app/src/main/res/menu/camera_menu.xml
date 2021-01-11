@@ -266,6 +266,20 @@
         </menu>
     </item>
 
+<!--    <item-->
+<!--        android:id="@+id/defog"-->
+<!--        android:checkable="true"-->
+<!--        android:title="@string/defog" />-->
+
+    <item
+        android:id="@+id/exp_table"
+        android:checkable="true"
+        android:title="@string/exposure_table" />
+
+    <item
+        android:id="@+id/ANR_table"
+        android:checkable="true"
+        android:title="@string/ANR_table" />
 </menu>
 
 

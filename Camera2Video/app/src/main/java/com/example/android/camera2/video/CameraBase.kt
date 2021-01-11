@@ -35,6 +35,7 @@
 package com.example.android.camera2.video
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.ImageFormat
@@ -52,14 +53,15 @@ import android.provider.MediaStore
 import android.util.Log
 import android.util.Range
 import android.view.Surface
+import android.widget.Toast
 import com.example.android.camera.utils.OrientationLiveData.Companion.getOrientationValueForRotation
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import java.io.Closeable
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
+import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
@@ -222,6 +224,19 @@ class CameraBase(val context: Context): CameraModule {
         config.sessionParameters = previewRequest.build()
         camera.createCaptureSession(config)
     }
+
+    private fun getJsonString(fileName: String): String? {
+        val file = File(context.filesDir, fileName)
+        var jsonString: String? = null
+        try {
+            jsonString = File(file.absolutePath).bufferedReader().use { it.readText() }
+            Log.i(TAG, "Json String: $jsonString")
+        } catch (ioException: IOException) {
+            Log.e(TAG, "Not able to fetch Json String $ioException")
+        }
+        return jsonString
+    }
+
     override fun setFramerate(fps: Int) {previewFps = fps}
     override fun addPreviewStream(surface: Surface) {
         streamSurfaceList.add(surface)
@@ -639,6 +654,84 @@ class CameraBase(val context: Context): CameraModule {
             captureRequest.set(CaptureRequest.SCALER_CROP_REGION, zoom)
         }
         updateRepeatingRequest()
+    }
+
+    private fun showTextDialog(filename: String) {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(CameraActivity.mActivity?.get())
+        try {
+            builder.setMessage(readFile(context.filesDir.absolutePath + filename))
+                    .setCancelable(true)
+                    .setPositiveButton("Okay") { dialog, _ -> dialog.cancel() }.show()
+        } catch (e: IOException) {
+            Toast.makeText(context, "Error in reading file", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
+    }
+    private fun readFile(path: String): String? {
+        val stream = FileInputStream(File(path))
+        return stream.use { stream ->
+            val fc: FileChannel = stream.channel
+            val bb: MappedByteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size())
+            Charset.defaultCharset().decode(bb).toString()
+        }
+    }
+
+    override fun setDefog(value: Boolean) {
+        Log.d(TAG, "Defog: $value")
+        if (value) {
+            val jsonString = getJsonString("Defog_Table.json")
+            if (jsonString != null) {
+                showTextDialog("/Defog_Table.json")
+                VendorTagUtil.setDefog(previewRequest, jsonString)
+                VendorTagUtil.setDefog(captureRequest, jsonString)
+                updateRepeatingRequest()
+            } else {
+                Log.e(TAG, "Defog Data is not available")
+                Toast.makeText(context, "Please push Defog_Table.json file to device.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            val jsonString = "{\"enable\" : 0}"
+            VendorTagUtil.setDefog(previewRequest, jsonString)
+            VendorTagUtil.setDefog(captureRequest, jsonString)
+            updateRepeatingRequest()
+        }
+    }
+
+    override fun setExposureTable(value: Boolean) {
+        Log.d(TAG, "ExposureTable: $value")
+        if (value) {
+            val jsonString = getJsonString("Exposure_Table.json")
+            if (jsonString != null) {
+                showTextDialog("/Exposure_Table.json")
+                VendorTagUtil.setExposureTable(previewRequest, jsonString)
+                VendorTagUtil.setExposureTable(captureRequest, jsonString)
+                updateRepeatingRequest()
+            } else {
+                Log.e(TAG, "Exposure Table is not available")
+                Toast.makeText(context, "Please push Exposure_Table.json file to device.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            val jsonString = "{\"isValid\" : 0}"
+            VendorTagUtil.setExposureTable(previewRequest, jsonString)
+            VendorTagUtil.setExposureTable(captureRequest, jsonString)
+            updateRepeatingRequest()
+        }
+    }
+
+    override fun setANRTable(value: Boolean) {
+        Log.d(TAG, "ANR: $value")
+        if (value) {
+            val jsonString = getJsonString("ANR_Table.json")
+            if (jsonString != null) {
+                showTextDialog("/ANR_Table.json")
+                VendorTagUtil.setANRTable(previewRequest, jsonString)
+                VendorTagUtil.setANRTable(captureRequest, jsonString)
+                updateRepeatingRequest()
+            } else {
+                Log.e(TAG, "ANR Table is not available")
+                Toast.makeText(context, "Please push ANR_Table.json file to device.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun setNRMode(value: Int) {

@@ -54,6 +54,7 @@ package com.example.android.camera2.video
 
 import android.Manifest
 import android.content.Context
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -72,6 +73,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.example.android.camera2.video.fragments.*
 import com.google.android.material.tabs.TabLayout
+import java.lang.ref.WeakReference
 
 
 class CameraActivity : AppCompatActivity() {
@@ -81,9 +83,10 @@ class CameraActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mActivity = WeakReference(this)
         setContentView(R.layout.activity_camera)
-        container = findViewById(R.id.fragment_container)
         if (findViewById<View?>(R.id.fragment_container) != null) {
+            container = findViewById(R.id.fragment_container)
             if (savedInstanceState != null) {
                 return;
             }
@@ -162,7 +165,13 @@ class CameraActivity : AppCompatActivity() {
         }, IMMERSIVE_FLAG_TIMEOUT)
     }
 
+    override fun onDestroy() {
+        mActivity?.clear();
+        super.onDestroy()
+    }
+
     companion object {
+        var mActivity: WeakReference<Activity>? = null
         /** Combination of all flags required to put activity into immersive mode */
         const val FLAGS_FULLSCREEN =
                 View.SYSTEM_UI_FLAG_LOW_PROFILE or

@@ -106,4 +106,7 @@ interface CameraModule {
     fun setExpMeteringMode(value: Int)
     fun setISOMode(value: Long)
     fun setZoom(value: Int)
+    fun setDefog(value: Boolean)
+    fun setExposureTable(value: Boolean)
+    fun setANRTable(value: Boolean)
 }

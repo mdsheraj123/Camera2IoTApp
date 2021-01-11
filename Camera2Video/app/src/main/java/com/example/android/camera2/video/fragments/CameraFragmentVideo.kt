@@ -192,6 +192,20 @@ class CameraFragmentVideo : Fragment() {
                 cameraBase.setZoom(value)
                 Log.d(TAG, "Zoom value: $value")
             }
+            override fun onDefog(value: Boolean) {
+                cameraBase.setDefog(value)
+                Log.d(TAG, "Defog value: $value")
+            }
+
+            override fun onExposureTable(value: Boolean) {
+                cameraBase.setExposureTable(value)
+                Log.d(TAG, "Exposure value: $value")
+            }
+
+            override fun onANRTable(value: Boolean) {
+                cameraBase.setANRTable(value)
+                Log.d(TAG, "ANR value: $value")
+            }
         })
         view.setOnClickListener() {
             cameraMenu.show()

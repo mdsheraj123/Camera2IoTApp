@@ -190,6 +190,20 @@ class CameraFragmentSnapshot : Fragment() {
                 cameraBase.setZoom(value)
                 Log.d(TAG, "Zoom Value: $value")
             }
+            override fun onDefog(value: Boolean) {
+                cameraBase.setDefog(value)
+                Log.d(TAG, "Defog value: $value")
+            }
+
+            override fun onExposureTable(value: Boolean) {
+                cameraBase.setExposureTable(value)
+                Log.d(TAG, "ExposureTable : $value")
+            }
+
+            override fun onANRTable(value: Boolean) {
+                cameraBase.setANRTable(value)
+                Log.d(TAG, "ANRTable : $value")
+            }
         })
         view.setOnClickListener() {
             cameraMenu.show()

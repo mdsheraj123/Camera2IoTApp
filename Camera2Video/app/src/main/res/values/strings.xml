@@ -67,4 +67,7 @@
     <string name="iso_mode">ISO Mode</string>
     <string name="thumbnail_button">Displays thumbnail of captured media</string>
     <string name="ZOOM">Zoom</string>
+    <string name="defog">Defog</string>
+    <string name="exposure_table">Exposure Table</string>
+    <string name="ANR_table">ANR Table</string>
 </resources>

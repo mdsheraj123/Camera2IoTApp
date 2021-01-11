@@ -35,20 +35,24 @@
 package com.example.android.camera2.video.fragments
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.util.Size
 import android.view.View
+import android.widget.Toast
 import androidx.preference.*
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
 import com.example.android.camera2.video.R
+import java.io.*
 
 
 class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -74,7 +78,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         try {
             val pInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
             val version = pInfo.versionName
-            val versionPref = screen.findPreference<EditTextPreference>("version_info");
+            val versionPref = screen.findPreference<EditTextPreference>("version_info")
             if (versionPref != null) {
                 versionPref.summary = version.toString()
                 versionPref.isEnabled = false
@@ -83,8 +87,74 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
             e.printStackTrace()
         }
 
+        val defogPref = screen.findPreference<Preference>("defog_file")
+        defogPref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            val chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.addCategory(Intent.CATEGORY_OPENABLE)
+            chooseFile.type = "application/json"
+            startActivityForResult(
+                    Intent.createChooser(chooseFile, "Choose a file"),
+                    PICKFILE_RESULT_CODE1
+            )
+            true
+        }
+        val exposurePref = screen.findPreference<Preference>("exposure_file")
+        exposurePref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            val chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.addCategory(Intent.CATEGORY_OPENABLE)
+            chooseFile.type = "application/json"
+            startActivityForResult(
+                    Intent.createChooser(chooseFile, "Choose a file"),
+                    PICKFILE_RESULT_CODE2
+            )
+            true
+        }
+        val anrPref = screen.findPreference<Preference>("anr_file")
+        anrPref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            val chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.addCategory(Intent.CATEGORY_OPENABLE)
+            chooseFile.type = "application/json"
+            startActivityForResult(
+                    Intent.createChooser(chooseFile, "Choose a file"),
+                    PICKFILE_RESULT_CODE3
+            )
+            true
+        }
+
         updateCameraPreferences()
         updateEncodePreference()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICKFILE_RESULT_CODE1 && resultCode == Activity.RESULT_OK) {
+            copyToFile(data,"/Defog_Table.json")
+        } else if(requestCode == PICKFILE_RESULT_CODE2 && resultCode == Activity.RESULT_OK) {
+            copyToFile(data,"/Exposure_Table.json")
+        } else if(requestCode == PICKFILE_RESULT_CODE3 && resultCode == Activity.RESULT_OK) {
+            copyToFile(data,"/ANR_Table.json")
+        }
+    }
+
+    private fun copyToFile(data:Intent?, filename:String) {
+        val contentDescriber: Uri? = data?.data
+        var input: InputStream? = null
+        var output: OutputStream? = null
+        try {
+            input = context?.contentResolver?.openInputStream(contentDescriber!!)
+            output = FileOutputStream(File(context?.filesDir?.path!!+filename))
+            val buffer = ByteArray(1024)
+            var len: Int
+            if (input != null) {
+                while (input.read(buffer).also { len = it } != -1) {
+                    output.write(buffer, 0, len)
+                }
+            }
+        } finally {
+            input?.close()
+            output?.close()
+            Toast.makeText(context, "File copy successful", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -217,6 +287,9 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     }
 
     companion object {
+        const val PICKFILE_RESULT_CODE1 = 1
+        const val PICKFILE_RESULT_CODE2 = 2
+        const val PICKFILE_RESULT_CODE3 = 3
         private data class CameraInfo(
                 val orientation: String,
                 val cameraId: String,

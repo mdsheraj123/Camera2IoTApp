@@ -464,6 +464,18 @@
             android:defaultValue="false"/>
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Camera Feature" >
+<!--        <Preference-->
+<!--            android:title="Defog Table"-->
+<!--            android:key="defog_file" />-->
+        <Preference
+            android:title="Exposure Table"
+            android:key="exposure_file" />
+        <Preference
+            android:title="ANR Data"
+            android:key="anr_file" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="Version" >
         <androidx.preference.EditTextPreference
             android:summary=""

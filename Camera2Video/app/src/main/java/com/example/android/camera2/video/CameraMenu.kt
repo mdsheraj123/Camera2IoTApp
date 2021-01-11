@@ -59,6 +59,9 @@ class CameraMenu(context: Context?, view: View) {
         fun onExpMeteringMode(value: Int)
         fun onISOMode(value: Long)
         fun onSetZoom(value: Int)
+        fun onDefog(value: Boolean)
+        fun onExposureTable(value: Boolean)
+        fun onANRTable(value: Boolean)
     }
 
     fun setOnCameraMenuListener(listener: OnCameraMenuListener) {
@@ -367,6 +370,21 @@ class CameraMenu(context: Context?, view: View) {
                 R.id.zoom_8x -> {
                     item.isChecked = true
                     cameraMenuListener?.onSetZoom(8)
+                    true
+                }
+//                R.id.defog -> {
+//                    item.isChecked = !item.isChecked
+//                    cameraMenuListener?.onDefog(item.isChecked)
+//                    true
+//                }
+                R.id.exp_table -> {
+                item.isChecked = !item.isChecked
+                cameraMenuListener?.onExposureTable(item.isChecked)
+                true
+                }
+                R.id.ANR_table -> {
+                    item.isChecked = !item.isChecked
+                    cameraMenuListener?.onANRTable(item.isChecked)
                     true
                 }
                 else -> false

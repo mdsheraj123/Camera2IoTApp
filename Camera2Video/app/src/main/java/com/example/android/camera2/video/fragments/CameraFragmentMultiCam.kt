@@ -232,6 +232,23 @@ class CameraFragmentMultiCam : Fragment() {
                 cameraBase1.setZoom(value)
                 Log.d(TAG, "Zoom value: $value")
             }
+            override fun onDefog(value: Boolean) {
+                cameraBase0.setDefog(value)
+                cameraBase1.setDefog(value)
+                Log.d(TAG, "Defog value: $value")
+            }
+
+            override fun onExposureTable(value: Boolean) {
+                cameraBase0.setExposureTable(value)
+                cameraBase1.setExposureTable(value)
+                Log.d(TAG, "Exposure value: $value")
+            }
+
+            override fun onANRTable(value: Boolean) {
+                cameraBase0.setANRTable(value)
+                cameraBase1.setANRTable(value)
+                Log.d(TAG, "ANR value: $value")
+            }
         })
         view.setOnClickListener() {
             cameraMenu.show()
@@ -240,7 +257,7 @@ class CameraFragmentMultiCam : Fragment() {
         // Used to rotate the output media to match device orientation
         relativeOrientation0 = OrientationLiveData(requireContext(), characteristics0).apply {
             observe(viewLifecycleOwner, Observer {
-                orientation -> Log.d(CameraFragmentVideo.TAG, "Orientation changed: $orientation")
+                orientation -> Log.d(TAG, "Orientation changed: $orientation")
                 val sensorOrientationDegrees0 =
                         characteristics0.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
                 val sign = if (characteristics0.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT) 1 else -1
@@ -254,7 +271,7 @@ class CameraFragmentMultiCam : Fragment() {
         // Used to rotate the output media to match device orientation
         relativeOrientation1 = OrientationLiveData(requireContext(), characteristics1).apply {
             observe(viewLifecycleOwner, Observer {
-                orientation -> Log.d(CameraFragmentVideo.TAG, "Orientation changed: $orientation")
+                orientation -> Log.d(TAG, "Orientation changed: $orientation")
             })
         }
     }
@@ -381,7 +398,7 @@ class CameraFragmentMultiCam : Fragment() {
                         recording = false
                         stopChronometer()
                     } else {
-                        Log.d(CameraFragmentVideo.TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
+                        Log.d(TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
                     }
                 } else {
                     sound.play(MediaActionSound.START_VIDEO_RECORDING)
