@@ -157,6 +157,7 @@ class OverlayRenderer {
     private var positionHandle = 0
     private var textureHandle = 0
     private var overlayTextureHandle = 0
+    private var overlayUpdate = false
 
     private lateinit var overlayImage: ImageData
 
@@ -315,9 +316,10 @@ class OverlayRenderer {
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0)
         GLES20.glUniformMatrix4fv(stMatrixHandle, 1, false, stMatrix, 0)
 
-        if (::overlayImage.isInitialized) {
+        if (::overlayImage.isInitialized && overlayUpdate) {
             GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, overlayImage.width,
                     overlayImage.height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, overlayImage.data)
+            overlayUpdate = false
         }
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
@@ -327,6 +329,7 @@ class OverlayRenderer {
 
     fun setImageOverlay(img: ImageData) {
         overlayImage = img
+        overlayUpdate = true
     }
 
     private fun checkEglError(msg: String) {
