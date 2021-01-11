@@ -239,6 +239,14 @@ class CameraFragmentMultiCam : Fragment() {
         relativeOrientation0 = OrientationLiveData(requireContext(), characteristics0).apply {
             observe(viewLifecycleOwner, Observer {
                 orientation -> Log.d(CameraFragmentVideo.TAG, "Orientation changed: $orientation")
+                val sensorOrientationDegrees0 =
+                        characteristics0.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
+                val sign = if (characteristics0.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT) 1 else -1
+                val requiredOrientation = ((orientation - sensorOrientationDegrees0)*sign).toFloat()
+                capture_button.rotation = requiredOrientation
+                recorder_button.rotation = requiredOrientation
+                chronometer_dual.rotation = requiredOrientation
+                thumbnailButton3.rotation = requiredOrientation
             })
         }
         // Used to rotate the output media to match device orientation

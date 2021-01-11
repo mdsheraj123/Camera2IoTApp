@@ -199,6 +199,13 @@ class CameraFragmentVideo : Fragment() {
         relativeOrientation = OrientationLiveData(requireContext(), characteristics).apply {
             observe(viewLifecycleOwner, Observer {
                 orientation -> Log.d(TAG, "Orientation changed: $orientation")
+                val sensorOrientationDegrees =
+                        characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
+                val sign = if (characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT) 1 else -1
+                val requiredOrientation = ((orientation - sensorOrientationDegrees)*sign).toFloat()
+                recorder_button.rotation = requiredOrientation
+                chronometer.rotation = requiredOrientation
+                thumbnailButton.rotation = requiredOrientation
             })
         }
     }
