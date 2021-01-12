@@ -69,7 +69,8 @@ object CameraSettingsUtil {
                 sharedPref.getString("vid_0_b_init_qp", null)!!.toInt(),
                 sharedPref.getString("vid_0_p_init_qp", null)!!.toInt(),
                 sharedPref.getString("vid_0_iframe_interval", null)!!.toInt(),
-                sharedPref.getBoolean("video_storage", true)
+                sharedPref.getBoolean("video_storage", true),
+                videoRecorderType = sharedPref.getString("video_recorder_type", null)!!.toInt()
         )
 
         val streamInfo1 = StreamInfo(
@@ -90,7 +91,8 @@ object CameraSettingsUtil {
                 sharedPref.getString("vid_1_b_init_qp", null)!!.toInt(),
                 sharedPref.getString("vid_1_p_init_qp", null)!!.toInt(),
                 sharedPref.getString("vid_1_iframe_interval", null)!!.toInt(),
-                sharedPref.getBoolean("video_storage", true)
+                sharedPref.getBoolean("video_storage", true),
+                videoRecorderType = sharedPref.getString("video_recorder_type", null)!!.toInt()
                 )
 
         val streamInfo2 = StreamInfo(
@@ -111,7 +113,8 @@ object CameraSettingsUtil {
                 sharedPref.getString("vid_2_b_init_qp", null)!!.toInt(),
                 sharedPref.getString("vid_2_p_init_qp", null)!!.toInt(),
                 sharedPref.getString("vid_2_iframe_interval", null)!!.toInt(),
-                sharedPref.getBoolean("video_storage", true)
+                sharedPref.getBoolean("video_storage", true),
+                videoRecorderType = sharedPref.getString("video_recorder_type", null)!!.toInt()
         )
 
         val snapshotInfo = StreamInfo(

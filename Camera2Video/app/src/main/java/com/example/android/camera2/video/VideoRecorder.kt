@@ -34,8 +34,12 @@
 
 package com.example.android.camera2.video
 
+import android.content.Context
 import android.net.Uri
 import android.view.Surface
+
+val VIDEO_RECORDER_MEDIA_CODEC = 0
+val VIDEO_RECORDER_MEDIA_RECORDER = 1
 
 interface VideoRecorder {
     fun start(orientation: Int?)
@@ -43,4 +47,16 @@ interface VideoRecorder {
     fun destroy()
     fun getRecorderSurface(): Surface
     fun getCurrentVideoFilePath(): String?
+}
+
+fun VideoRecorderFactory(context: Context,
+                         streamInfo: StreamInfo,
+                         videoRecorder: Int) : VideoRecorder {
+
+    return when (videoRecorder) {
+        VIDEO_RECORDER_MEDIA_CODEC -> MediaCodecRecorder(context, streamInfo)
+        VIDEO_RECORDER_MEDIA_RECORDER -> MediaRecorderRecorder(context, streamInfo)
+        else -> throw Exception("Unsupported video recorder type")
+
+    }
 }

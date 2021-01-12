@@ -235,7 +235,7 @@ class CameraFragmentVideo : Fragment() {
         }
 
         for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
-            val recorder = MediaCodecRecorder(requireContext().applicationContext, stream)
+            val recorder = VideoRecorderFactory(requireContext().applicationContext, stream, stream.videoRecorderType)
             val videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.height, stream.width)
             videoOverlay.setTextOverlay("Stream $streamCount overlay",
                     0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)

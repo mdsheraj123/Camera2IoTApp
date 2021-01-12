@@ -92,6 +92,13 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Video" >
+        <androidx.preference.ListPreference
+            android:key="video_recorder_type"
+            android:title="Video recorder type"
+            android:summary="%s"
+            android:entries="@array/video_recorder_type_string"
+            android:entryValues="@array/video_recorder_type"
+            android:defaultValue="0"/>
         <androidx.preference.SwitchPreference
             android:key="vid_0_enable"
             android:title="Stream 0 Enable"
