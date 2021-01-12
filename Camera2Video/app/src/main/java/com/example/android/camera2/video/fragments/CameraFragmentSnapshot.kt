@@ -206,7 +206,7 @@ class CameraFragmentSnapshot : Fragment() {
         cameraBase.setFramerate(settings.previewInfo.fps)
 
         if (settings.previewInfo.overlayEnable) {
-            val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height)
+            val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height, 0.0f)
             previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
             videoOverlayList.add(previewOverlay)
             cameraBase.addPreviewStream(previewOverlay.getInputSurface())

@@ -219,6 +219,8 @@ class CameraFragmentVideo : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
+        val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
+
         cameraBase.openCamera(settings.cameraId)
 
         cameraBase.setEISEnable(settings.cameraParams.eis_enable)
@@ -229,7 +231,7 @@ class CameraFragmentVideo : Fragment() {
 
         if (settings.displayOn) {
             if (settings.previewInfo.overlayEnable) {
-                val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height)
+                val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height, 0.0f)
                 previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
                 videoOverlayList.add(previewOverlay)
                 cameraBase.addPreviewStream(previewOverlay.getInputSurface())
@@ -242,7 +244,7 @@ class CameraFragmentVideo : Fragment() {
             val recorder = VideoRecorderFactory(requireContext().applicationContext, stream, stream.videoRecorderType)
             cameraBase.addVideoRecorder(recorder)
             if (stream.overlayEnable) {
-                val videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.height, stream.width)
+                val videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.width, stream.height, sensorOrientation.toFloat())
                 videoOverlay.setTextOverlay("Stream $streamCount overlay",
                         0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
                 videoOverlayList.add(videoOverlay)

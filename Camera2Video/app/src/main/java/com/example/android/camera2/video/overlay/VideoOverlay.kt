@@ -158,6 +158,7 @@ class OverlayRenderer {
     private var textureHandle = 0
     private var overlayTextureHandle = 0
     private var overlayUpdate = false
+    private var rotationAngle = 0.0f
 
     private lateinit var overlayImage: ImageData
 
@@ -312,6 +313,7 @@ class OverlayRenderer {
         GLES20.glEnableVertexAttribArray(textureHandle)
         checkEglError("glEnableVertexAttribArray textureHandle")
         Matrix.setIdentityM(mvpMatrix, 0)
+        Matrix.rotateM(mvpMatrix, 0, rotationAngle, 0.0f, 0.0f, 1.0f)
 
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0)
         GLES20.glUniformMatrix4fv(stMatrixHandle, 1, false, stMatrix, 0)
@@ -325,6 +327,10 @@ class OverlayRenderer {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
         checkEglError("glDrawArrays")
         GLES20.glFinish()
+    }
+
+    fun setRotation(rotation: Float) {
+        rotationAngle = rotation
     }
 
     fun setImageOverlay(img: ImageData) {
@@ -386,24 +392,25 @@ class VideoOverlay {
     private val widthImage: Int
     private val heightImage: Int
 
-    constructor(surface: Surface, width: Int, height: Int) {
+    constructor(surface: Surface, width: Int, height: Int, rotation: Float) {
         overlayRunning = true
         widthImage = width
         heightImage = height
         GlobalScope.launch {
-            handlerThread(surface, width, height)
+            handlerThread(surface, width, height, rotation)
         }
         synchronized(overlaySyncObject) {
             overlaySyncObject.wait()
         }
     }
 
-    private fun handlerThread(surface: Surface, width: Int, height: Int) {
+    private fun handlerThread(surface: Surface, width: Int, height: Int, rotation: Float) {
         overlaySemaphore.acquireUninterruptibly()
         eglCore = EglCore()
         outputSurface = OutputOverlaySurface(eglCore, surface)
         outputSurface.makeCurrent()
         overlayRenderer = OverlayRenderer()
+        overlayRenderer.setRotation(rotation)
         inputSurface = InputOverlaySurface(overlayRenderer.getTexID(), width, height)
 
         synchronized(overlaySyncObject) {

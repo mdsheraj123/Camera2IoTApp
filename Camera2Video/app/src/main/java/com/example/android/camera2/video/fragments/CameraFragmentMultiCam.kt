@@ -268,7 +268,7 @@ class CameraFragmentMultiCam : Fragment() {
 
         if (settings.displayOn) {
             if (settings.previewInfo.overlayEnable) {
-                val previewOverlay = VideoOverlay(viewFinder0.holder.surface, previewSize0.width, previewSize0.height)
+                val previewOverlay = VideoOverlay(viewFinder0.holder.surface, previewSize0.width, previewSize0.height, 0.0f)
                 previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
                 videoOverlayList.add(previewOverlay)
                 cameraBase0.addPreviewStream(previewOverlay.getInputSurface())
@@ -304,7 +304,7 @@ class CameraFragmentMultiCam : Fragment() {
 
         if (settings.displayOn) {
             if (settings.previewInfo.overlayEnable) {
-                val previewOverlay = VideoOverlay(viewFinder1.holder.surface, previewSize1.width, previewSize1.height)
+                val previewOverlay = VideoOverlay(viewFinder1.holder.surface, previewSize1.width, previewSize1.height, 0.0f)
                 previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
                 videoOverlayList.add(previewOverlay)
                 cameraBase1.addPreviewStream(previewOverlay.getInputSurface())
