@@ -64,6 +64,11 @@
             android:entries="@array/camera_fps_range"
             android:entryValues="@array/camera_fps_range"
             android:defaultValue="30"/>
+        <androidx.preference.SwitchPreference
+            android:key="preview_overlay"
+            android:title="Preview overlay"
+            android:summary="Preview overlay"
+            android:defaultValue="false"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Display" >
@@ -104,6 +109,11 @@
             android:title="Stream 0 Enable"
             android:summary="Enable Stream 0 Recording"
             android:defaultValue="true"/>
+        <androidx.preference.SwitchPreference
+            android:key="vid_0_overlay"
+            android:title="Stream 0 overlay"
+            android:summary="Stream 0 overlay"
+            android:defaultValue="false"/>
         <androidx.preference.ListPreference
             android:key="vid_0_format"
             android:title="Stream 0 Format"
@@ -212,6 +222,11 @@
             android:title="Stream 1 Enable"
             android:summary="Enable Stream 1 Recording"
             android:defaultValue="true" />
+        <androidx.preference.SwitchPreference
+            android:key="vid_1_overlay"
+            android:title="Stream 1 overlay"
+            android:summary="Stream 1 overlay"
+            android:defaultValue="false"/>
         <androidx.preference.ListPreference
             android:key="vid_1_format"
             android:title="Stream 1 Format"
@@ -320,6 +335,11 @@
             android:title="Stream 2 Enable"
             android:summary="Enable Stream 2 Recording"
             android:defaultValue="false" />
+        <androidx.preference.SwitchPreference
+            android:key="vid_2_overlay"
+            android:title="Stream 2 overlay"
+            android:summary="Stream 2 overlay"
+            android:defaultValue="false"/>
         <androidx.preference.ListPreference
             android:key="vid_2_format"
             android:title="Stream 2 Format"

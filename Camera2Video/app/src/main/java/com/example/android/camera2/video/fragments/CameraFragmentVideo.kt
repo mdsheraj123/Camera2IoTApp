@@ -228,20 +228,28 @@ class CameraFragmentVideo : Fragment() {
         cameraBase.setFramerate(settings.previewInfo.fps)
 
         if (settings.displayOn) {
-            val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height)
-            previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
-            videoOverlayList.add(previewOverlay)
-            cameraBase.addPreviewStream(previewOverlay.getInputSurface())
+            if (settings.previewInfo.overlayEnable) {
+                val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height)
+                previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                videoOverlayList.add(previewOverlay)
+                cameraBase.addPreviewStream(previewOverlay.getInputSurface())
+            } else {
+                cameraBase.addPreviewStream(viewFinder.holder.surface)
+            }
         }
 
         for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
             val recorder = VideoRecorderFactory(requireContext().applicationContext, stream, stream.videoRecorderType)
-            val videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.height, stream.width)
-            videoOverlay.setTextOverlay("Stream $streamCount overlay",
-                    0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
-            videoOverlayList.add(videoOverlay)
-            cameraBase.addStream(videoOverlay.getInputSurface())
             cameraBase.addVideoRecorder(recorder)
+            if (stream.overlayEnable) {
+                val videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.height, stream.width)
+                videoOverlay.setTextOverlay("Stream $streamCount overlay",
+                        0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                videoOverlayList.add(videoOverlay)
+                cameraBase.addStream(videoOverlay.getInputSurface())
+            } else {
+                cameraBase.addStream(recorder.getRecorderSurface())
+            }
         }
 
         cameraBase.startCamera()
