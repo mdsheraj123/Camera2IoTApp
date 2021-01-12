@@ -37,6 +37,7 @@ package com.example.android.camera2.video.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.hardware.camera2.*
 import android.media.ExifInterface
 import android.media.MediaActionSound
@@ -54,6 +55,7 @@ import com.example.android.camera.utils.getDisplaySmartSize
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
 import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
+import com.example.android.camera2.video.overlay.VideoOverlay
 import kotlinx.android.synthetic.main.fragment_camera_multicam.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,7 +74,7 @@ class CameraFragmentMultiCam : Fragment() {
     private lateinit var characteristics1: CameraCharacteristics
     private lateinit var characteristics2: CameraCharacteristics
 
-    private lateinit var viewFinder: AutoFitSurfaceView
+    private lateinit var viewFinder0: AutoFitSurfaceView
     private lateinit var viewFinder1: AutoFitSurfaceView
 
     private lateinit var overlay: View
@@ -82,6 +84,8 @@ class CameraFragmentMultiCam : Fragment() {
 
     private lateinit var previewSize0: Size
     private lateinit var previewSize1: Size
+
+    private val videoOverlayList = mutableListOf<VideoOverlay>()
 
     private val camera0Id = "0"
     private val camera1Id = "1"
@@ -112,10 +116,10 @@ class CameraFragmentMultiCam : Fragment() {
         }
 
         overlay = view.findViewById(R.id.overlay)
-        viewFinder = view.findViewById(R.id.view_finder)
+        viewFinder0 = view.findViewById(R.id.view_finder)
         viewFinder1 = view.findViewById(R.id.view_finder1)
 
-        viewFinder.holder.addCallback(object : SurfaceHolder.Callback {
+        viewFinder0.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceDestroyed(holder: SurfaceHolder) = Unit
             override fun surfaceChanged(
                     holder: SurfaceHolder,
@@ -125,10 +129,10 @@ class CameraFragmentMultiCam : Fragment() {
 
             override fun surfaceCreated(holder: SurfaceHolder) {
                 previewSize0 = getPreviewOutputSize(
-                        viewFinder.display, characteristics0, SurfaceHolder::class.java)
-                Log.d(TAG, "View finder size: ${viewFinder.width} x ${viewFinder.height}")
+                        viewFinder0.display, characteristics0, SurfaceHolder::class.java)
+                Log.d(TAG, "View finder size: ${viewFinder0.width} x ${viewFinder0.height}")
                 Log.d(TAG, "Selected preview size: $previewSize0")
-                viewFinder.setAspectRatio(previewSize0.width, previewSize0.height)
+                viewFinder0.setAspectRatio(previewSize0.width, previewSize0.height)
             }
         })
 
@@ -262,7 +266,16 @@ class CameraFragmentMultiCam : Fragment() {
 
         cameraBase0.setFramerate(settings.previewInfo.fps)
 
-        if (settings.displayOn) cameraBase0.addPreviewStream(viewFinder.holder.surface)
+        if (settings.displayOn) {
+            if (settings.previewInfo.overlayEnable) {
+                val previewOverlay = VideoOverlay(viewFinder0.holder.surface, previewSize0.width, previewSize0.height)
+                previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                videoOverlayList.add(previewOverlay)
+                cameraBase0.addPreviewStream(previewOverlay.getInputSurface())
+            } else {
+                cameraBase0.addPreviewStream(viewFinder0.holder.surface)
+            }
+        }
 
         cameraBase0.addSnapshotStream(settings.snapshotInfo)
 
@@ -289,7 +302,16 @@ class CameraFragmentMultiCam : Fragment() {
 
         cameraBase1.setFramerate(settings.previewInfo.fps)
 
-        if (settings.displayOn) cameraBase1.addPreviewStream(viewFinder1.holder.surface)
+        if (settings.displayOn) {
+            if (settings.previewInfo.overlayEnable) {
+                val previewOverlay = VideoOverlay(viewFinder1.holder.surface, previewSize1.width, previewSize1.height)
+                previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                videoOverlayList.add(previewOverlay)
+                cameraBase1.addPreviewStream(previewOverlay.getInputSurface())
+            } else {
+                cameraBase1.addPreviewStream(viewFinder1.holder.surface)
+            }
+        }
 
         cameraBase1.addSnapshotStream(settings.snapshotInfo)
 
@@ -428,6 +450,9 @@ class CameraFragmentMultiCam : Fragment() {
             if (settings.threeCamUse) cameraBase2.close()
         } catch (exc: Throwable) {
             Log.e(TAG, "Error closing camera", exc)
+        }
+        for (overlay in videoOverlayList) {
+            overlay.release()
         }
         super.onStop()
     }

@@ -37,6 +37,7 @@ package com.example.android.camera2.video.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.ExifInterface
@@ -61,6 +62,7 @@ import com.example.android.camera.utils.AutoFitSurfaceView
 import com.example.android.camera.utils.OrientationLiveData
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
+import com.example.android.camera2.video.overlay.VideoOverlay
 import kotlinx.android.synthetic.main.fragment_camera_snapshot.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -82,6 +84,8 @@ class CameraFragmentSnapshot : Fragment() {
     private lateinit var settings: CameraSettings
 
     private lateinit var previewSize: Size
+
+    private val videoOverlayList = mutableListOf<VideoOverlay>()
 
     /** Live data listener for changes in the device orientation relative to the camera */
     private lateinit var relativeOrientation: OrientationLiveData
@@ -200,7 +204,16 @@ class CameraFragmentSnapshot : Fragment() {
         cameraBase.setSHDREnable(settings.cameraParams.shdr_enable)
 
         cameraBase.setFramerate(settings.previewInfo.fps)
-        cameraBase.addPreviewStream(viewFinder.holder.surface)
+
+        if (settings.previewInfo.overlayEnable) {
+            val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height)
+            previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+            videoOverlayList.add(previewOverlay)
+            cameraBase.addPreviewStream(previewOverlay.getInputSurface())
+        } else {
+            cameraBase.addPreviewStream(viewFinder.holder.surface)
+        }
+
         cameraBase.addSnapshotStream(settings.snapshotInfo)
         cameraBase.startCamera()
 
@@ -263,6 +276,9 @@ class CameraFragmentSnapshot : Fragment() {
             cameraBase.close()
         } catch (exc: Throwable) {
             Log.e(TAG, "Error closing camera", exc)
+        }
+        for (overlay in videoOverlayList) {
+            overlay.release()
         }
         super.onStop()
     }
