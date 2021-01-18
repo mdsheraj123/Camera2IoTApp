@@ -2,7 +2,7 @@
 <!--
 ~ Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-~ Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+~ Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 ~
 ~ Redistribution and use in source and binary forms, with or without
 ~ modification, are permitted (subject to the limitations in the
@@ -56,13 +56,13 @@
     <string name="antibanding">Antibanding</string>
     <string name="ae_mode">AE Mode</string>
     <string name="awb_mode">AWB Mode</string>
-    <string name="af_mode">Auto Focus Mode</string>
+    <string name="af_mode">AF Mode</string>
     <string name="ae_lock">AE Lock</string>
     <string name="awb_lock">AWB Lock</string>
     <string name="effect_mode">Effect Mode</string>
     <string name="nr_mode">Noise Reduction Mode</string>
     <string name="ir_led_mode">IR LED Mode</string>
-    <string name="adrc_mode">ADRC Mode</string>
+    <string name="adrc_mode">ADRC Disable</string>
     <string name="exposure_metering_mode">Exposure Metering Mode</string>
     <string name="iso_mode">ISO Mode</string>
     <string name="thumbnail_button">Displays thumbnail of captured media</string>

@@ -178,6 +178,8 @@ class CameraBase(val context: Context): CameraModule {
                     override fun onConfigured(s: CameraCaptureSession) {
                         Log.d(TAG, "onConfigured session")
                         session = s
+                        // Set Default Camera Param
+                        setDefaultCameraParam()
                         // if there is no active surface, do not set setRepeatingRequest.
                         if (streamSurfaceList.isNotEmpty()) session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
                     }
@@ -382,6 +384,91 @@ class CameraBase(val context: Context): CameraModule {
         streamConfigOpMode = 0x00
     }
 
+    private fun setDefaultCameraParam() {
+        // Set Effect Mode to Off.
+        previewRequest.set(CaptureRequest.CONTROL_EFFECT_MODE, 0)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_EFFECT_MODE, 0)
+        }
+
+        // Set AntiBanding to Auto
+        previewRequest.set(CaptureRequest.CONTROL_AE_ANTIBANDING_MODE, 3)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AE_ANTIBANDING_MODE, 3)
+        }
+
+        // Set AE Exposure Compensation to 0
+        previewRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 0)
+        }
+
+        // Set AE Mode to On
+        previewRequest.set(CaptureRequest.CONTROL_AE_MODE, 1)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AE_MODE, 1)
+        }
+
+        // Set AE Lock to False
+        previewRequest.set(CaptureRequest.CONTROL_AE_LOCK, false)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AE_LOCK, false)
+        }
+
+        // Set AWB to Auto
+        previewRequest.set(CaptureRequest.CONTROL_AWB_MODE, 1)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AWB_MODE, 1)
+        }
+
+        // Set AWB lock to False
+        previewRequest.set(CaptureRequest.CONTROL_AWB_LOCK, false)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AWB_LOCK, false)
+        }
+
+        // Set AF Mode to Off.
+        previewRequest.set(CaptureRequest.CONTROL_AF_MODE, 0)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AF_MODE, 0)
+        }
+
+        // Set Noise Reduction Mode to FAST
+        previewRequest.set(CaptureRequest.NOISE_REDUCTION_MODE, 1)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.NOISE_REDUCTION_MODE, 1)
+        }
+
+        // Set ADRC to False
+        VendorTagUtil.setADRC(previewRequest, 0)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setADRC(captureRequest, 0)
+        }
+
+        // Set IR LED to Off
+        VendorTagUtil.setIRLED(previewRequest, 0)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIRLED(captureRequest, 0)
+        }
+
+        // Set ISO Mode to Auto
+        VendorTagUtil.setIsoExpPrioritySelectPriority(previewRequest, 0)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPrioritySelectPriority(captureRequest, 0)
+        }
+
+        VendorTagUtil.setIsoExpPriority(previewRequest, 0)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPriority(captureRequest, 0)
+        }
+
+        // Set Exposure Metering to Avg
+        VendorTagUtil.setExposureMetering(previewRequest, 0)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setExposureMetering(captureRequest, 0)
+        }
+    }
+
     private fun updateRepeatingRequest() {
         if (::session.isInitialized) {
             session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
@@ -489,6 +576,7 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     override fun setNRMode(value: Int) {
+        Log.d(TAG, "Noise Reduction mode: $value")
         previewRequest.set(CaptureRequest.NOISE_REDUCTION_MODE, value)
         if (::captureRequest.isInitialized) {
             captureRequest.set(CaptureRequest.NOISE_REDUCTION_MODE, value)
@@ -501,11 +589,13 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     override fun setAELock(value: Boolean) {
+        Log.d(TAG, "AE Lock: $value")
         previewRequest.set(CaptureRequest.CONTROL_AE_LOCK, value)
         updateRepeatingRequest()
     }
 
     override fun setAWBLock(value: Boolean) {
+        Log.d(TAG, "AWB Lock: $value")
         previewRequest.set(CaptureRequest.CONTROL_AWB_LOCK, value)
         updateRepeatingRequest()
     }

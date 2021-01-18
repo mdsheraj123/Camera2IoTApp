@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-~ Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+~ Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 ~
 ~ Redistribution and use in source and binary forms, with or without
 ~ modification, are permitted (subject to the limitations in the
@@ -42,6 +42,16 @@
         android:title="@string/ae_lock" />
 
     <item
+        android:id="@+id/awb_lock"
+        android:checkable="true"
+        android:title="@string/awb_lock" />
+
+    <item
+        android:id="@+id/adrc_mode"
+        android:checkable="true"
+        android:title="@string/adrc_mode" />
+
+    <item
         android:id="@+id/ae_mode"
         android:title="@string/ae_mode" >
         <menu>
@@ -49,24 +59,19 @@
                 <item android:id="@+id/AE_OFF"
                     android:title="Off" />
                 <item android:id="@+id/AE_ON"
+                    android:checked="true"
                     android:title="On" />
             </group>
         </menu>
     </item>
 
     <item
-        android:id="@+id/awb_lock"
-        android:checkable="true"
-        android:title="@string/awb_lock" />
-
-    <item
         android:id="@+id/awb_mode"
         android:title="@string/awb_mode" >
         <menu>
             <group android:checkableBehavior="single">
-                <item android:id="@+id/AWB_MODE_OFF"
-                    android:title="Off" />
                 <item android:id="@+id/AWB_MODE_AUTO"
+                    android:checked="true"
                     android:title="Auto" />
                 <item android:id="@+id/AWB_MODE_INCANDESCENT"
                     android:title="Incandescent" />
@@ -92,6 +97,7 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/EFFECT_MODE_OFF"
+                    android:checked="true"
                     android:title="Off" />
                 <item android:id="@+id/EFFECT_MODE_MONO"
                     android:title="Mono" />
@@ -121,6 +127,7 @@
         <item android:id="@+id/nr_mode_off"
             android:title="Off" />
         <item android:id="@+id/nr_mode_fast"
+            android:checked="true"
             android:title="Fast" />
         <item android:id="@+id/nr_mode_hq"
             android:title="High quality" />
@@ -144,7 +151,8 @@
                 <item android:id="@+id/ANTIBANDING_MODE_60HZ"
                     android:title="60 Hz" />
                 <item android:id="@+id/ANTIBANDING_MODE_AUTO"
-                    android:title="Auto" />
+                    android:title="Auto"
+                    android:checked="true" />
             </group>
         </menu>
     </item>
@@ -155,6 +163,7 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/AF_MODE_OFF"
+                    android:checked="true"
                     android:title="Off" />
                 <item android:id="@+id/AF_MODE_AUTO"
                     android:title="Auto" />
@@ -176,19 +185,13 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/ir_mode_off"
+                    android:checked="true"
                     android:title="Off" />
                 <item android:id="@+id/ir_mode_on"
                     android:title="On" />
-                <item android:id="@+id/ir_mode_auto"
-                    android:title="Auto" />
             </group>
         </menu>
     </item>
-
-    <item
-    android:id="@+id/adrc_mode"
-    android:checkable="true"
-    android:title="@string/adrc_mode" />
 
     <item
         android:id="@+id/exp_metering_mode"
@@ -196,6 +199,7 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/ae_exp_mode_avg"
+                    android:checked="true"
                     android:title="Average" />
                 <item android:id="@+id/ae_exp_mode_center_weight"
                     android:title="Center Weight" />
@@ -213,6 +217,7 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/iso_mode_auto"
+                    android:checked="true"
                     android:title="Auto" />
                 <item android:id="@+id/iso_mode_deblur"
                     android:title="Deblur" />

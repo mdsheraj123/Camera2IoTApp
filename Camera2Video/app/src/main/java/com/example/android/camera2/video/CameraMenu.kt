@@ -178,11 +178,6 @@ class CameraMenu(context: Context?, view: View) {
                     cameraMenuListener?.onAEMode(CameraMetadata.CONTROL_AE_MODE_ON)
                     true
                 }
-                R.id.AWB_MODE_OFF -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_OFF)
-                    true
-                }
                 R.id.AWB_MODE_AUTO -> {
                     item.isChecked = true
                     cameraMenuListener?.onAWBMode(CameraMetadata.CONTROL_AWB_MODE_AUTO)
@@ -261,11 +256,6 @@ class CameraMenu(context: Context?, view: View) {
                 R.id.ir_mode_on -> {
                     item.isChecked = true
                     cameraMenuListener?.onIRMode(1)
-                    true
-                }
-                R.id.ir_mode_auto -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onIRMode(2)
                     true
                 }
                 R.id.adrc_mode -> {
