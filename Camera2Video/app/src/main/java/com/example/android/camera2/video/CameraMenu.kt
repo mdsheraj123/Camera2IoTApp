@@ -58,6 +58,7 @@ class CameraMenu(context: Context?, view: View) {
         fun onADRCMode(value: Byte)
         fun onExpMeteringMode(value: Int)
         fun onISOMode(value: Long)
+        fun onSetZoom(value: Int)
     }
 
     fun setOnCameraMenuListener(listener: OnCameraMenuListener) {
@@ -321,6 +322,51 @@ class CameraMenu(context: Context?, view: View) {
                 R.id.iso_mode_3200 -> {
                     item.isChecked = true
                     cameraMenuListener?.onISOMode(7)
+                    true
+                }
+                R.id.zoom_off -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(0)
+                    true
+                }
+                R.id.zoom_1x -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(1)
+                    true
+                }
+                R.id.zoom_2x -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(2)
+                    true
+                }
+                R.id.zoom_3x -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(3)
+                    true
+                }
+                R.id.zoom_4x -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(4)
+                    true
+                }
+                R.id.zoom_5x -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(5)
+                    true
+                }
+                R.id.zoom_6x -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(6)
+                    true
+                }
+                R.id.zoom_7x -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(7)
+                    true
+                }
+                R.id.zoom_8x -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSetZoom(8)
                     true
                 }
                 else -> false

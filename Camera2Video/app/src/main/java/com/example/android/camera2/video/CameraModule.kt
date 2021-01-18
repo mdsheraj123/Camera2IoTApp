@@ -103,4 +103,5 @@ interface CameraModule {
     fun setADRCMode(value: Byte)
     fun setExpMeteringMode(value: Int)
     fun setISOMode(value: Long)
+    fun setZoom(value: Int)
 }

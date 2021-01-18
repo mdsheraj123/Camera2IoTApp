@@ -185,6 +185,11 @@ class CameraFragmentVideo : Fragment() {
                 cameraBase.setISOMode(value)
                 Log.d(TAG, "ISO mode: $value")
             }
+
+            override fun onSetZoom(value: Int) {
+                cameraBase.setZoom(value)
+                Log.d(TAG, "Zoom value: $value")
+            }
         })
         view.setOnClickListener() {
             cameraMenu.show()

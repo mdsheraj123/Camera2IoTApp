@@ -224,6 +224,12 @@ class CameraFragmentMultiCam : Fragment() {
                 cameraBase1.setISOMode(value)
                 Log.d(TAG, "ISO mode: $value")
             }
+
+            override fun onSetZoom(value: Int) {
+                cameraBase0.setZoom(value)
+                cameraBase1.setZoom(value)
+                Log.d(TAG, "Zoom value: $value")
+            }
         })
         view.setOnClickListener() {
             cameraMenu.show()

@@ -237,6 +237,35 @@
         </menu>
     </item>
 
+    <item
+        android:id="@+id/zoom"
+        android:title="@string/ZOOM" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/zoom_off"
+                    android:checked="true"
+                    android:title="Off" />
+                <item android:id="@+id/zoom_1x"
+                    android:title="1x" />
+                <item android:id="@+id/zoom_2x"
+                    android:title="2x" />
+                <item android:id="@+id/zoom_3x"
+                    android:title="3x" />
+                <item android:id="@+id/zoom_4x"
+                    android:title="4x" />
+                <item android:id="@+id/zoom_5x"
+                    android:title="5x" />
+                <item android:id="@+id/zoom_6x"
+                    android:title="6x" />
+                <item android:id="@+id/zoom_7x"
+                    android:title="7x" />
+                <item android:id="@+id/zoom_8x"
+                    android:title="8x" />
+
+            </group>
+        </menu>
+    </item>
+
 </menu>
 
 

@@ -66,4 +66,5 @@
     <string name="exposure_metering_mode">Exposure Metering Mode</string>
     <string name="iso_mode">ISO Mode</string>
     <string name="thumbnail_button">Displays thumbnail of captured media</string>
+    <string name="ZOOM">Zoom</string>
 </resources>

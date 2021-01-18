@@ -37,14 +37,13 @@ package com.example.android.camera2.video
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.graphics.ImageFormat
+import android.graphics.Rect
 import android.hardware.camera2.*
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
 import android.media.ImageReader
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
@@ -52,7 +51,6 @@ import android.os.HandlerThread
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Range
-import android.view.OrientationEventListener
 import android.view.Surface
 import com.example.android.camera.utils.OrientationLiveData.Companion.getOrientationValueForRotation
 import kotlinx.coroutines.GlobalScope
@@ -70,6 +68,7 @@ import java.util.concurrent.TimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.roundToInt
 
 class CameraBase(val context: Context): CameraModule {
 
@@ -575,6 +574,30 @@ class CameraBase(val context: Context): CameraModule {
         updateRepeatingRequest()
     }
 
+    override fun setZoom(zoomValue: Int) {
+        Log.d(TAG, "Zoom Value: $zoomValue")
+        val rect: Rect = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                ?: return
+
+        var ratio: Float = when (zoomValue) {
+            0 -> 1.toFloat()
+            else -> 1.toFloat() / zoomValue
+        }
+
+        val croppedWidth: Int = rect.width() - (rect.width() * ratio).roundToInt()
+        val croppedHeight: Int = rect.height() - (rect.height() * ratio).roundToInt()
+
+        //Finally, zoom represents the zoomed visible area
+        val zoom = Rect(croppedWidth / 2, croppedHeight / 2,
+                rect.width() - croppedWidth / 2, rect.height() - croppedHeight / 2)
+
+        previewRequest.set(CaptureRequest.SCALER_CROP_REGION, zoom)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.SCALER_CROP_REGION, zoom)
+        }
+        updateRepeatingRequest()
+    }
+
     override fun setNRMode(value: Int) {
         Log.d(TAG, "Noise Reduction mode: $value")
         previewRequest.set(CaptureRequest.NOISE_REDUCTION_MODE, value)
@@ -623,7 +646,7 @@ class CameraBase(val context: Context): CameraModule {
         private fun createFile(context: Context, extension: String): File {
             val dir = File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DCIM), "Camera")
-            return File.createTempFile(createFileName(),".$extension",dir)
+            return File.createTempFile(createFileName(), ".$extension", dir)
         }
 
         private fun createFileName(): String {
