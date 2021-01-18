@@ -110,40 +110,6 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             "camera_id" -> updateCameraPreferences()
-            "display_enable" -> {
-                // If Display is on, then disable stream 2 encoding.
-                val screen: PreferenceScreen = this.preferenceScreen
-                val displayPreference = screen.findPreference<SwitchPreference>("display_enable")
-                val stream2Preference = screen.findPreference<SwitchPreference>("vid_2_enable")
-                if (displayPreference != null) {
-                    if (displayPreference.isChecked) {
-                        if (stream2Preference != null) {
-                            stream2Preference.isChecked = false
-                        }
-                    } else {
-                        if (stream2Preference != null) {
-                            stream2Preference.isChecked = true
-                        }
-                    }
-                }
-            }
-            "vid_2_enable" -> {
-                // If Stream 2  is on, then disable display.
-                val screen: PreferenceScreen = this.preferenceScreen
-                val displayPreference = screen.findPreference<SwitchPreference>("display_enable")
-                val stream2Preference = screen.findPreference<SwitchPreference>("vid_2_enable")
-                if (stream2Preference != null) {
-                    if (stream2Preference.isChecked) {
-                        if (displayPreference != null) {
-                            displayPreference.isChecked = false
-                        }
-                    } else {
-                        if (displayPreference != null) {
-                            displayPreference.isChecked = true
-                        }
-                    }
-                }
-            }
             "dual_camera" -> {
                 val screen: PreferenceScreen = this.preferenceScreen
                 val dualCam = screen.findPreference<SwitchPreference>("dual_camera")

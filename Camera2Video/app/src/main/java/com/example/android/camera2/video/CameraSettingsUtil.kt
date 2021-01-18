@@ -137,7 +137,7 @@ object CameraSettingsUtil {
             recorderStreams.add(streamInfo1)
         }
         // Add 3rd encoding stream only if there is no display enabled.
-        if (sharedPref.getBoolean("vid_2_enable", false) && !sharedPref.getBoolean("display_enable", false)) {
+        if (sharedPref.getBoolean("vid_2_enable", false)) {
             recorderStreams.add(streamInfo2)
         }
 

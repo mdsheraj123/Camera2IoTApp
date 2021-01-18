@@ -65,7 +65,7 @@ data class CameraParameters(val eis_enable: Boolean = false,
                             val shdr_enable: Boolean = false)
 
 data class CameraSettings(var previewInfo: StreamInfo,
-                          var recorderInfo: List<StreamInfo>,
+                          var recorderInfo: MutableList<StreamInfo>,
                           var snapshotInfo: StreamInfo,
                           var cameraParams: CameraParameters,
                           var cameraId: String,
@@ -74,11 +74,13 @@ data class CameraSettings(var previewInfo: StreamInfo,
 
 interface CameraModule {
     fun getAvailableCameras(): Array<String>
+    fun getSensorOrientation(): Int
     suspend fun openCamera(cameraId: String)
     fun setFramerate(fps: Int)
     fun addPreviewStream(surface: Surface)
     fun addStream(surface: Surface)
     fun addRecorderStream(stream: StreamInfo)
+    fun addSharedStream(surfaceList: List<Surface>)
     fun addSnapshotStream(stream: StreamInfo)
     fun addVideoRecorder(recorder: VideoRecorder)
     fun startCamera()

@@ -269,6 +269,64 @@ class CameraFragmentMultiCam : Fragment() {
         chronometer_dual.stop()
     }
 
+    private fun addCameraStreams(camBase: CameraBase, settings: CameraSettings, previewSurface: Surface, previewSize: Size) {
+        var availableCameraStreams = MAX_CAMERA_STREAMS
+
+        if (settings.displayOn) {
+            if (settings.previewInfo.overlayEnable) {
+                val previewOverlay = VideoOverlay(previewSurface, previewSize.width, previewSize.height, 0.0f)
+                previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                videoOverlayList.add(previewOverlay)
+                camBase.addPreviewStream(previewOverlay.getInputSurface())
+            } else {
+                camBase.addPreviewStream(previewSurface)
+            }
+            availableCameraStreams--
+        }
+
+        camBase.addSnapshotStream(settings.snapshotInfo)
+        availableCameraStreams--
+
+        val sharedStreamSurfaces = mutableListOf<Surface>()
+        var sharedStreamsSize: Size = Size(0,0)
+
+        // Search for best resolution for shared streams
+        for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
+            if (availableCameraStreams - streamCount <= 1) {
+                if (sharedStreamsSize.width < stream.width) {
+                    sharedStreamsSize = Size(stream.width, stream.height)
+                }
+            }
+        }
+
+        for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
+            val recorder = VideoRecorderFactory(requireContext().applicationContext, stream, stream.videoRecorderType)
+            camBase.addVideoRecorder(recorder)
+            if (stream.overlayEnable) {
+                lateinit var videoOverlay: VideoOverlay
+                if (availableCameraStreams > 1) {
+                    videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.width, stream.height, camBase.getSensorOrientation().toFloat())
+                    camBase.addStream(videoOverlay.getInputSurface())
+                } else {
+                    videoOverlay = VideoOverlay(recorder.getRecorderSurface(), sharedStreamsSize.width, sharedStreamsSize.height, camBase.getSensorOrientation().toFloat())
+                    sharedStreamSurfaces.add(videoOverlay.getInputSurface())
+                }
+                videoOverlay.setTextOverlay("Stream $streamCount overlay",
+                        0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                videoOverlayList.add(videoOverlay)
+            } else {
+                if (availableCameraStreams > 1) {
+                    camBase.addStream(recorder.getRecorderSurface())
+                } else {
+                    sharedStreamSurfaces.add(recorder.getRecorderSurface())
+                }
+            }
+            availableCameraStreams--
+        }
+        if (sharedStreamSurfaces.isNotEmpty()) {
+            camBase.addSharedStream(sharedStreamSurfaces)
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
@@ -277,72 +335,24 @@ class CameraFragmentMultiCam : Fragment() {
         cameraBase0.setEISEnable(settings.cameraParams.eis_enable)
         cameraBase0.setLDCEnable(settings.cameraParams.ldc_enable)
         cameraBase0.setSHDREnable(settings.cameraParams.shdr_enable)
-
         cameraBase0.setFramerate(settings.previewInfo.fps)
 
-        if (settings.displayOn) {
-            if (settings.previewInfo.overlayEnable) {
-                val previewOverlay = VideoOverlay(viewFinder0.holder.surface, previewSize0.width, previewSize0.height, 0.0f)
-                previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
-                videoOverlayList.add(previewOverlay)
-                cameraBase0.addPreviewStream(previewOverlay.getInputSurface())
-            } else {
-                cameraBase0.addPreviewStream(viewFinder0.holder.surface)
+        // Supports max two streams per camera. Remove the excess.
+        if (settings.recorderInfo.size > 2) {
+            for (i in 2 until settings.recorderInfo.size) {
+                settings.recorderInfo.removeAt(i)
             }
         }
-
-        cameraBase0.addSnapshotStream(settings.snapshotInfo)
-
-        when (settings.recorderInfo.size) {
-            0 -> Log.d(TAG, "No Encoding stream configured.")
-            1 -> cameraBase0.addRecorderStream(settings.recorderInfo[0])
-            2 -> {
-                cameraBase0.addRecorderStream(settings.recorderInfo[0])
-                if (!settings.displayOn) cameraBase0.addRecorderStream(settings.recorderInfo[1])
-            }
-            3 -> {
-                // Display is off implicit. Add only 2 encode streams.
-                cameraBase0.addRecorderStream(settings.recorderInfo[0])
-                cameraBase0.addRecorderStream(settings.recorderInfo[1])
-            }
-            else -> Log.d(TAG, "Not a valid config for encoder")
-        }
+        addCameraStreams(cameraBase0, settings, viewFinder0.holder.surface, previewSize0)
 
         cameraBase1.openCamera(camera1Id)
 
         cameraBase1.setEISEnable(settings.cameraParams.eis_enable)
         cameraBase1.setLDCEnable(settings.cameraParams.ldc_enable)
         cameraBase1.setSHDREnable(settings.cameraParams.shdr_enable)
-
         cameraBase1.setFramerate(settings.previewInfo.fps)
 
-        if (settings.displayOn) {
-            if (settings.previewInfo.overlayEnable) {
-                val previewOverlay = VideoOverlay(viewFinder1.holder.surface, previewSize1.width, previewSize1.height, 0.0f)
-                previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
-                videoOverlayList.add(previewOverlay)
-                cameraBase1.addPreviewStream(previewOverlay.getInputSurface())
-            } else {
-                cameraBase1.addPreviewStream(viewFinder1.holder.surface)
-            }
-        }
-
-        cameraBase1.addSnapshotStream(settings.snapshotInfo)
-
-        when (settings.recorderInfo.size) {
-            0 -> Log.d(TAG, "No Encoding stream configured.")
-            1 -> cameraBase1.addRecorderStream(settings.recorderInfo[0])
-            2 -> {
-                cameraBase1.addRecorderStream(settings.recorderInfo[0])
-                if (!settings.displayOn) cameraBase1.addRecorderStream(settings.recorderInfo[1])
-            }
-            3 -> {
-                // Display is off implicit. Add only 2 encode streams.
-                cameraBase1.addRecorderStream(settings.recorderInfo[0])
-                cameraBase1.addRecorderStream(settings.recorderInfo[1])
-            }
-            else -> Log.d(TAG, "Not a valid config for encoder")
-        }
+        addCameraStreams(cameraBase1, settings, viewFinder1.holder.surface, previewSize1)
 
         if (settings.threeCamUse) {
             cameraBase2.openCamera(camera2Id)
@@ -474,5 +484,6 @@ class CameraFragmentMultiCam : Fragment() {
     companion object {
         private val TAG = CameraFragmentMultiCam::class.java.simpleName
         var recording = false
+        const val MAX_CAMERA_STREAMS = 3
     }
 }

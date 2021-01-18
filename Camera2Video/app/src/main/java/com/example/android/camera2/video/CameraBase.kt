@@ -94,6 +94,8 @@ class CameraBase(val context: Context): CameraModule {
 
     private val snapshotSurfaceList = mutableListOf<Surface>()
 
+    private val sharedStreamSurfaceList = mutableListOf<List<Surface>>()
+
     private val recorderList = mutableListOf<VideoRecorder>()
 
     private var previewFps = 30
@@ -112,6 +114,10 @@ class CameraBase(val context: Context): CameraModule {
     var currentSnapshotFilePath: String? = null
 
     override fun getAvailableCameras(): Array<String> = cameraManager.cameraIdList
+
+    override fun getSensorOrientation(): Int {
+        return characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
+    }
 
     override suspend fun openCamera(cameraId: String) {
         Log.d(TAG, "openCamera")
@@ -162,6 +168,17 @@ class CameraBase(val context: Context): CameraModule {
             outConfigurations.add(OutputConfiguration(surface))
         }
 
+        for (sharedSurface in sharedStreamSurfaceList) {
+            val sharedOutputConfig = OutputConfiguration(sharedSurface[0])
+            sharedOutputConfig.enableSurfaceSharing()
+            previewRequest.addTarget(sharedSurface[0])
+            for (surface in sharedSurface.takeLast(sharedSurface.size - 1)) {
+                sharedOutputConfig.addSurface(surface)
+                previewRequest.addTarget(surface)
+            }
+            outConfigurations.add(sharedOutputConfig)
+        }
+
         previewRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(previewFps, previewFps))
 
         // Set Opmode
@@ -201,6 +218,10 @@ class CameraBase(val context: Context): CameraModule {
         val recorder = MediaCodecRecorder(context, stream)
         streamSurfaceList.add(recorder.getRecorderSurface())
         recorderList.add(recorder)
+    }
+
+    override fun addSharedStream(surfaceList: List<Surface>) {
+        sharedStreamSurfaceList.add(surfaceList)
     }
 
     override fun addVideoRecorder(recorder: VideoRecorder) {

@@ -229,42 +229,72 @@ class CameraFragmentVideo : Fragment() {
         return drawable
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
-        val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
-
-        cameraBase.openCamera(settings.cameraId)
-
-        cameraBase.setEISEnable(settings.cameraParams.eis_enable)
-        cameraBase.setLDCEnable(settings.cameraParams.ldc_enable)
-        cameraBase.setSHDREnable(settings.cameraParams.shdr_enable)
-
-        cameraBase.setFramerate(settings.previewInfo.fps)
+    private fun addCameraStreams(camBase: CameraBase, settings: CameraSettings) {
+        var availableCameraStreams = MAX_CAMERA_STREAMS
 
         if (settings.displayOn) {
             if (settings.previewInfo.overlayEnable) {
                 val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height, 0.0f)
                 previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
                 videoOverlayList.add(previewOverlay)
-                cameraBase.addPreviewStream(previewOverlay.getInputSurface())
+                camBase.addPreviewStream(previewOverlay.getInputSurface())
             } else {
-                cameraBase.addPreviewStream(viewFinder.holder.surface)
+                camBase.addPreviewStream(viewFinder.holder.surface)
+            }
+            availableCameraStreams--
+        }
+
+        val sharedStreamSurfaces = mutableListOf<Surface>()
+        var sharedStreamsSize: Size = Size(0,0)
+
+        // Search for best resolution for shared streams
+        for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
+            if (availableCameraStreams - streamCount <= 1) {
+                if (sharedStreamsSize.width < stream.width) {
+                    sharedStreamsSize = Size(stream.width, stream.height)
+                }
             }
         }
 
         for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
             val recorder = VideoRecorderFactory(requireContext().applicationContext, stream, stream.videoRecorderType)
-            cameraBase.addVideoRecorder(recorder)
+            camBase.addVideoRecorder(recorder)
             if (stream.overlayEnable) {
-                val videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.width, stream.height, sensorOrientation.toFloat())
+                lateinit var videoOverlay: VideoOverlay
+                if (availableCameraStreams > 1) {
+                    videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.width, stream.height, camBase.getSensorOrientation().toFloat())
+                    camBase.addStream(videoOverlay.getInputSurface())
+                } else {
+                    videoOverlay = VideoOverlay(recorder.getRecorderSurface(), sharedStreamsSize.width, sharedStreamsSize.height, camBase.getSensorOrientation().toFloat())
+                    sharedStreamSurfaces.add(videoOverlay.getInputSurface())
+                }
                 videoOverlay.setTextOverlay("Stream $streamCount overlay",
                         0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
                 videoOverlayList.add(videoOverlay)
-                cameraBase.addStream(videoOverlay.getInputSurface())
             } else {
-                cameraBase.addStream(recorder.getRecorderSurface())
+                if (availableCameraStreams > 1) {
+                    camBase.addStream(recorder.getRecorderSurface())
+                } else {
+                    sharedStreamSurfaces.add(recorder.getRecorderSurface())
+                }
             }
+            availableCameraStreams--
         }
+        if (sharedStreamSurfaces.isNotEmpty()) {
+            camBase.addSharedStream(sharedStreamSurfaces)
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun initializeCamera() = lifecycleScope.launch(Dispatchers.Main) {
+        cameraBase.openCamera(settings.cameraId)
+
+        cameraBase.setEISEnable(settings.cameraParams.eis_enable)
+        cameraBase.setLDCEnable(settings.cameraParams.ldc_enable)
+        cameraBase.setSHDREnable(settings.cameraParams.shdr_enable)
+        cameraBase.setFramerate(settings.previewInfo.fps)
+
+        addCameraStreams(cameraBase, settings)
 
         cameraBase.startCamera()
         if (settings.recorderInfo.isNotEmpty()) {
@@ -333,6 +363,7 @@ class CameraFragmentVideo : Fragment() {
     companion object {
         val TAG = CameraFragmentVideo::class.java.simpleName
         var recording = false
+        const val MAX_CAMERA_STREAMS = 3
     }
 }
 
