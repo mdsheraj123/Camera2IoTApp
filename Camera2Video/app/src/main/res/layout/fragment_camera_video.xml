@@ -53,17 +53,30 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp" />
 
+
     <ImageButton
-        android:id="@+id/recorder_button"
+        android:id="@+id/capture_button"
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:layout_marginBottom="96dp"
         android:scaleType="fitCenter"
-        android:background="@android:drawable/presence_video_online"
+        android:background="@drawable/ic_shutter"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:contentDescription="@string/capture" />
+
+
+    <ImageButton
+        android:id="@+id/recorder_button"
+        android:layout_width="72dp"
+        android:layout_height="83dp"
+        android:background="@android:drawable/presence_video_online"
+        android:outlineAmbientShadowColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="@+id/capture_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/capture_button"
+        app:layout_constraintTop_toTopOf="@+id/capture_button" />
 
     <TextView
         android:id="@+id/popup_anchor"
@@ -78,23 +91,27 @@
         android:id="@+id/chronometer"
         android:layout_width="96dp"
         android:layout_height="48dp"
+        android:gravity="center_horizontal"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@android:color/holo_red_light"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/recorder_button"
-        app:layout_constraintEnd_toStartOf="@+id/recorder_button"
+        app:layout_constraintBottom_toTopOf="@+id/capture_button"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/recorder_button" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ImageView
         android:id="@+id/thumbnailButton"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:contentDescription="@string/thumbnail_button"
-        app:layout_constraintBottom_toBottomOf="@+id/recorder_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/recorder_button"
-        app:layout_constraintTop_toTopOf="@+id/recorder_button"
-        app:srcCompat="@drawable/ic_camera_thumbnail" />
+        app:layout_constraintBottom_toBottomOf="@+id/capture_button"
+        app:layout_constraintEnd_toStartOf="@+id/capture_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/capture_button"
+        app:srcCompat="@drawable/ic_camera_thumbnail"
+        app:tint="#80000000" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

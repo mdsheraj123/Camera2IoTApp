@@ -124,14 +124,10 @@ class CameraActivity : AppCompatActivity() {
                 lastNonSettingTab = 0
             }
             1 -> supportFragmentManager.commit {
-                replace<CameraFragmentSnapshot>(R.id.fragment_container, null, null)
+                replace<CameraFragmentMultiCam>(R.id.fragment_container, null, null)
                 lastNonSettingTab = 1
             }
             2 -> supportFragmentManager.commit {
-                replace<CameraFragmentMultiCam>(R.id.fragment_container, null, null)
-                lastNonSettingTab = 2
-            }
-            3 -> supportFragmentManager.commit {
                 replace<CameraFragmentSettings>(R.id.fragment_container, null, null)
             }
         }
@@ -139,7 +135,7 @@ class CameraActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
-        if (tabLayout.selectedTabPosition == 3) {
+        if (tabLayout.selectedTabPosition == 2) {
             tabLayout.getTabAt(lastNonSettingTab)?.select()
         } else {
             super.onBackPressed()

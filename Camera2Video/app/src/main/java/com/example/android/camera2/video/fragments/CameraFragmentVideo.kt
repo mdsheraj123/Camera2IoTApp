@@ -37,9 +37,11 @@ package com.example.android.camera2.video.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.media.ExifInterface
 import android.media.MediaActionSound
 import android.media.MediaScannerConnection
 import android.media.ThumbnailUtils
@@ -64,6 +66,7 @@ import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
 import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
 import com.example.android.camera2.video.overlay.VideoOverlay
 import kotlinx.android.synthetic.main.fragment_camera_video.*
+import kotlinx.android.synthetic.main.fragment_camera_video.capture_button
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -103,6 +106,8 @@ class CameraFragmentVideo : Fragment() {
         cameraBase = CameraBase(requireContext().applicationContext)
         settings = getCameraSettings(requireContext().applicationContext)
 
+        // Make Snapshot button invisible if there is no snapshot stream
+        if (!settings.snapshotOn) capture_button.visibility = View.INVISIBLE
         // Make Video Record button invisible if there is no encoder stream
         if (settings.recorderInfo.isEmpty()) recorder_button.visibility = View.INVISIBLE
 
@@ -237,10 +242,16 @@ class CameraFragmentVideo : Fragment() {
         chronometer.stop()
     }
 
-    private fun createVideoThumb() = ThumbnailUtils.createVideoThumbnail(cameraBase.getCurrentVideoFilePath(), MediaStore.Video.Thumbnails.MICRO_KIND)
+    private fun createThumb(path: String?,type: Int): Bitmap? {
+        return if(type== THUMBNAIL_TYPE_IMAGE) {
+            path?.let { ThumbnailUtils.createImageThumbnail(it, MediaStore.Images.Thumbnails.MICRO_KIND) }
+        } else {
+            path?.let { ThumbnailUtils.createVideoThumbnail(it, MediaStore.Video.Thumbnails.MICRO_KIND) }
+        }
+    }
 
-    private fun createRoundThumb() : RoundedBitmapDrawable {
-        val drawable = RoundedBitmapDrawableFactory.create(resources, createVideoThumb())
+    private fun createRoundThumb(path: String?, type: Int) : RoundedBitmapDrawable {
+        val drawable = RoundedBitmapDrawableFactory.create(resources, createThumb(path,type))
         drawable.isCircular = true
         return drawable
     }
@@ -260,6 +271,11 @@ class CameraFragmentVideo : Fragment() {
             availableCameraStreams--
         }
 
+        if (settings.snapshotOn) {
+            camBase.addSnapshotStream(settings.snapshotInfo)
+            availableCameraStreams--
+        }
+
         val sharedStreamSurfaces = mutableListOf<Surface>()
         var sharedStreamsSize: Size = Size(0,0)
 
@@ -272,6 +288,7 @@ class CameraFragmentVideo : Fragment() {
             }
         }
 
+
         for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
             val recorder = VideoRecorderFactory(requireContext().applicationContext, stream, stream.videoRecorderType)
             camBase.addVideoRecorder(recorder)
@@ -280,6 +297,7 @@ class CameraFragmentVideo : Fragment() {
                 if (availableCameraStreams > 1) {
                     videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.width, stream.height, stream.fps.toFloat(), camBase.getSensorOrientation().toFloat())
                     camBase.addStream(videoOverlay.getInputSurface())
+                    availableCameraStreams--
                 } else {
                     videoOverlay = VideoOverlay(recorder.getRecorderSurface(), sharedStreamsSize.width, sharedStreamsSize.height, stream.fps.toFloat(), camBase.getSensorOrientation().toFloat())
                     sharedStreamSurfaces.add(videoOverlay.getInputSurface())
@@ -290,14 +308,15 @@ class CameraFragmentVideo : Fragment() {
             } else {
                 if (availableCameraStreams > 1) {
                     camBase.addStream(recorder.getRecorderSurface())
+                    availableCameraStreams--
                 } else {
                     sharedStreamSurfaces.add(recorder.getRecorderSurface())
                 }
             }
-            availableCameraStreams--
         }
         if (sharedStreamSurfaces.isNotEmpty()) {
             camBase.addSharedStream(sharedStreamSurfaces)
+            availableCameraStreams--
         }
     }
 
@@ -313,16 +332,44 @@ class CameraFragmentVideo : Fragment() {
         addCameraStreams(cameraBase, settings)
 
         cameraBase.startCamera()
+
+        val sound = MediaActionSound()
+        if(settings.snapshotOn) {
+            capture_button.setOnClickListener {
+                it.isEnabled = false
+                lifecycleScope.launch(Dispatchers.IO) {
+                    cameraBase.takeSnapshot(relativeOrientation.value).use { result ->
+                        Log.d(TAG, "Result received: $result")
+                        val outputFilePath = cameraBase.saveResult(result)
+
+                        // If the result is a JPEG file, update EXIF metadata with orientation info
+                        if (outputFilePath?.substring(outputFilePath!!.lastIndexOf(".")) == ".jpg") {
+                            val exif = ExifInterface(outputFilePath)
+                            exif.setAttribute(ExifInterface.TAG_ORIENTATION, result.orientation.toString())
+                            exif.saveAttributes()
+                            Log.d(TAG, "EXIF metadata saved: $outputFilePath")
+                        }
+                    }
+                    it.post {
+                        if (settings.snapshotInfo.encoding == "JPEG") {
+                            broadcastFile(cameraBase.currentSnapshotFilePath)
+                            thumbnailButton.setImageDrawable(createRoundThumb(cameraBase.currentSnapshotFilePath, THUMBNAIL_TYPE_IMAGE))
+                        }
+                        it.isEnabled = true
+                    }
+                }
+                sound.play(MediaActionSound.SHUTTER_CLICK)
+            }
+        }
         if (settings.recorderInfo.isNotEmpty()) {
-            val sound = MediaActionSound()
             recorder_button.setOnClickListener {
                 if (recording) {
                     if (SystemClock.elapsedRealtime() - chronometer.base > MIN_REQUIRED_RECORDING_TIME_MILLIS) {
                         cameraBase.stopRecording()
-                        broadcastFile()
+                        broadcastFile(cameraBase.getCurrentVideoFilePath())
                         sound.play(MediaActionSound.STOP_VIDEO_RECORDING)
                         recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-                        if (settings.recorderInfo[0].storageEnable) thumbnailButton.setImageDrawable(createRoundThumb())
+                        if (settings.recorderInfo[0].storageEnable) thumbnailButton.setImageDrawable(createRoundThumb(cameraBase.getCurrentVideoFilePath(), THUMBNAIL_TYPE_VIDEO))
                         recording = false
                         stopChronometer()
                         Log.d(TAG, "Recorder stop")
@@ -349,18 +396,18 @@ class CameraFragmentVideo : Fragment() {
         }
     }
 
-    private fun broadcastFile() {
-        // Broadcasts the media file to the rest of the system 	219
+    private fun broadcastFile(path: String?) {
+        // Broadcasts the media file to the rest of the system
         MediaScannerConnection.scanFile(
-                view?.context, arrayOf(cameraBase.getCurrentVideoFilePath()), null, null)
+                view?.context, arrayOf(path), null, null)
     }
 
     override fun onPause() {
         if (recording) {
             cameraBase.stopRecording()
-            broadcastFile()
+            broadcastFile(cameraBase.getCurrentVideoFilePath())
             recorder_button.setBackgroundResource(android.R.drawable.presence_video_online)
-            if (settings.recorderInfo[0].storageEnable) thumbnailButton.setImageDrawable(createRoundThumb())
+            if (settings.recorderInfo[0].storageEnable) thumbnailButton.setImageDrawable(createRoundThumb(cameraBase.getCurrentVideoFilePath(),THUMBNAIL_TYPE_VIDEO))
             recording = false
             stopChronometer()
             Log.d(TAG, "Recorder stop")
@@ -377,6 +424,8 @@ class CameraFragmentVideo : Fragment() {
     }
 
     companion object {
+        const val THUMBNAIL_TYPE_IMAGE = 1
+        const val THUMBNAIL_TYPE_VIDEO = 2
         val TAG = CameraFragmentVideo::class.java.simpleName
         var recording = false
         const val MAX_CAMERA_STREAMS = 3

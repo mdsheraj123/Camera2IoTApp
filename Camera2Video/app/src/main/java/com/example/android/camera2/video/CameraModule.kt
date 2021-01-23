@@ -70,6 +70,7 @@ data class CameraSettings(var previewInfo: StreamInfo,
                           var cameraParams: CameraParameters,
                           var cameraId: String,
                           var displayOn: Boolean,
+                          var snapshotOn: Boolean,
                           var threeCamUse: Boolean)
 
 interface CameraModule {

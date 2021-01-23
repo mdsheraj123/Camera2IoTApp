@@ -260,32 +260,28 @@ class CameraBase(val context: Context): CameraModule {
 
     @SuppressLint("Range")
     override fun addSnapshotStream(stream: StreamInfo) {
-        if (!::imageReader.isInitialized) {
-            val format = when (stream.encoding) {
-                "JPEG" -> ImageFormat.JPEG
-                "RAW" -> ImageFormat.RAW10
-                else -> {
-                    throw Exception("Unsupported image format: ${stream.encoding}")
-                }
-            }
-
-            if (format == ImageFormat.JPEG) {
-                imageReader = ImageReader.newInstance(
-                        stream.width, stream.height, format, IMAGE_BUFFER_SIZE)
-                // Set JPEG Quality
-                captureRequest.set(CaptureRequest.JPEG_QUALITY, IMAGE_JPEG_QUALITY)
-            } else if (format == ImageFormat.RAW10) {
-                val size = characteristics.get(
-                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-                        .getOutputSizes(format).maxByOrNull { it.height * it.width }!!
-                imageReader = ImageReader.newInstance(
-                        size.width, size.height, format, IMAGE_BUFFER_SIZE)
-            } else {
+        val format = when (stream.encoding) {
+            "JPEG" -> ImageFormat.JPEG
+            "RAW" -> ImageFormat.RAW10
+            else -> {
                 throw Exception("Unsupported image format: ${stream.encoding}")
             }
-
-            snapshotSurfaceList.add(imageReader.surface)
         }
+        if (format == ImageFormat.JPEG) {
+            imageReader = ImageReader.newInstance(
+                    stream.width, stream.height, format, IMAGE_BUFFER_SIZE)
+            // Set JPEG Quality
+            captureRequest.set(CaptureRequest.JPEG_QUALITY, IMAGE_JPEG_QUALITY)
+        } else if (format == ImageFormat.RAW10) {
+            val size = characteristics.get(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                    .getOutputSizes(format).maxByOrNull { it.height * it.width }!!
+            imageReader = ImageReader.newInstance(
+                    size.width, size.height, format, IMAGE_BUFFER_SIZE)
+        } else {
+            throw Exception("Unsupported image format: ${stream.encoding}")
+        }
+        snapshotSurfaceList.add(imageReader.surface)
     }
 
     override fun startCamera() {

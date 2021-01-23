@@ -78,13 +78,7 @@
                     android:id="@+id/video"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Video" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/Snapshot"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Snapshot" />
+                    android:text="Single Cam" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/multi_cam"

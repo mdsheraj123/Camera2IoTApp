@@ -80,6 +80,11 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Snapshot" >
+        <androidx.preference.SwitchPreference
+            android:key="snapshot_enable"
+            android:title="Snapshot Enable"
+            android:summary="Enable Snapshot Stream"
+            android:defaultValue="true"/>
         <androidx.preference.ListPreference
             android:key="snapshot_size"
             android:title="Snapshot Size"
@@ -221,7 +226,7 @@
             android:key="vid_1_enable"
             android:title="Stream 1 Enable"
             android:summary="Enable Stream 1 Recording"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
         <androidx.preference.SwitchPreference
             android:key="vid_1_overlay"
             android:title="Stream 1 overlay"
