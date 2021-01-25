@@ -37,16 +37,58 @@ package com.example.android.camera2.video.overlay
 import android.graphics.SurfaceTexture
 import android.util.Log
 import android.view.Surface
+import java.util.concurrent.atomic.AtomicLong
+
+class FrameSync(size: Int) {
+    private val sync = Object()
+    private var isReleased = false
+    private var count = AtomicLong(0)
+    private var size = size
+    fun notifyFrame(): Boolean {
+        if (!isReleased) {
+            while (count.get() >= size) {
+                synchronized(sync) {
+                    sync.wait()
+                }
+            }
+            count.incrementAndGet()
+            synchronized(sync) {
+                sync.notifyAll()
+            }
+        }
+        return !isReleased
+    }
+
+    fun waitFrame(): Long {
+        var cnt = 0L
+        if (!isReleased) {
+            while (count.get() <= 0) {
+                synchronized(sync) {
+                    sync.wait()
+                }
+            }
+            cnt = count.decrementAndGet()
+            synchronized(sync) {
+                sync.notifyAll()
+            }
+        }
+        return if (isReleased) -1 else cnt
+    }
+
+    fun release() {
+        isReleased = true
+        count.set(1)
+        synchronized(sync) {
+            sync.notifyAll()
+        }
+    }
+}
 
 class InputOverlaySurface : SurfaceTexture.OnFrameAvailableListener {
 
     private val surfaceTexture : SurfaceTexture
-
     private val surface : Surface
-
-    private val frameSyncObject = Object()
-    private var frameAvailable = false
-    private var running = true
+    private val frameSync = FrameSync(10)
 
     constructor (texName: Int, width: Int, height: Int) {
         if (width <= 0 || height <= 0) {
@@ -68,22 +110,15 @@ class InputOverlaySurface : SurfaceTexture.OnFrameAvailableListener {
     }
 
     fun awaitFrame() : Boolean {
-        synchronized(frameSyncObject) {
-            while ((!frameAvailable) && running) {
-                try {
-                    frameSyncObject.wait(FRAME_TIMEOUT_MS)
-                    if (!frameAvailable) {
-                        Log.d(TAG,"Surface frame time out")
-                        return false
-                    }
-                } catch (e: InterruptedException) {
-                    return false
-                }
-            }
-            frameAvailable = false
+        var count = 0L
+        do {
+            count = frameSync.waitFrame()
+            surfaceTexture.updateTexImage()
+        } while (count > 0)
+
+        if (count < 0) {
+            return false
         }
-        surfaceTexture.updateTexImage()
-        if (!running) return false
         return true
     }
 
@@ -92,25 +127,14 @@ class InputOverlaySurface : SurfaceTexture.OnFrameAvailableListener {
     }
 
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
-        synchronized(frameSyncObject) {
-            if (frameAvailable) {
-                throw Exception("frameAvailable unexpected state");
-            }
-            frameAvailable = true;
-            frameSyncObject.notifyAll()
-        }
+        frameSync.notifyFrame()
     }
 
     fun release() {
-        running = false
-        frameAvailable = true
-        synchronized(frameSyncObject) {
-            frameSyncObject.notifyAll()
-        }
+        frameSync.release()
     }
 
     companion object {
         private val TAG = this::class.simpleName
-        const val FRAME_TIMEOUT_MS = 2000L
     }
 }

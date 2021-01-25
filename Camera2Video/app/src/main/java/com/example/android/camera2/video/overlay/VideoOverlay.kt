@@ -47,6 +47,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.util.concurrent.Semaphore
+import kotlin.concurrent.thread
 
 class EglCore {
     var eglDisplay: EGLDisplay = EGL14.EGL_NO_DISPLAY
@@ -391,12 +392,13 @@ class VideoOverlay {
     private lateinit var overlayRenderer : OverlayRenderer
     private val widthImage: Int
     private val heightImage: Int
+    private val overlayThread: Thread
 
     constructor(surface: Surface, width: Int, height: Int, rotation: Float) {
         overlayRunning = true
         widthImage = width
         heightImage = height
-        GlobalScope.launch {
+        overlayThread = thread {
             handlerThread(surface, width, height, rotation)
         }
         synchronized(overlaySyncObject) {
@@ -405,7 +407,6 @@ class VideoOverlay {
     }
 
     private fun handlerThread(surface: Surface, width: Int, height: Int, rotation: Float) {
-        overlaySemaphore.acquireUninterruptibly()
         eglCore = EglCore()
         outputSurface = OutputOverlaySurface(eglCore, surface)
         outputSurface.makeCurrent()
@@ -425,7 +426,6 @@ class VideoOverlay {
             outputSurface.setPresentationTime(inputSurface.getTimestamp())
             outputSurface.swapBuffers()
         }
-        overlaySemaphore.release()
     }
 
     fun getInputSurface(): Surface {
@@ -435,8 +435,7 @@ class VideoOverlay {
     fun release() {
         overlayRunning = false
         inputSurface.release()
-        overlaySemaphore.acquireUninterruptibly()
-        overlaySemaphore.release()
+        overlayThread.join()
         outputSurface.release()
     }
 
