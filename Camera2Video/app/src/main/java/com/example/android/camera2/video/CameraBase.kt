@@ -193,6 +193,9 @@ class CameraBase(val context: Context): CameraModule {
         previewRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(previewFps, previewFps))
         captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(previewFps, previewFps))
 
+        // Set ZSL Mode
+        captureRequest.set(CaptureRequest.CONTROL_ENABLE_ZSL, true)
+
         // Set Opmode
         if (isEISEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_EIS_MODE
         if (isSHDREnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_ZZHDR_MODE
@@ -241,18 +244,21 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     @SuppressLint("Range")
-    override fun addSnapshotStream(stream: StreamInfo)  {
+    override fun addSnapshotStream(stream: StreamInfo) {
         if (!::imageReader.isInitialized) {
-            val format = when(stream.encoding) {
+            val format = when (stream.encoding) {
                 "JPEG" -> ImageFormat.JPEG
                 "RAW" -> ImageFormat.RAW10
                 else -> {
                     throw Exception("Unsupported image format: ${stream.encoding}")
                 }
             }
+
             if (format == ImageFormat.JPEG) {
                 imageReader = ImageReader.newInstance(
                         stream.width, stream.height, format, IMAGE_BUFFER_SIZE)
+                // Set JPEG Quality
+                captureRequest.set(CaptureRequest.JPEG_QUALITY, IMAGE_JPEG_QUALITY)
             } else if (format == ImageFormat.RAW10) {
                 val size = characteristics.get(
                         CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
@@ -651,12 +657,18 @@ class CameraBase(val context: Context): CameraModule {
     override fun setAELock(value: Boolean) {
         Log.d(TAG, "AE Lock: $value")
         previewRequest.set(CaptureRequest.CONTROL_AE_LOCK, value)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AE_LOCK, value)
+        }
         updateRepeatingRequest()
     }
 
     override fun setAWBLock(value: Boolean) {
         Log.d(TAG, "AWB Lock: $value")
         previewRequest.set(CaptureRequest.CONTROL_AWB_LOCK, value)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AWB_LOCK, value)
+        }
         updateRepeatingRequest()
     }
 
@@ -674,6 +686,7 @@ class CameraBase(val context: Context): CameraModule {
 
         private const val IMAGE_BUFFER_SIZE: Int = 3
         private const val IMAGE_CAPTURE_TIMEOUT_MILLIS: Long = 5000
+        private const val IMAGE_JPEG_QUALITY: Byte = 85
 
         // Opmode
         private const val STREAM_CONFIG_ZZHDR_MODE: Int = 0xF002
