@@ -460,7 +460,7 @@ class CameraFragmentMultiCam : Fragment() {
         }
     }
 
-    override fun onStop() {
+    override fun onPause() {
         if (recording) {
             cameraBase1.stopRecording()
             cameraBase0.stopRecording()
@@ -478,7 +478,7 @@ class CameraFragmentMultiCam : Fragment() {
         for (overlay in videoOverlayList) {
             overlay.release()
         }
-        super.onStop()
+        super.onPause()
     }
 
     companion object {

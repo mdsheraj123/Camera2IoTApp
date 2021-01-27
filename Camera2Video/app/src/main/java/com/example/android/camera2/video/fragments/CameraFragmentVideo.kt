@@ -339,7 +339,7 @@ class CameraFragmentVideo : Fragment() {
                 view?.context, arrayOf(cameraBase.getCurrentVideoFilePath()), null, null)
     }
 
-    override fun onStop() {
+    override fun onPause() {
         if (recording) {
             cameraBase.stopRecording()
             broadcastFile()
@@ -357,7 +357,7 @@ class CameraFragmentVideo : Fragment() {
         for (overlay in videoOverlayList) {
             overlay.release()
         }
-        super.onStop()
+        super.onPause()
     }
 
     companion object {

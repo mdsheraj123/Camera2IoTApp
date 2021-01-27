@@ -282,7 +282,7 @@ class CameraFragmentSnapshot : Fragment() {
         return drawable
     }
 
-    override fun onStop() {
+    override fun onPause() {
         try {
             cameraBase.close()
         } catch (exc: Throwable) {
@@ -291,7 +291,7 @@ class CameraFragmentSnapshot : Fragment() {
         for (overlay in videoOverlayList) {
             overlay.release()
         }
-        super.onStop()
+        super.onPause()
     }
 
     override fun onDestroy() {
