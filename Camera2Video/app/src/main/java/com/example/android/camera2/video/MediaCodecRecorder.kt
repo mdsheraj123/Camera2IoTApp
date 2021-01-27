@@ -286,7 +286,7 @@ class MediaCodecRecorder(private val context: Context,
 
                 val status = audioRecorder.getTimestamp(audioTimestamp, AudioTimestamp.TIMEBASE_MONOTONIC)
                 if (status != AudioRecord.SUCCESS) {
-                    throw Exception("Invalid audio timestamp")
+                    Log.e(TAG, "Invalid audio timestamp!")
                 }
 
                 val presentationTimeUs = audioTimestamp.nanoTime / 1000
