@@ -113,6 +113,8 @@ class CameraBase(val context: Context): CameraModule {
 
     var currentSnapshotFilePath: String? = null
 
+    val closeSync = Object()
+
     override fun getAvailableCameras(): Array<String> = cameraManager.cameraIdList
 
     override fun getSensorOrientation(): Int {
@@ -148,6 +150,9 @@ class CameraBase(val context: Context): CameraModule {
                 override fun onClosed(camera: CameraDevice) {
                     super.onClosed(camera)
                     clearStreams()
+                    synchronized(closeSync) {
+                        closeSync.notifyAll()
+                    }
                 }
             }
             cameraManager.openCamera(cameraId, callback, cameraHandler)
@@ -263,6 +268,8 @@ class CameraBase(val context: Context): CameraModule {
     private fun clearStreams() {
         streamSurfaceList.clear()
         recorderList.clear()
+        snapshotSurfaceList.clear()
+        sharedStreamSurfaceList.clear()
     }
 
     override fun startRecording(orientation: Int?) {
@@ -401,6 +408,9 @@ class CameraBase(val context: Context): CameraModule {
             session.abortCaptures()
         }
         camera.close()
+        synchronized(closeSync) {
+            closeSync.wait()
+        }
         streamConfigOpMode = 0x00
     }
 
