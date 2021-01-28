@@ -43,11 +43,14 @@ import android.util.Log
 import android.view.Surface
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.lang.Math.round
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.util.concurrent.Semaphore
 import kotlin.concurrent.thread
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 class EglCore {
     var eglDisplay: EGLDisplay = EGL14.EGL_NO_DISPLAY
@@ -393,17 +396,35 @@ class VideoOverlay {
     private val widthImage: Int
     private val heightImage: Int
     private val overlayThread: Thread
+    private val outputFrameInterval: Long
+    private var outputTimestamp = 0L
 
-    constructor(surface: Surface, width: Int, height: Int, rotation: Float) {
+    constructor(surface: Surface, width: Int, height: Int, fps: Float, rotation: Float) {
         overlayRunning = true
         widthImage = width
         heightImage = height
+        outputFrameInterval = (1000000000.0f / fps).toLong()
         overlayThread = thread {
             handlerThread(surface, width, height, rotation)
         }
         synchronized(overlaySyncObject) {
             overlaySyncObject.wait()
         }
+    }
+
+    private fun FrameSkip(): Boolean {
+        val inputTimestamp = inputSurface.getTimestamp()
+        if (outputTimestamp == 0L) {
+            outputTimestamp = inputTimestamp
+        }
+
+        val timestampDelta = outputTimestamp - inputTimestamp
+        val maxDelta = (outputFrameInterval * 0.5f).roundToLong()
+
+        if ((timestampDelta > 0) && (timestampDelta >= maxDelta)) {
+            return true
+        }
+        return false
     }
 
     private fun handlerThread(surface: Surface, width: Int, height: Int, rotation: Float) {
@@ -422,9 +443,13 @@ class VideoOverlay {
             if (!inputSurface.awaitFrame()) {
                 break
             }
+            if (FrameSkip()) {
+                continue
+            }
             overlayRenderer.drawFrame(inputSurface.getSurfaceTexture())
-            outputSurface.setPresentationTime(inputSurface.getTimestamp())
+            outputSurface.setPresentationTime(outputTimestamp)
             outputSurface.swapBuffers()
+            outputTimestamp += outputFrameInterval
         }
     }
 

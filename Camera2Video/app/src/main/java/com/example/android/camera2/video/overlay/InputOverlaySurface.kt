@@ -89,6 +89,10 @@ class InputOverlaySurface : SurfaceTexture.OnFrameAvailableListener {
     private val surfaceTexture : SurfaceTexture
     private val surface : Surface
     private val frameSync = FrameSync(10)
+    private var prvTimestamp: Long = 0
+    private var frameNumber = 0L
+    private var frameRateArray = Array(FRAMERATE_ARRAY_SIZE) {0.0f}
+    private var frameRate: Float = 0.0f
 
     constructor (texName: Int, width: Int, height: Int) {
         if (width <= 0 || height <= 0) {
@@ -126,8 +130,33 @@ class InputOverlaySurface : SurfaceTexture.OnFrameAvailableListener {
         return surfaceTexture.timestamp
     }
 
+    fun gerFrameRate(): Float {
+        return frameRate
+    }
+
+    fun getFrameNumber(): Long {
+        return frameNumber
+    }
+
+    private fun measureFrameRate() {
+        val timestamp = getTimestamp()
+        if (prvTimestamp > 0) {
+            frameRateArray[frameNumber.toInt() % FRAMERATE_ARRAY_SIZE] =  1000000000.0f / ((timestamp - prvTimestamp).toFloat())
+            if (frameNumber > FRAMERATE_ARRAY_SIZE) {
+                var fps = 0.0f
+                for (i in 0 until FRAMERATE_ARRAY_SIZE) {
+                    fps += frameRateArray[i]
+                }
+                frameRate = fps / FRAMERATE_ARRAY_SIZE
+            }
+        }
+        prvTimestamp = timestamp
+    }
+
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
         frameSync.notifyFrame()
+        frameNumber++
+        measureFrameRate()
     }
 
     fun release() {
@@ -136,5 +165,6 @@ class InputOverlaySurface : SurfaceTexture.OnFrameAvailableListener {
 
     companion object {
         private val TAG = this::class.simpleName
+        const val FRAMERATE_ARRAY_SIZE = 4
     }
 }

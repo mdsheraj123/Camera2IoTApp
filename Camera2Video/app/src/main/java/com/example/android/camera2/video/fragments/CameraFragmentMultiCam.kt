@@ -274,7 +274,7 @@ class CameraFragmentMultiCam : Fragment() {
 
         if (settings.displayOn) {
             if (settings.previewInfo.overlayEnable) {
-                val previewOverlay = VideoOverlay(previewSurface, previewSize.width, previewSize.height, 0.0f)
+                val previewOverlay = VideoOverlay(previewSurface, previewSize.width, previewSize.height, settings.previewInfo.fps.toFloat(),0.0f)
                 previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
                 videoOverlayList.add(previewOverlay)
                 camBase.addPreviewStream(previewOverlay.getInputSurface())
@@ -305,10 +305,10 @@ class CameraFragmentMultiCam : Fragment() {
             if (stream.overlayEnable) {
                 lateinit var videoOverlay: VideoOverlay
                 if (availableCameraStreams > 1) {
-                    videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.width, stream.height, camBase.getSensorOrientation().toFloat())
+                    videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.width, stream.height, stream.fps.toFloat(), camBase.getSensorOrientation().toFloat())
                     camBase.addStream(videoOverlay.getInputSurface())
                 } else {
-                    videoOverlay = VideoOverlay(recorder.getRecorderSurface(), sharedStreamsSize.width, sharedStreamsSize.height, camBase.getSensorOrientation().toFloat())
+                    videoOverlay = VideoOverlay(recorder.getRecorderSurface(), sharedStreamsSize.width, sharedStreamsSize.height, stream.fps.toFloat(), camBase.getSensorOrientation().toFloat())
                     sharedStreamSurfaces.add(videoOverlay.getInputSurface())
                 }
                 videoOverlay.setTextOverlay("Stream $streamCount overlay",
