@@ -97,7 +97,11 @@ class MediaCodecRecorder(private val context: Context,
         videoFormat = MediaFormat.createVideoFormat(videoMimeType, streamInfo.width, streamInfo.height).apply {
             setInteger(MediaFormat.KEY_COLOR_FORMAT,
                     MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-            setInteger(MediaFormat.KEY_BIT_RATE, streamInfo.bitrate * 1_000_000)
+            when (streamInfo.bitrate) {
+                128, 256, 512 -> setInteger(MediaFormat.KEY_BIT_RATE, streamInfo.bitrate * 1000)
+                1, 2, 4, 6, 10, 20, 30, 40, 50, 100 -> setInteger(MediaFormat.KEY_BIT_RATE, streamInfo.bitrate * 1000000)
+                else -> Log.e(TAG, "Not a valid bitrate value")
+            }
             setInteger(MediaFormat.KEY_FRAME_RATE, streamInfo.fps)
             when(streamInfo.rcmode) {
                 0, 1, 2 ,3, 4 -> setInteger("vendor.qti-ext-enc-bitrate-mode.value", streamInfo.rcmode)

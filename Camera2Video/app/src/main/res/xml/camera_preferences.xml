@@ -130,10 +130,10 @@
             android:defaultValue="30"/>
         <androidx.preference.ListPreference
             android:key="vid_0_bitrate"
-            android:title="Stream 0 Bitrate in Mbps"
+            android:title="Stream 0 Bitrate"
             android:summary="%s"
             android:entries="@array/video_bitrates"
-            android:entryValues="@array/video_bitrates"
+            android:entryValues="@array/video_bitrates_values"
             android:defaultValue="10"/>
         <androidx.preference.ListPreference
             android:key="vid_0_iframe_interval"
@@ -243,10 +243,10 @@
             android:defaultValue="30"/>
         <androidx.preference.ListPreference
             android:key="vid_1_bitrate"
-            android:title="Stream 1 Bitrate in Mbps"
+            android:title="Stream 1 Bitrate"
             android:summary="%s"
             android:entries="@array/video_bitrates"
-            android:entryValues="@array/video_bitrates"
+            android:entryValues="@array/video_bitrates_values"
             android:defaultValue="10"/>
         <androidx.preference.ListPreference
             android:key="vid_1_iframe_interval"
@@ -356,10 +356,10 @@
             android:defaultValue="30"/>
         <androidx.preference.ListPreference
             android:key="vid_2_bitrate"
-            android:title="Stream 2 Bitrate in Mbps"
+            android:title="Stream 2 Bitrate"
             android:summary="%s"
             android:entries="@array/video_bitrates"
-            android:entryValues="@array/video_bitrates"
+            android:entryValues="@array/video_bitrates_values"
             android:defaultValue="10"/>
         <androidx.preference.ListPreference
             android:key="vid_2_iframe_interval"

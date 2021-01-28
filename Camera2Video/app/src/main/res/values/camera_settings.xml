@@ -69,12 +69,35 @@
     </string-array>
 
     <string-array name="video_bitrates">
-        <item>6</item>>
+        <item>128 Kbps</item>
+        <item>256 Kbps</item>
+        <item>512 Kbps</item>
+        <item>1 Mbps</item>
+        <item>2 Mbps</item>
+        <item>4 Mbps</item>
+        <item>6 Mbps</item>
+        <item>10 Mbps</item>
+        <item>20 Mbps</item>
+        <item>30 Mbps</item>
+        <item>40 Mbps</item>
+        <item>50 Mbps</item>
+        <item>100 Mbps</item>
+    </string-array>
+
+    <string-array name="video_bitrates_values">
+        <item>128</item>
+        <item>256</item>
+        <item>512</item>
+        <item>1</item>
+        <item>2</item>
+        <item>4</item>
+        <item>6</item>
         <item>10</item>
         <item>20</item>
         <item>30</item>
         <item>40</item>
         <item>50</item>
+        <item>100</item>
     </string-array>
 
     <string-array name="iframe_intervals">
