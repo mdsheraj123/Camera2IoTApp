@@ -59,6 +59,7 @@ import com.example.android.camera.utils.AutoFitSurfaceView
 import com.example.android.camera.utils.OrientationLiveData
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
+import com.example.android.camera2.video.CameraActivity.Companion.printAppVersion
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
 import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
 import com.example.android.camera2.video.overlay.VideoOverlay
@@ -98,6 +99,7 @@ class CameraFragmentVideo : Fragment() {
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        printAppVersion(requireContext().applicationContext)
         cameraBase = CameraBase(requireContext().applicationContext)
         settings = getCameraSettings(requireContext().applicationContext)
 

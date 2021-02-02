@@ -54,6 +54,7 @@ import com.example.android.camera.utils.OrientationLiveData
 import com.example.android.camera.utils.getDisplaySmartSize
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
+import com.example.android.camera2.video.CameraActivity.Companion.printAppVersion
 import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
 import com.example.android.camera2.video.overlay.VideoOverlay
 import kotlinx.android.synthetic.main.fragment_camera_multicam.*
@@ -100,6 +101,7 @@ class CameraFragmentMultiCam : Fragment() {
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        printAppVersion(requireContext().applicationContext)
         cameraBase0 = CameraBase(requireContext().applicationContext)
         cameraBase1 = CameraBase(requireContext().applicationContext)
         settings = CameraSettingsUtil.getCameraSettings(requireContext().applicationContext)

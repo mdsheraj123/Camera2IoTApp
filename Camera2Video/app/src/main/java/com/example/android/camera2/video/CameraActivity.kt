@@ -53,6 +53,7 @@
 package com.example.android.camera2.video
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -101,8 +102,14 @@ class CameraActivity : AppCompatActivity() {
         }
         val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {tabUpdate(tab)}
-            override fun onTabReselected(tab: TabLayout.Tab?) {tabUpdate(tab)}
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                tabUpdate(tab)
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                tabUpdate(tab)
+            }
+
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
         })
     }
@@ -167,6 +174,16 @@ class CameraActivity : AppCompatActivity() {
         const val ANIMATION_FAST_MILLIS = 50L
         const val ANIMATION_SLOW_MILLIS = 100L
         private const val IMMERSIVE_FLAG_TIMEOUT = 500L
-        val TAG = "CameraActivity"
-   }
+        private val TAG = CameraActivity::class.simpleName
+
+        fun printAppVersion(context: Context) {
+            try {
+                val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                val version = pInfo.versionName
+                Log.i(TAG, "Camera2Video App version: ${version.toString()}")
+            } catch (e: PackageManager.NameNotFoundException) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
