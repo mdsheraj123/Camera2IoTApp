@@ -27,8 +27,8 @@ android {
         applicationId "com.android.example.camera2.video"
         minSdkVersion 29
         targetSdkVersion 29
-        versionCode 5
-        versionName "1.4.0"
+        versionCode 6
+        versionName "2.0.0"
     }
 
     compileOptions {
