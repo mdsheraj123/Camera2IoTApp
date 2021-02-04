@@ -158,6 +158,8 @@ class CameraBase(val context: Context): CameraModule {
             cameraManager.openCamera(cameraId, callback, cameraHandler)
         }
         previewRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+
         characteristics = cameraManager.getCameraCharacteristics(cameraId)
         Log.d(TAG, "openCamera done")
     }
@@ -168,23 +170,28 @@ class CameraBase(val context: Context): CameraModule {
         for (surface in targets) {
             outConfigurations.add(OutputConfiguration(surface))
             previewRequest.addTarget(surface)
+            captureRequest.addTarget(surface)
         }
         for (surface in snapshotSurfaceList) {
             outConfigurations.add(OutputConfiguration(surface))
+            captureRequest.addTarget(surface)
         }
 
         for (sharedSurface in sharedStreamSurfaceList) {
             val sharedOutputConfig = OutputConfiguration(sharedSurface[0])
             sharedOutputConfig.enableSurfaceSharing()
             previewRequest.addTarget(sharedSurface[0])
+            captureRequest.addTarget(sharedSurface[0])
             for (surface in sharedSurface.takeLast(sharedSurface.size - 1)) {
                 sharedOutputConfig.addSurface(surface)
                 previewRequest.addTarget(surface)
+                captureRequest.addTarget(surface)
             }
             outConfigurations.add(sharedOutputConfig)
         }
 
         previewRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(previewFps, previewFps))
+        captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(previewFps, previewFps))
 
         // Set Opmode
         if (isEISEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_EIS_MODE
@@ -255,9 +262,8 @@ class CameraBase(val context: Context): CameraModule {
             } else {
                 throw Exception("Unsupported image format: ${stream.encoding}")
             }
+
             snapshotSurfaceList.add(imageReader.surface)
-            captureRequest = camera.createCaptureRequest(
-                    CameraDevice.TEMPLATE_STILL_CAPTURE).apply { addTarget(imageReader.surface) }
         }
     }
 
