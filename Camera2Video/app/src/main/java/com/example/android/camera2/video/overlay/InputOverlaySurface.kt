@@ -44,11 +44,12 @@ class FrameSync(size: Int) {
     private var isReleased = false
     private var count = AtomicLong(0)
     private var size = size
+    private val syncTimeout = 10L
     fun notifyFrame(): Boolean {
         if (!isReleased) {
             while (count.get() >= size) {
                 synchronized(sync) {
-                    sync.wait()
+                    sync.wait(syncTimeout)
                 }
             }
             count.incrementAndGet()
@@ -64,7 +65,7 @@ class FrameSync(size: Int) {
         if (!isReleased) {
             while (count.get() <= 0) {
                 synchronized(sync) {
-                    sync.wait()
+                    sync.wait(syncTimeout)
                 }
             }
             cnt = count.decrementAndGet()
