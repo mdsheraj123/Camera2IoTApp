@@ -41,15 +41,11 @@ import android.graphics.SurfaceTexture
 import android.opengl.*
 import android.util.Log
 import android.view.Surface
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import java.lang.Math.round
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.util.concurrent.Semaphore
 import kotlin.concurrent.thread
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 class EglCore {
@@ -144,11 +140,6 @@ class EglCore {
     }
 }
 
-data class ImageData(val data: ByteBuffer,
-                     val width: Int,
-                     val height: Int,
-                     val format: Int)
-
 class OverlayRenderer {
     private var overlayVertices: FloatBuffer
     private val mvpMatrix = FloatArray(16)
@@ -163,8 +154,8 @@ class OverlayRenderer {
     private var overlayTextureHandle = 0
     private var overlayUpdate = false
     private var rotationAngle = 0.0f
+    private lateinit var overlayImage: Bitmap
 
-    private lateinit var overlayImage: ImageData
 
     constructor() {
         overlayVertices = ByteBuffer.allocateDirect(
@@ -323,8 +314,7 @@ class OverlayRenderer {
         GLES20.glUniformMatrix4fv(stMatrixHandle, 1, false, stMatrix, 0)
 
         if (::overlayImage.isInitialized && overlayUpdate) {
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, overlayImage.width,
-                    overlayImage.height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, overlayImage.data)
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, overlayImage, 0)
             overlayUpdate = false
         }
 
@@ -337,8 +327,8 @@ class OverlayRenderer {
         rotationAngle = rotation
     }
 
-    fun setImageOverlay(img: ImageData) {
-        overlayImage = img
+    fun setImageOverlay(bitmap: Bitmap) {
+        overlayImage = bitmap
         overlayUpdate = true
     }
 
@@ -398,12 +388,14 @@ class VideoOverlay {
     private val overlayThread: Thread
     private val outputFrameInterval: Long
     private var outputTimestamp = 0L
+    private val textOverlayBitmap: Bitmap
 
     constructor(surface: Surface, width: Int, height: Int, fps: Float, rotation: Float) {
         overlayRunning = true
         widthImage = width
         heightImage = height
         outputFrameInterval = (1000000000.0f / fps).toLong()
+        textOverlayBitmap = Bitmap.createBitmap(widthImage, heightImage, Bitmap.Config.ARGB_8888)
         overlayThread = thread {
             handlerThread(surface, width, height, rotation)
         }
@@ -464,13 +456,12 @@ class VideoOverlay {
         outputSurface.release()
     }
 
-    fun setImageOverlay(data: ByteBuffer, width: Int, height: Int, format: Int) {
-        overlayRenderer.setImageOverlay(ImageData(data, width, height, format))
+    fun setImageOverlay(bitmap: Bitmap) {
+        overlayRenderer.setImageOverlay(bitmap)
     }
 
     fun setTextOverlay(msg: String, x: Float, y: Float, textSize: Float, color: Int, alpha: Float) {
-        val bitmap = Bitmap.createBitmap(widthImage, heightImage, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
+        val canvas = Canvas(textOverlayBitmap)
         val paint = Paint()
         paint.textAlign = Paint.Align.LEFT
         paint.isAntiAlias = true
@@ -480,10 +471,7 @@ class VideoOverlay {
         canvas.drawText(msg, x, y, paint)
         canvas.save()
         canvas.restore()
-        val byteBuffer = ByteBuffer.allocate(bitmap.byteCount)
-        bitmap.copyPixelsToBuffer(byteBuffer)
-        byteBuffer.rewind()
-        overlayRenderer.setImageOverlay(ImageData(byteBuffer, widthImage, heightImage, 0))
+        overlayRenderer.setImageOverlay(textOverlayBitmap)
     }
 
     companion object {
