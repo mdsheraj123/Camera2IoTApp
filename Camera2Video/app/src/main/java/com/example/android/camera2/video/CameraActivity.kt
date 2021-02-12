@@ -52,7 +52,6 @@
 
 package com.example.android.camera2.video
 
-import android.Manifest
 import android.content.Context
 import android.app.Activity
 import android.content.pm.PackageManager
@@ -60,17 +59,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.view.MotionEventCompat
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.add
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
+import androidx.fragment.app.*
+import androidx.preference.PreferenceManager
 import com.example.android.camera2.video.fragments.*
 import com.google.android.material.tabs.TabLayout
 import java.lang.ref.WeakReference
@@ -85,36 +78,37 @@ class CameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mActivity = WeakReference(this)
         setContentView(R.layout.activity_camera)
-        if (findViewById<View?>(R.id.fragment_container) != null) {
-            container = findViewById(R.id.fragment_container)
-            if (savedInstanceState != null) {
-                return;
-            }
-            if (PermissionsFragment.hasPermissions(applicationContext)) {
-                supportFragmentManager.commit {
-                    add<CameraFragmentSettings>(R.id.fragment_container, null, intent.extras)
-                }
-                supportFragmentManager.commit {
-                    replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
-                }
-            } else {
-                supportFragmentManager.commit {
-                    replace<PermissionsFragment>(R.id.fragment_container, null, null)
-                }
-            }
+        container = findViewById(R.id.fragment_container)
+        if (savedInstanceState == null) {
+            switchToLaunchFragment()
         }
         val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 tabUpdate(tab)
             }
-
             override fun onTabReselected(tab: TabLayout.Tab?) {
                 tabUpdate(tab)
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
         })
+    }
+
+    fun switchToLaunchFragment() {
+        if (PermissionsFragment.hasPermissions(applicationContext)) {
+            if(PreferenceManager.getDefaultSharedPreferences(this).getString("camera_fps", null)==null) {
+                supportFragmentManager.commit {
+                    replace<CameraFragmentSettings>(R.id.fragment_container, null, null)
+                }
+            }
+            supportFragmentManager.commit {
+                replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
+            }
+        } else {
+            supportFragmentManager.commit {
+                replace<PermissionsFragment>(R.id.fragment_container, null, null)
+            }
+        }
     }
 
     fun tabUpdate(tab: TabLayout.Tab?) {

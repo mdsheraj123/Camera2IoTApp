@@ -1,7 +1,7 @@
 /*
 # Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -63,9 +63,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import com.example.android.camera2.video.CameraActivity
-import com.example.android.camera2.video.R
 
 
 private const val PERMISSIONS_REQUEST_CODE = 10
@@ -82,14 +80,7 @@ class PermissionsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (hasPermissions(requireContext())) {
-            // If permissions have already been granted, proceed
-            switchToCameraFragmentVideo()
-        } else {
-            // Request camera-related permissions
-            requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
-        }
+        requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
     }
 
     override fun onRequestPermissionsResult(
@@ -98,7 +89,7 @@ class PermissionsFragment : Fragment() {
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
             if (hasPermissions(requireContext())) {
                 // Takes the user to the success fragment when permission is granted
-                switchToCameraFragmentVideo()
+                (context as CameraActivity).switchToLaunchFragment()
             } else {
                 Toast.makeText(context, "Please give permissions", Toast.LENGTH_LONG).show()
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -110,17 +101,6 @@ class PermissionsFragment : Fragment() {
         }
     }
 
-    private fun switchToCameraFragmentVideo() {
-        val transaction0: FragmentTransaction = requireFragmentManager().beginTransaction()
-        transaction0.add(R.id.fragment_container, CameraFragmentSettings()) // give your fragment container id in first parameter
-//        transaction0.addToBackStack(null) // if written, this transaction will be added to backstack
-        transaction0.commit()
-
-        val transaction: FragmentTransaction = requireFragmentManager().beginTransaction()
-        transaction.replace(R.id.fragment_container, CameraFragmentVideo()) // give your fragment container id in first parameter
-//        transaction.addToBackStack(null) // if written, this transaction will be added to backstack
-        transaction.commit()
-    }
     companion object {
 
         /** Convenience method used to check if all permissions required by this app are granted */
