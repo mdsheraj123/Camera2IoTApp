@@ -59,7 +59,6 @@
     <string name="af_mode">AF Mode</string>
     <string name="ae_lock">AE Lock</string>
     <string name="awb_lock">AWB Lock</string>
-    <string name="effect_mode">Effect Mode</string>
     <string name="nr_mode">Noise Reduction Mode</string>
     <string name="ir_led_mode">IR LED Mode</string>
     <string name="adrc_mode">ADRC Disable</string>
@@ -70,4 +69,6 @@
     <string name="defog">Defog</string>
     <string name="exposure_table">Exposure Table</string>
     <string name="ANR_table">ANR Table</string>
+    <string name="saturation">Saturation Level</string>
+    <string name="sharpness">Sharpness Level</string>
 </resources>

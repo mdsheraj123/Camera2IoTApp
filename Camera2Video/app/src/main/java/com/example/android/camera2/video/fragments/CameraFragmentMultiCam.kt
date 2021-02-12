@@ -166,22 +166,19 @@ class CameraFragmentMultiCam : Fragment() {
         })
 
         val cameraMenu = CameraMenu(this.context, view)
-        cameraMenu.setOnCameraMenuListener(object: CameraMenu.OnCameraMenuListener {
+        cameraMenu.setOnCameraMenuListener(object : CameraMenu.OnCameraMenuListener {
             override fun onAELock(value: Boolean) {
                 cameraBase0.setAELock(value)
                 cameraBase1.setAELock(value)
                 Log.d(TAG, "AE Lock: $value")
             }
+
             override fun onAWBLock(value: Boolean) {
                 cameraBase0.setAWBLock(value)
                 cameraBase1.setAWBLock(value)
                 Log.d(TAG, "AWB Lock: $value")
             }
-            override fun onEffectMode(value: Int) {
-                cameraBase0.setEffectMode(value)
-                cameraBase1.setEffectMode(value)
-                Log.d(TAG, "Effect mode: $value")
-            }
+
             override fun onNRMode(value: Int) {
                 cameraBase0.setNRMode(value)
                 cameraBase1.setNRMode(value)
@@ -241,6 +238,7 @@ class CameraFragmentMultiCam : Fragment() {
                 cameraBase1.setZoom(value)
                 Log.d(TAG, "Zoom value: $value")
             }
+
             override fun onDefog(value: Boolean) {
                 cameraBase0.setDefog(value)
                 cameraBase1.setDefog(value)
@@ -257,6 +255,18 @@ class CameraFragmentMultiCam : Fragment() {
                 cameraBase0.setANRTable(value)
                 cameraBase1.setANRTable(value)
                 Log.d(TAG, "ANR value: $value")
+            }
+
+            override fun onSaturationLevel(value: Int) {
+                cameraBase0.setSaturationLevel(value)
+                cameraBase1.setSaturationLevel(value)
+                Log.d(TAG, "Saturation Level: $value")
+            }
+
+            override fun onSharpnessLevel(value: Int) {
+                cameraBase0.setSharpnessLevel(value)
+                cameraBase1.setSharpnessLevel(value)
+                Log.d(TAG, "Sharpness Level: $value")
             }
         })
         view.setOnClickListener() {

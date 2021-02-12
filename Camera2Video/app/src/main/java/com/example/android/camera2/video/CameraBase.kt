@@ -438,11 +438,6 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     private fun setDefaultCameraParam() {
-        // Set Effect Mode to Off.
-        previewRequest.set(CaptureRequest.CONTROL_EFFECT_MODE, 0)
-        if (::captureRequest.isInitialized) {
-            captureRequest.set(CaptureRequest.CONTROL_EFFECT_MODE, 0)
-        }
 
         // Set AntiBanding to Auto
         previewRequest.set(CaptureRequest.CONTROL_AE_ANTIBANDING_MODE, 3)
@@ -520,6 +515,18 @@ class CameraBase(val context: Context): CameraModule {
         if (::captureRequest.isInitialized) {
             VendorTagUtil.setExposureMetering(captureRequest, 0)
         }
+
+        // Set Saturation to Level 5
+        VendorTagUtil.setSaturationLevel(previewRequest, 5)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setSaturationLevel(captureRequest, 5)
+        }
+
+        // Set Sharpness to Level 2
+        VendorTagUtil.setSharpnessLevel(previewRequest, 2)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setSharpnessLevel(captureRequest, 2)
+        }
     }
 
     private fun updateRepeatingRequest() {
@@ -538,15 +545,6 @@ class CameraBase(val context: Context): CameraModule {
 
     override fun setTNREnable(value: Byte) {
         VendorTagUtil.setTNREnable(previewRequest, value)
-        updateRepeatingRequest()
-    }
-
-    override fun setEffectMode(value: Int) {
-        Log.d(TAG, "Effect mode: $value")
-        previewRequest.set(CaptureRequest.CONTROL_EFFECT_MODE, value)
-        if (::captureRequest.isInitialized) {
-            captureRequest.set(CaptureRequest.CONTROL_EFFECT_MODE, value)
-        }
         updateRepeatingRequest()
     }
 
@@ -728,6 +726,24 @@ class CameraBase(val context: Context): CameraModule {
                 Toast.makeText(context, "Please push ANR_Table.json file to device.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun setSaturationLevel(value: Int) {
+        Log.d(TAG, "Saturation Level: $value")
+        VendorTagUtil.setSaturationLevel(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setSaturationLevel(captureRequest, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setSharpnessLevel(value: Int) {
+        Log.d(TAG, "Sharpness Level: $value")
+        VendorTagUtil.setSharpnessLevel(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setSharpnessLevel(captureRequest, value)
+        }
+        updateRepeatingRequest()
     }
 
     override fun setNRMode(value: Int) {

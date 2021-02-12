@@ -145,10 +145,7 @@ class CameraFragmentVideo : Fragment() {
                 cameraBase.setAWBLock(value)
                 Log.d(TAG, "AWB Lock: $value")
             }
-            override fun onEffectMode(value: Int) {
-                cameraBase.setEffectMode(value)
-                Log.d(TAG, "Effect mode: $value")
-            }
+
             override fun onNRMode(value: Int) {
                 cameraBase.setNRMode(value)
                 Log.d(TAG, "NR mode: $value")
@@ -210,6 +207,16 @@ class CameraFragmentVideo : Fragment() {
             override fun onANRTable(value: Boolean) {
                 cameraBase.setANRTable(value)
                 Log.d(TAG, "ANR value: $value")
+            }
+
+            override fun onSaturationLevel(value: Int) {
+                cameraBase.setSaturationLevel(value)
+                Log.d(TAG, "Saturation Level: $value")
+            }
+
+            override fun onSharpnessLevel(value: Int) {
+                cameraBase.setSharpnessLevel(value)
+                Log.d(TAG, "Sharpness Level: $value")
             }
         })
         view.setOnClickListener() {

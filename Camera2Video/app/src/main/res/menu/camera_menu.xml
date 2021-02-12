@@ -52,6 +52,16 @@
         android:title="@string/adrc_mode" />
 
     <item
+        android:id="@+id/exp_table"
+        android:checkable="true"
+        android:title="@string/exposure_table" />
+
+    <item
+        android:id="@+id/ANR_table"
+        android:checkable="true"
+        android:title="@string/ANR_table" />
+
+    <item
         android:id="@+id/ae_mode"
         android:title="@string/ae_mode" >
         <menu>
@@ -92,29 +102,57 @@
     </item>
 
     <item
-        android:id="@+id/effect_mode"
-        android:title="@string/effect_mode" >
+        android:id="@+id/saturation_level"
+        android:title="@string/saturation" >
         <menu>
             <group android:checkableBehavior="single">
-                <item android:id="@+id/EFFECT_MODE_OFF"
+                <item android:id="@+id/Sat_Level_0"
+                    android:title="Level 0" />
+                <item android:id="@+id/Sat_Level_1"
+                    android:title="Level 1" />
+                <item android:id="@+id/Sat_Level_2"
+                    android:title="Level 2" />
+                <item android:id="@+id/Sat_Level_3"
+                    android:title="Level 3" />
+                <item android:id="@+id/Sat_Level_4"
+                    android:title="Level 4" />
+                <item android:id="@+id/Sat_Level_5"
                     android:checked="true"
-                    android:title="Off" />
-                <item android:id="@+id/EFFECT_MODE_MONO"
-                    android:title="Mono" />
-                <item android:id="@+id/EFFECT_MODE_NEGATIVE"
-                    android:title="Negative" />
-                <item android:id="@+id/EFFECT_MODE_SOLARIZE"
-                    android:title="Solarize" />
-                <item android:id="@+id/EFFECT_MODE_SEPIA"
-                    android:title="Sepia" />
-                <item android:id="@+id/EFFECT_MODE_POSTERIZE"
-                    android:title="Posterize" />
-                <item android:id="@+id/EFFECT_MODE_WHITEBOARD"
-                    android:title="Whiteboard" />
-                <item android:id="@+id/EFFECT_MODE_BLACKBOARD"
-                    android:title="Blackboard" />
-                <item android:id="@+id/EFFECT_MODE_AQUA"
-                    android:title="Aqua" />
+                    android:title="Level 5" />
+                <item android:id="@+id/Sat_Level_6"
+                    android:title="Level 6" />
+                <item android:id="@+id/Sat_Level_7"
+                    android:title="Level 7" />
+                <item android:id="@+id/Sat_Level_8"
+                    android:title="Level 8" />
+                <item android:id="@+id/Sat_Level_9"
+                    android:title="Level 9" />
+                <item android:id="@+id/Sat_Level_10"
+                    android:title="Level 10" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/sharpness_level"
+        android:title="@string/sharpness" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/Sharpness_Level_0"
+                    android:title="Level 0" />
+                <item android:id="@+id/Sharpness_Level_1"
+                    android:title="Level 1" />
+                <item android:id="@+id/Sharpness_Level_2"
+                    android:checked="true"
+                    android:title="Level 2" />
+                <item android:id="@+id/Sharpness_Level_3"
+                    android:title="Level 3" />
+                <item android:id="@+id/Sharpness_Level_4"
+                    android:title="Level 4" />
+                <item android:id="@+id/Sharpness_Level_5"
+                    android:title="Level 5" />
+                <item android:id="@+id/Sharpness_Level_6"
+                    android:title="Level 6" />
             </group>
         </menu>
     </item>
@@ -165,8 +203,6 @@
                 <item android:id="@+id/AF_MODE_OFF"
                     android:checked="true"
                     android:title="Off" />
-                <item android:id="@+id/AF_MODE_AUTO"
-                    android:title="Auto" />
                 <item android:id="@+id/AF_MODE_MACRO"
                     android:title="Macro" />
                 <item android:id="@+id/AF_MODE_CONTINUOUS_VIDEO"
@@ -271,15 +307,6 @@
 <!--        android:checkable="true"-->
 <!--        android:title="@string/defog" />-->
 
-    <item
-        android:id="@+id/exp_table"
-        android:checkable="true"
-        android:title="@string/exposure_table" />
-
-    <item
-        android:id="@+id/ANR_table"
-        android:checkable="true"
-        android:title="@string/ANR_table" />
 </menu>
 
 

@@ -93,7 +93,6 @@ interface CameraModule {
     fun setEISEnable(value: Boolean)
     fun setLDCEnable(value: Boolean)
     fun setTNREnable(value: Byte)
-    fun setEffectMode(value: Int)
     fun setNRMode(value: Int)
     fun setSHDREnable(value: Boolean)
     fun setAELock(value: Boolean)
@@ -110,4 +109,6 @@ interface CameraModule {
     fun setDefog(value: Boolean)
     fun setExposureTable(value: Boolean)
     fun setANRTable(value: Boolean)
+    fun setSaturationLevel(value: Int)
+    fun setSharpnessLevel(value: Int)
 }

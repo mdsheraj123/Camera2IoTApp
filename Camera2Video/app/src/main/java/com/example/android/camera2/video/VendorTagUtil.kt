@@ -157,6 +157,9 @@ object VendorTagUtil {
     private val MANUAL_WB_GAINS = CaptureRequest.Key("org.codeaurora.qcamera3.manualWB.gains", FloatArray::class.java)
     private val PARTIAL_MANUAL_WB_MODE = CaptureRequest.Key("org.codeaurora.qcamera3.manualWB.partial_mwb_mode", Int::class.java)
     private val HDRVideoMode = CaptureRequest.Key("org.quic.camera2.streamconfigs.HDRVideoMode", Byte::class.java)
+    private val SATURATION_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.saturation.use_saturation", Int::class.java)
+    private val SHARPNESS_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.sharpness.strength", Int::class.java)
+
     private const val MANUAL_WB_DISABLE_MODE = 0
     private const val MANUAL_WB_CCT_MODE = 1
     private const val MANUAL_WB_GAINS_MODE = 2
@@ -246,6 +249,26 @@ object VendorTagUtil {
     fun setIRLED(builder: CaptureRequest.Builder, value: Int) {
         if (isIRLEDSupported(builder)) {
             builder.set(IRLEDKey, value)
+        }
+    }
+
+    private fun isSaturationLevelSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, SATURATION_LEVEL_KEY)
+    }
+
+    fun setSaturationLevel(builder: CaptureRequest.Builder, value: Int) {
+        if (isSaturationLevelSupported(builder)) {
+            builder.set(SATURATION_LEVEL_KEY, value)
+        }
+    }
+
+    private fun isSharpnessLevelSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, SHARPNESS_LEVEL_KEY)
+    }
+
+    fun setSharpnessLevel(builder: CaptureRequest.Builder, value: Int) {
+        if (isSharpnessLevelSupported(builder)) {
+            builder.set(SHARPNESS_LEVEL_KEY, value)
         }
     }
 

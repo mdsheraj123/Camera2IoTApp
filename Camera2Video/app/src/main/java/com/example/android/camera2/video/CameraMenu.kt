@@ -48,7 +48,6 @@ class CameraMenu(context: Context?, view: View) {
     interface OnCameraMenuListener {
         fun onAELock(value: Boolean)
         fun onAWBLock(value: Boolean)
-        fun onEffectMode(value: Int)
         fun onNRMode(value: Int)
         fun onAntiBandingMode(value: Int)
         fun onAEMode(value: Int)
@@ -62,6 +61,8 @@ class CameraMenu(context: Context?, view: View) {
         fun onDefog(value: Boolean)
         fun onExposureTable(value: Boolean)
         fun onANRTable(value: Boolean)
+        fun onSaturationLevel(value: Int)
+        fun onSharpnessLevel(value: Int)
     }
 
     fun setOnCameraMenuListener(listener: OnCameraMenuListener) {
@@ -80,51 +81,6 @@ class CameraMenu(context: Context?, view: View) {
                 R.id.awb_lock -> {
                     item.isChecked = !item.isChecked
                     cameraMenuListener?.onAWBLock(item.isChecked);
-                    true
-                }
-                R.id.EFFECT_MODE_OFF -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_OFF)
-                    true
-                }
-                R.id.EFFECT_MODE_MONO -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_MONO)
-                    true
-                }
-                R.id.EFFECT_MODE_NEGATIVE -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_NEGATIVE)
-                    true
-                }
-                R.id.EFFECT_MODE_SOLARIZE -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_SOLARIZE)
-                    true
-                }
-                R.id.EFFECT_MODE_SEPIA -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_SEPIA)
-                    true
-                }
-                R.id.EFFECT_MODE_POSTERIZE -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_POSTERIZE)
-                    true
-                }
-                R.id.EFFECT_MODE_WHITEBOARD -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_WHITEBOARD)
-                    true
-                }
-                R.id.EFFECT_MODE_BLACKBOARD -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_BLACKBOARD)
-                    true
-                }
-                R.id.EFFECT_MODE_AQUA -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onEffectMode(CameraMetadata.CONTROL_EFFECT_MODE_AQUA)
                     true
                 }
                 R.id.nr_mode_off -> {
@@ -225,11 +181,6 @@ class CameraMenu(context: Context?, view: View) {
                 R.id.AF_MODE_OFF -> {
                     item.isChecked = true
                     cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_OFF)
-                    true
-                }
-                R.id.AF_MODE_AUTO -> {
-                    item.isChecked = true
-                    cameraMenuListener?.onAFMode(CameraMetadata.CONTROL_AF_MODE_AUTO)
                     true
                 }
                 R.id.AF_MODE_MACRO -> {
@@ -385,6 +336,96 @@ class CameraMenu(context: Context?, view: View) {
                 R.id.ANR_table -> {
                     item.isChecked = !item.isChecked
                     cameraMenuListener?.onANRTable(item.isChecked)
+                    true
+                }
+                R.id.Sat_Level_0 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(0)
+                    true
+                }
+                R.id.Sat_Level_1 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(1)
+                    true
+                }
+                R.id.Sat_Level_2 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(2)
+                    true
+                }
+                R.id.Sat_Level_3 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(3)
+                    true
+                }
+                R.id.Sat_Level_4 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(4)
+                    true
+                }
+                R.id.Sat_Level_5 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(5)
+                    true
+                }
+                R.id.Sat_Level_6 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(6)
+                    true
+                }
+                R.id.Sat_Level_7 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(7)
+                    true
+                }
+                R.id.Sat_Level_8 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(8)
+                    true
+                }
+                R.id.Sat_Level_9 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(9)
+                    true
+                }
+                R.id.Sat_Level_10 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSaturationLevel(10)
+                    true
+                }
+                R.id.Sharpness_Level_0 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSharpnessLevel(0)
+                    true
+                }
+                R.id.Sharpness_Level_1 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSharpnessLevel(1)
+                    true
+                }
+                R.id.Sharpness_Level_2 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSharpnessLevel(2)
+                    true
+                }
+                R.id.Sharpness_Level_3 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSharpnessLevel(3)
+                    true
+                }
+                R.id.Sharpness_Level_4 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSharpnessLevel(4)
+                    true
+                }
+                R.id.Sharpness_Level_5 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSharpnessLevel(5)
+                    true
+                }
+                R.id.Sharpness_Level_6 -> {
+                    item.isChecked = true
+                    cameraMenuListener?.onSharpnessLevel(6)
                     true
                 }
                 else -> false
