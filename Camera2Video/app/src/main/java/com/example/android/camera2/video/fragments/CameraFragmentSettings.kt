@@ -46,6 +46,7 @@ import android.hardware.camera2.CameraManager
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Bundle
+import android.text.InputType
 import android.util.Size
 import android.view.View
 import android.widget.Toast
@@ -279,8 +280,14 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         )
         val screen: PreferenceScreen = this.preferenceScreen
         for (key in encoderKeys) {
-            val item = screen.findPreference<EditTextPreference>(key);
-            if (item !=null) {
+            val item = screen.findPreference<EditTextPreference>(key)
+            item?.setOnBindEditTextListener { editText ->
+                editText.inputType = InputType.TYPE_CLASS_NUMBER
+            }
+            if (item != null) {
+                if (item.text == "") {
+                    item.text = "0"
+                }
                 item.summary = item.text
             }
         }

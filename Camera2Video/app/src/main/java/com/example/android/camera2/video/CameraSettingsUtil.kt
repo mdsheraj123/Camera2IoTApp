@@ -40,8 +40,8 @@ import androidx.preference.PreferenceManager
 
 object CameraSettingsUtil {
 
-    private fun ParseWidth(res: String?) = res!!.split("x")[0].toInt()
-    private fun ParseHeight(res: String?) = res!!.split("x")[1].toInt()
+    private fun parseWidth(res: String?) = res!!.split("x")[0].toInt()
+    private fun parseHeight(res: String?) = res!!.split("x")[1].toInt()
 
     fun getCameraSettings(context: Context): CameraSettings {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
@@ -53,8 +53,8 @@ object CameraSettingsUtil {
         )
 
         val streamInfo0 = StreamInfo(
-                ParseWidth(sharedPref.getString("vid_0_size", null)),
-                ParseHeight(sharedPref.getString("vid_0_size", null)),
+                parseWidth(sharedPref.getString("vid_0_size", null)),
+                parseHeight(sharedPref.getString("vid_0_size", null)),
                 sharedPref.getString("vid_0_fps", null)!!.toInt(),
                 sharedPref.getString("vid_0_format", null)!!,
                 sharedPref.getString("vid_0_audio_format", null)!!,
@@ -76,8 +76,8 @@ object CameraSettingsUtil {
         )
 
         val streamInfo1 = StreamInfo(
-                ParseWidth(sharedPref.getString("vid_1_size", null)),
-                ParseHeight(sharedPref.getString("vid_1_size", null)),
+                parseWidth(sharedPref.getString("vid_1_size", null)),
+                parseHeight(sharedPref.getString("vid_1_size", null)),
                 sharedPref.getString("vid_1_fps","")!!.toInt(),
                 sharedPref.getString("vid_1_format", "")!!,
                 sharedPref.getString("vid_1_audio_format", null)!!,
@@ -99,8 +99,8 @@ object CameraSettingsUtil {
         )
 
         val streamInfo2 = StreamInfo(
-                ParseWidth(sharedPref.getString("vid_2_size", null)),
-                ParseHeight(sharedPref.getString("vid_2_size", null)),
+                parseWidth(sharedPref.getString("vid_2_size", null)),
+                parseHeight(sharedPref.getString("vid_2_size", null)),
                 sharedPref.getString("vid_2_fps", null)!!.toInt(),
                 sharedPref.getString("vid_2_format", null)!!,
                 sharedPref.getString("vid_2_audio_format", null)!!,
@@ -122,8 +122,8 @@ object CameraSettingsUtil {
         )
 
         val snapshotInfo = StreamInfo(
-                ParseWidth(sharedPref.getString("snapshot_size", null)),
-                ParseHeight(sharedPref.getString("snapshot_size", null)),
+                parseWidth(sharedPref.getString("snapshot_size", null)),
+                parseHeight(sharedPref.getString("snapshot_size", null)),
                 sharedPref.getString("camera_fps",null)!!.toInt(),
                 sharedPref.getString("snapshot_format", null))
 
