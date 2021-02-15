@@ -81,6 +81,7 @@ class MediaCodecRecorder(private val context: Context,
     private lateinit var audioRecorderThread: Thread
 
     private var currentVideoFilePath: String? = null
+    private var isFirstTime = true
 
     private var videoMimeType: String = when (streamInfo.encoding) {
         "H264" -> "video/avc"
@@ -212,6 +213,10 @@ class MediaCodecRecorder(private val context: Context,
                 }
 
                 if (bufferInfo.size !== 0 && muxerStarted) {
+                    if(isFirstTime) {
+                        isFirstTime = false
+                        Log.e(TAG, "First Video Frame received.")
+                    }
                     encodedData.position(bufferInfo.offset)
                     encodedData.limit(bufferInfo.offset + bufferInfo.size)
                     muxer?.writeSampleData(videoTrackIndex, encodedData, bufferInfo)
@@ -330,6 +335,7 @@ class MediaCodecRecorder(private val context: Context,
     }
 
     private fun releaseMuxer() {
+        Log.i(TAG, "releaseMuxer")
         if(muxerStarted) {
             muxer?.stop()
         }
@@ -342,6 +348,7 @@ class MediaCodecRecorder(private val context: Context,
     }
 
     override fun start(orientation: Int?) {
+        Log.i(TAG, "start enter")
         muxer = createMuxer()
         orientation?.let { muxer?.setOrientationHint(it) }
         videoEncoder = createVideoEncoder()
@@ -358,9 +365,11 @@ class MediaCodecRecorder(private val context: Context,
         audioRecorderThread = thread {
             audioRecorderHandler(false)
         }
+        Log.i(TAG, "start exit")
     }
 
     override fun stop() {
+        Log.i(TAG, "stop enter")
         videoEncoderRunning = false
         audioRecorderRunning = false
 
@@ -368,9 +377,11 @@ class MediaCodecRecorder(private val context: Context,
         audioEncoderThread.join()
         audioRecorderThread.join()
         releaseMuxer()
+        Log.i(TAG, "stop exit")
     }
 
     override fun destroy() {
+        Log.i(TAG, "destroy")
         surface.release()
     }
 
@@ -414,6 +425,6 @@ class MediaCodecRecorder(private val context: Context,
         private const val AUDIO_SAMPLES_PER_FRAME = 1024
         private const val AUDIO_BITRATE = 128000
         private const val AUDIO_MIME_TYPE = "audio/mp4a-latm"
-        private val TAG = VideoRecorder::class.simpleName
+        private val TAG = MediaCodecRecorder::class.simpleName
     }
 }

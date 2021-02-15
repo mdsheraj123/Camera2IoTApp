@@ -47,7 +47,7 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
-import android.util.Rational
+import android.util.Log
 import android.util.Size
 import android.view.View
 import android.widget.Toast
@@ -61,6 +61,7 @@ import kotlin.math.abs
 
 class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        Log.i(TAG, "onCreatePreferences")
         setPreferencesFromResource(R.xml.camera_preferences, rootKey)
         val cameraManager =
                 requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -130,6 +131,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.i(TAG, "onActivityResult")
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICKFILE_RESULT_CODE1 && resultCode == Activity.RESULT_OK) {
             copyToFile(data, "/Defog_Table.json")
@@ -162,6 +164,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Log.i(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         val navHeight = resources.getDimensionPixelSize(resources.getIdentifier("navigation_bar_height", "dimen", "android"))
         if (navHeight > 0) {
@@ -170,18 +173,26 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     }
 
     override fun onResume() {
+        Log.i(TAG, "onResume")
         super.onResume()
         preferenceScreen.sharedPreferences
                 .registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
+        Log.i(TAG, "onPause")
         super.onPause()
         preferenceScreen.sharedPreferences
                 .unregisterOnSharedPreferenceChangeListener(this)
     }
 
+    override fun onDestroy() {
+        Log.i(TAG, "onDestroy")
+        super.onDestroy()
+    }
+
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        Log.i(TAG, "onSharedPreferenceChanged")
         when (key) {
             "camera_id" -> updateCameraPreferences()
             "dual_camera" -> {
@@ -213,6 +224,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     }
 
     private fun updateCameraPreferences() {
+        Log.i(TAG, "updateCameraPreferences")
         val settings = getCameraSettings(requireContext().applicationContext)
 
         val cameraManager =
@@ -349,6 +361,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     }
 
     companion object {
+        private val TAG = CameraFragmentSettings::class.java.simpleName
         const val PICKFILE_RESULT_CODE1 = 1
         const val PICKFILE_RESULT_CODE2 = 2
         const val PICKFILE_RESULT_CODE3 = 3

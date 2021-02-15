@@ -126,10 +126,11 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     override suspend fun openCamera(cameraId: String) {
-        Log.d(TAG, "openCamera")
+        Log.i(TAG, "openCamera")
         camera = suspendCancellableCoroutine { cont ->
             val callback = object : CameraDevice.StateCallback() {
                 override fun onOpened(camera: CameraDevice) {
+                    Log.i(TAG, "openCamera onOpened")
                     cont.resume(camera)
                 }
 
@@ -152,6 +153,7 @@ class CameraBase(val context: Context): CameraModule {
                 }
 
                 override fun onClosed(camera: CameraDevice) {
+                    Log.i(TAG, "openCamera onClosed")
                     super.onClosed(camera)
                     clearStreams()
                     synchronized(closeSync) {
@@ -165,10 +167,11 @@ class CameraBase(val context: Context): CameraModule {
         captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
 
         characteristics = cameraManager.getCameraCharacteristics(cameraId)
-        Log.d(TAG, "openCamera done")
+        Log.i(TAG, "openCamera done")
     }
 
     private fun createSession(targets: List<Surface>) {
+        Log.i(TAG, "createSession enter")
 
         val outConfigurations = mutableListOf<OutputConfiguration>()
         for (surface in targets) {
@@ -225,6 +228,7 @@ class CameraBase(val context: Context): CameraModule {
 
         config.sessionParameters = previewRequest.build()
         camera.createCaptureSession(config)
+        Log.i(TAG, "createSession exit")
     }
 
     private fun getJsonString(fileName: String): String? {
@@ -291,6 +295,7 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     private fun clearStreams() {
+        Log.i(TAG, "clearStreams")
         streamSurfaceList.clear()
         recorderList.clear()
         snapshotSurfaceList.clear()
@@ -313,6 +318,7 @@ class CameraBase(val context: Context): CameraModule {
     override suspend fun takeSnapshot(orientation: Int?):
         CombinedCaptureResult = suspendCoroutine { cont ->
             @Suppress("ControlFlowWithEmptyBody")
+            Log.i(TAG, "takeSnapshot")
             while (imageReader.acquireNextImage() != null) {}
 
             val imageQueue = ArrayBlockingQueue<Image>(IMAGE_BUFFER_SIZE)
@@ -373,6 +379,7 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     suspend fun saveResult(result: CombinedCaptureResult): String? = suspendCoroutine { cont ->
+        Log.i(TAG, "saveResult")
         when (result.format) {
             ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
                 val buffer = result.image.planes[0].buffer
@@ -428,6 +435,7 @@ class CameraBase(val context: Context): CameraModule {
     }
 
     override fun close() {
+        Log.i(TAG, "close enter")
         if (::session.isInitialized) {
             session.stopRepeating()
             session.abortCaptures()
@@ -437,9 +445,11 @@ class CameraBase(val context: Context): CameraModule {
             closeSync.wait()
         }
         streamConfigOpMode = 0x00
+        Log.i(TAG, "close exit")
     }
 
     private fun setDefaultCameraParam() {
+        Log.i(TAG, "setDefaultCameraParam")
 
         // Set AntiBanding to Auto
         previewRequest.set(CaptureRequest.CONTROL_AE_ANTIBANDING_MODE, 3)

@@ -52,8 +52,8 @@
 
 package com.example.android.camera2.video
 
-import android.content.Context
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -64,6 +64,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MotionEventCompat
 import androidx.fragment.app.*
 import androidx.preference.PreferenceManager
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import com.example.android.camera2.video.fragments.*
 import com.google.android.material.tabs.TabLayout
 import java.lang.ref.WeakReference
@@ -75,6 +78,7 @@ class CameraActivity : AppCompatActivity() {
     var lastNonSettingTab = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         mActivity = WeakReference(this)
         setContentView(R.layout.activity_camera)
@@ -85,9 +89,11 @@ class CameraActivity : AppCompatActivity() {
         val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
+                Log.i(TAG, "onTabSelected")
                 tabUpdate(tab)
             }
             override fun onTabReselected(tab: TabLayout.Tab?) {
+                Log.i(TAG, "onTabReselected")
                 tabUpdate(tab)
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
@@ -95,39 +101,48 @@ class CameraActivity : AppCompatActivity() {
     }
 
     fun switchToLaunchFragment() {
+        Log.i(TAG, "switchToLaunchFragment")
         if (PermissionsFragment.hasPermissions(applicationContext)) {
             if(PreferenceManager.getDefaultSharedPreferences(this).getString("camera_fps", null)==null) {
                 supportFragmentManager.commit {
+                    Log.i(TAG, "replace<CameraFragmentSettings>")
                     replace<CameraFragmentSettings>(R.id.fragment_container, null, null)
                 }
             }
             supportFragmentManager.commit {
+                Log.i(TAG, "replace<CameraFragmentVideo>")
                 replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
             }
         } else {
             supportFragmentManager.commit {
+                Log.i(TAG, "replace<PermissionsFragment>")
                 replace<PermissionsFragment>(R.id.fragment_container, null, null)
             }
         }
     }
 
     fun tabUpdate(tab: TabLayout.Tab?) {
+        Log.i(TAG, "tabUpdate ${tab!!.position}")
         when (tab!!.position) {
             0 -> supportFragmentManager.commit {
+                Log.i(TAG, "replace<CameraFragmentVideo>")
                 replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
                 lastNonSettingTab = 0
             }
             1 -> supportFragmentManager.commit {
+                Log.i(TAG, "replace<CameraFragmentMultiCam>")
                 replace<CameraFragmentMultiCam>(R.id.fragment_container, null, null)
                 lastNonSettingTab = 1
             }
             2 -> supportFragmentManager.commit {
+                Log.i(TAG, "replace<CameraFragmentSettings>")
                 replace<CameraFragmentSettings>(R.id.fragment_container, null, null)
             }
         }
     }
 
     override fun onBackPressed() {
+        Log.i(TAG, "onBackPressed")
         val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
         if (tabLayout.selectedTabPosition == 2) {
             tabLayout.getTabAt(lastNonSettingTab)?.select()
@@ -147,6 +162,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
+        Log.i(TAG, "onResume")
         super.onResume()
         // Before setting full screen flags, we must wait a bit to let UI settle; otherwise, we may
         // be trying to set app to immersive mode before it's ready and the flags do not stick
@@ -155,8 +171,14 @@ class CameraActivity : AppCompatActivity() {
         }, IMMERSIVE_FLAG_TIMEOUT)
     }
 
+    override fun onPause() {
+        Log.i(TAG, "onPause")
+        super.onPause()
+    }
+
     override fun onDestroy() {
-        mActivity?.clear();
+        Log.i(TAG, "onDestroy")
+        mActivity?.clear()
         super.onDestroy()
     }
 

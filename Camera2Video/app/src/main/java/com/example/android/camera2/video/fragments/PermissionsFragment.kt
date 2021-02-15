@@ -59,6 +59,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat
@@ -79,12 +80,14 @@ private val PERMISSIONS_REQUIRED = arrayOf(
 class PermissionsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
     }
 
     override fun onRequestPermissionsResult(
             requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        Log.i(TAG, "onRequestPermissionsResult")
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
             if (hasPermissions(requireContext())) {
@@ -101,8 +104,23 @@ class PermissionsFragment : Fragment() {
         }
     }
 
-    companion object {
+    override fun onResume() {
+        Log.i(TAG, "onResume")
+        super.onResume()
+    }
 
+    override fun onPause() {
+        Log.i(TAG, "onPause")
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        Log.i(TAG, "onDestroy")
+        super.onDestroy()
+    }
+
+    companion object {
+        private val TAG = PermissionsFragment::class.java.simpleName
         /** Convenience method used to check if all permissions required by this app are granted */
         fun hasPermissions(context: Context) = PERMISSIONS_REQUIRED.all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED

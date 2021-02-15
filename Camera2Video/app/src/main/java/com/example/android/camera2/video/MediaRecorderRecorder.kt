@@ -67,6 +67,7 @@ class MediaRecorderRecorder(private val context: Context,
     }
 
     private fun createRecorder(srfs: Surface, fd: FileDescriptor) = MediaRecorder().apply {
+        Log.i(TAG, "createRecorder")
         setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
         setVideoSource(MediaRecorder.VideoSource.SURFACE)
         setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -117,17 +118,22 @@ class MediaRecorderRecorder(private val context: Context,
     }
 
     override fun start(orientation: Int?) {
+        Log.i(TAG, "start enter")
         recorder = createVideoFile()?.let { createRecorder(surface, it) }!!
         recorder.prepare()
         recorder.start()
+        Log.i(TAG, "start exit")
     }
 
     override fun stop() {
+        Log.i(TAG, "stop enter")
         recorder.stop()
         recorder.release()
+        Log.i(TAG, "stop exit")
     }
 
     override fun destroy() {
+        Log.i(TAG, "destroy")
         surface.release()
     }
 
@@ -145,6 +151,7 @@ class MediaRecorderRecorder(private val context: Context,
     }
 
     private fun createVideoFile(): FileDescriptor? {
+        Log.i(TAG, "createVideoFile")
         val dateTaken = System.currentTimeMillis()
         val filename = "VID_${SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US).format(Date())}.mp4"
 
@@ -169,6 +176,6 @@ class MediaRecorderRecorder(private val context: Context,
     companion object {
         private const val RECORDER_VIDEO_BITRATE: Int = 10_000_000
         private const val MIN_REQUIRED_RECORDING_TIME_MILLIS: Long = 1000L
-        private val TAG = VideoRecorder::class.simpleName
+        private val TAG = MediaRecorderRecorder::class.simpleName
     }
 }
