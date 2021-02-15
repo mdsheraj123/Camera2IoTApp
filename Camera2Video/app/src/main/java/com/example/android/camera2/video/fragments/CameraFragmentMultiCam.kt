@@ -400,6 +400,7 @@ class CameraFragmentMultiCam : Fragment() {
             }
         }
         addCameraStreams(cameraBase0, settings, viewFinder0.holder.surface, previewSize0)
+        cameraBase0.setExposureValue(settings.cameraParams.exposure_value)
 
         cameraBase1.openCamera(camera1Id)
 
@@ -409,6 +410,7 @@ class CameraFragmentMultiCam : Fragment() {
         cameraBase1.setFramerate(settings.previewInfo.fps)
 
         addCameraStreams(cameraBase1, settings, viewFinder1.holder.surface, previewSize1)
+        cameraBase1.setExposureValue(settings.cameraParams.exposure_value)
 
         if (settings.threeCamUse) {
             cameraBase2.openCamera(camera2Id)

@@ -47,6 +47,7 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
+import android.util.Rational
 import android.util.Size
 import android.view.View
 import android.widget.Toast
@@ -54,6 +55,8 @@ import androidx.preference.*
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
 import com.example.android.camera2.video.R
 import java.io.*
+import java.text.DecimalFormat
+import kotlin.math.abs
 
 
 class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -129,21 +132,21 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICKFILE_RESULT_CODE1 && resultCode == Activity.RESULT_OK) {
-            copyToFile(data,"/Defog_Table.json")
+            copyToFile(data, "/Defog_Table.json")
         } else if(requestCode == PICKFILE_RESULT_CODE2 && resultCode == Activity.RESULT_OK) {
-            copyToFile(data,"/Exposure_Table.json")
+            copyToFile(data, "/Exposure_Table.json")
         } else if(requestCode == PICKFILE_RESULT_CODE3 && resultCode == Activity.RESULT_OK) {
-            copyToFile(data,"/ANR_Table.json")
+            copyToFile(data, "/ANR_Table.json")
         }
     }
 
-    private fun copyToFile(data:Intent?, filename:String) {
+    private fun copyToFile(data: Intent?, filename: String) {
         val contentDescriber: Uri? = data?.data
         var input: InputStream? = null
         var output: OutputStream? = null
         try {
             input = context?.contentResolver?.openInputStream(contentDescriber!!)
-            output = FileOutputStream(File(context?.filesDir?.path!!+filename))
+            output = FileOutputStream(File(context?.filesDir?.path!! + filename))
             val buffer = ByteArray(1024)
             var len: Int
             if (input != null) {
@@ -219,7 +222,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         val selectedCamera = cameraList.find { it.cameraId == settings.cameraId }
         val pictureSizes = mutableListOf<String>()
         val videoSizes = mutableListOf<String>()
-        val previewSizes = mutableListOf<String>()
+
         if (selectedCamera != null) {
             for (size in selectedCamera.pictureSizes) {
                 pictureSizes.add("${size.width}x${size.height}")
@@ -246,6 +249,58 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         videoResPreference2?.entries = videoSizes.toTypedArray()
         videoResPreference2?.entryValues = videoSizes.toTypedArray()
 
+        val exposureValue = screen.findPreference<ListPreference>("exposure_value");
+        if (exposureValue != null) {
+            getExposureValue(exposureValue)
+        }
+    }
+
+    private fun getExposureValue(exposureValue: ListPreference) {
+        val cameraManager =
+                requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val range = cameraManager.getCameraCharacteristics(getCameraSettings(requireContext().applicationContext).cameraId).get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE)
+        val max: Int = range!!.upper
+        val min: Int = range!!.lower
+        if (min == 0 && max == 0) {
+            return
+        }
+        val rational = cameraManager.getCameraCharacteristics(getCameraSettings(requireContext().applicationContext).cameraId).get(CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP)
+        val step = rational?.toDouble()
+        var increment = 1
+        while ((max - min) / increment > 10) {
+            increment++
+        }
+        var start = min
+        if (start < 0) {
+            while (abs(start) % increment != 0) {
+                start++
+            }
+        }
+        var size = 0
+        run {
+            var i = start
+            while (i <= max) {
+                size++
+                i += increment
+            }
+        }
+        val entries = arrayOfNulls<CharSequence>(size)
+        val entryValues = arrayOfNulls<CharSequence>(size)
+        var count = 0
+        run {
+            var i = start
+            while (i <= max) {
+                entryValues[count] = i.toString()
+                val builder = StringBuilder()
+                if (i > 0) builder.append('+')
+                val format = DecimalFormat("#.##")
+                entries[count] = builder.append(format.format(i * step!!)).toString()
+                i += increment
+                count++
+            }
+        }
+        exposureValue.entries = entries
+        exposureValue.entryValues = entryValues
     }
 
     private fun updateEncodePreference() {

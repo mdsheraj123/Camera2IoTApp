@@ -106,6 +106,7 @@ class CameraBase(val context: Context): CameraModule {
     private var isEISEnabled: Boolean = false
     private var isLDCEnabled: Boolean = false
     private var isSHDREnabled: Boolean = false
+    private var exposureValue = 0
 
     private lateinit var imageReader: ImageReader
 
@@ -527,6 +528,17 @@ class CameraBase(val context: Context): CameraModule {
         if (::captureRequest.isInitialized) {
             VendorTagUtil.setSharpnessLevel(captureRequest, 2)
         }
+
+        // Set Exposure Value
+        previewRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION , exposureValue)
+        if (::captureRequest.isInitialized) {
+            captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION , exposureValue)
+        }
+    }
+
+    override fun setExposureValue(value: Int) {
+        Log.d(TAG, "Exposure Value: $value")
+        exposureValue = value
     }
 
     private fun updateRepeatingRequest() {

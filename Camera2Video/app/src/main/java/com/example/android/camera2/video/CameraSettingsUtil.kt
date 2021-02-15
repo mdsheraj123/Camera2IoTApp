@@ -147,7 +147,8 @@ object CameraSettingsUtil {
                 CameraParameters(
                         sharedPref.getBoolean("eis_enable",false),
                         sharedPref.getBoolean("ldc_enable",false),
-                        sharedPref.getBoolean("shdr_enable",false)
+                        sharedPref.getBoolean("shdr_enable",false),
+                        sharedPref.getString("exposure_value", null)!!.toInt()
                 ),
                 sharedPref.getString("camera_id", null)!!,
                 sharedPref.getBoolean("display_enable",false),
