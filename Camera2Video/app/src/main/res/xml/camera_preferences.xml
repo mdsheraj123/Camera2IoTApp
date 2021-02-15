@@ -64,19 +64,19 @@
             android:entries="@array/camera_fps_range"
             android:entryValues="@array/camera_fps_range"
             android:defaultValue="30"/>
-        <androidx.preference.SwitchPreference
-            android:key="preview_overlay"
-            android:title="Preview overlay"
-            android:summary="Preview overlay"
-            android:defaultValue="false"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Display" >
         <androidx.preference.SwitchPreference
             android:key="display_enable"
-            android:title="Display For Recording"
+            android:title="Display"
             android:summary="Enable Display"
             android:defaultValue="true"/>
+        <androidx.preference.SwitchPreference
+            android:key="preview_overlay"
+            android:title="Preview overlay"
+            android:summary="Preview overlay"
+            android:defaultValue="false"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Snapshot" >
@@ -99,6 +99,11 @@
             android:entries="@array/snapshot_formats"
             android:entryValues="@array/snapshot_formats"
             android:defaultValue="JPEG" />
+        <androidx.preference.SwitchPreference
+            android:key="zsl_enable"
+            android:title="HAL-ZSL"
+            android:summary="HAL-ZSL"
+            android:defaultValue="true"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Video" >

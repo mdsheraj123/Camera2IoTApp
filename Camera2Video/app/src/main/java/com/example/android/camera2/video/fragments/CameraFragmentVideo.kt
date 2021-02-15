@@ -338,6 +338,8 @@ class CameraFragmentVideo : Fragment() {
 
         addCameraStreams(cameraBase, settings)
         cameraBase.setExposureValue(settings.cameraParams.exposure_value)
+        cameraBase.setZSL(settings.cameraParams.hal_zsl_enable)
+
         cameraBase.startCamera()
 
         val sound = MediaActionSound()

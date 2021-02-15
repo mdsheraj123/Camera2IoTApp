@@ -107,6 +107,7 @@ class CameraBase(val context: Context): CameraModule {
     private var isLDCEnabled: Boolean = false
     private var isSHDREnabled: Boolean = false
     private var exposureValue = 0
+    private var enableZSL = true
 
     private lateinit var imageReader: ImageReader
 
@@ -197,7 +198,7 @@ class CameraBase(val context: Context): CameraModule {
         captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(previewFps, previewFps))
 
         // Set ZSL Mode
-        captureRequest.set(CaptureRequest.CONTROL_ENABLE_ZSL, true)
+        captureRequest.set(CaptureRequest.CONTROL_ENABLE_ZSL, enableZSL)
 
         // Set Opmode
         if (isEISEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_EIS_MODE
@@ -539,6 +540,11 @@ class CameraBase(val context: Context): CameraModule {
     override fun setExposureValue(value: Int) {
         Log.d(TAG, "Exposure Value: $value")
         exposureValue = value
+    }
+
+    override fun setZSL(value: Boolean) {
+        Log.d(TAG, "ZSL Value: $value")
+        enableZSL = value
     }
 
     private fun updateRepeatingRequest() {

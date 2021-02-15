@@ -63,7 +63,8 @@ data class StreamInfo(
 data class CameraParameters(val eis_enable: Boolean = false,
                             val ldc_enable: Boolean = false,
                             val shdr_enable: Boolean = false,
-                            val exposure_value: Int = 0)
+                            val exposure_value: Int = 0,
+                            val hal_zsl_enable: Boolean = true)
 
 data class CameraSettings(var previewInfo: StreamInfo,
                           var recorderInfo: MutableList<StreamInfo>,
@@ -113,4 +114,5 @@ interface CameraModule {
     fun setSaturationLevel(value: Int)
     fun setSharpnessLevel(value: Int)
     fun setExposureValue(value: Int)
+    fun setZSL(value: Boolean)
 }
