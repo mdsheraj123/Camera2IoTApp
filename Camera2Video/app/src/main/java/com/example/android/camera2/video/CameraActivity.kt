@@ -60,11 +60,10 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MotionEventCompat
-import androidx.fragment.app.*
 import androidx.preference.PreferenceManager
-import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.example.android.camera2.video.fragments.*
@@ -90,12 +89,11 @@ class CameraActivity : AppCompatActivity() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 Log.i(TAG, "onTabSelected")
+                disableTabs()
                 tabUpdate(tab)
             }
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-                Log.i(TAG, "onTabReselected")
-                tabUpdate(tab)
-            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
         })
     }
@@ -103,21 +101,40 @@ class CameraActivity : AppCompatActivity() {
     fun switchToLaunchFragment() {
         Log.i(TAG, "switchToLaunchFragment")
         if (PermissionsFragment.hasPermissions(applicationContext)) {
-            if(PreferenceManager.getDefaultSharedPreferences(this).getString("camera_fps", null)==null) {
+            if (PreferenceManager.getDefaultSharedPreferences(this).getString("camera_fps", null) == null) {
                 supportFragmentManager.commit {
                     Log.i(TAG, "replace<CameraFragmentSettings>")
                     replace<CameraFragmentSettings>(R.id.fragment_container, null, null)
                 }
             }
+            disableTabs()
             supportFragmentManager.commit {
                 Log.i(TAG, "replace<CameraFragmentVideo>")
                 replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
             }
+            currentTab = 0
         } else {
             supportFragmentManager.commit {
                 Log.i(TAG, "replace<PermissionsFragment>")
                 replace<PermissionsFragment>(R.id.fragment_container, null, null)
             }
+        }
+    }
+    fun enableTabs() {
+        Log.i(TAG, "enableTabs")
+        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
+        val tabStrip = tabLayout.getChildAt(0) as LinearLayout
+        for (i in 0 until tabStrip.childCount) {
+            tabStrip.getChildAt(i).isClickable = true
+        }
+    }
+
+    private fun disableTabs() {
+        Log.i(TAG, "disableTabs")
+        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
+        val tabStrip = tabLayout.getChildAt(0) as LinearLayout
+        for (i in 0 until tabStrip.childCount) {
+            tabStrip.getChildAt(i).isClickable = false
         }
     }
 
@@ -128,15 +145,18 @@ class CameraActivity : AppCompatActivity() {
                 Log.i(TAG, "replace<CameraFragmentVideo>")
                 replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
                 lastNonSettingTab = 0
+                currentTab = 0
             }
             1 -> supportFragmentManager.commit {
                 Log.i(TAG, "replace<CameraFragmentMultiCam>")
                 replace<CameraFragmentMultiCam>(R.id.fragment_container, null, null)
                 lastNonSettingTab = 1
+                currentTab = 1
             }
             2 -> supportFragmentManager.commit {
                 Log.i(TAG, "replace<CameraFragmentSettings>")
                 replace<CameraFragmentSettings>(R.id.fragment_container, null, null)
+                currentTab = 2
             }
         }
     }
@@ -183,6 +203,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     companion object {
+        var currentTab: Int = 100
         var mActivity: WeakReference<Activity>? = null
         /** Combination of all flags required to put activity into immersive mode */
         const val FLAGS_FULLSCREEN =

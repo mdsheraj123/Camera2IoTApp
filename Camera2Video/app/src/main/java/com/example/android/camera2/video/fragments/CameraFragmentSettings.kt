@@ -52,6 +52,8 @@ import android.util.Size
 import android.view.View
 import android.widget.Toast
 import androidx.preference.*
+import com.example.android.camera2.video.CameraActivity
+import com.example.android.camera2.video.CameraActivity.Companion.mActivity
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
 import com.example.android.camera2.video.R
 import java.io.*
@@ -177,6 +179,8 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         super.onResume()
         preferenceScreen.sharedPreferences
                 .registerOnSharedPreferenceChangeListener(this)
+        //Tab switch successful
+        (mActivity?.get() as CameraActivity).enableTabs()
     }
 
     override fun onPause() {

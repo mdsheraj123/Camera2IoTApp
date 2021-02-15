@@ -51,7 +51,6 @@ import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
 import android.view.*
-import android.webkit.MimeTypeMap
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.fragment.app.Fragment
@@ -71,7 +70,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class CameraFragmentVideo : Fragment() {
+class CameraFragmentVideo : Fragment(),CameraReadyListener {
     private val cameraManager: CameraManager by lazy {
         val context = requireContext().applicationContext
         context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -105,6 +104,7 @@ class CameraFragmentVideo : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         printAppVersion(requireContext().applicationContext)
         cameraBase = CameraBase(requireContext().applicationContext)
+        cameraBase.listeners.add(this)
         settings = getCameraSettings(requireContext().applicationContext)
 
         // Make Snapshot button invisible if there is no snapshot stream
@@ -457,6 +457,11 @@ class CameraFragmentVideo : Fragment() {
     override fun onDestroy() {
         Log.i(TAG, "onDestroy")
         super.onDestroy()
+    }
+
+    override fun onIsCameraReadyUpdated(oldIsCameraReady: Boolean, newIsCameraReady: Boolean) {
+        Log.i(TAG, "onIsCameraReadyUpdated $oldIsCameraReady to $newIsCameraReady")
+        (CameraActivity.mActivity?.get() as CameraActivity).enableTabs()
     }
 
     companion object {

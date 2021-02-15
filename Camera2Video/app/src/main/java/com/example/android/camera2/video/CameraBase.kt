@@ -71,6 +71,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
+import kotlin.properties.Delegates
 
 class CameraBase(val context: Context): CameraModule {
 
@@ -119,6 +120,12 @@ class CameraBase(val context: Context): CameraModule {
 
     val closeSync = Object()
 
+    var listeners = mutableListOf<CameraReadyListener>()
+
+    var isCameraReady: Boolean by Delegates.observable(false) { _, old, new ->
+        listeners.forEach { it.onIsCameraReadyUpdated(old, new) }
+    }
+
     override fun getAvailableCameras(): Array<String> = cameraManager.cameraIdList
 
     override fun getSensorOrientation(): Int {
@@ -135,7 +142,8 @@ class CameraBase(val context: Context): CameraModule {
                 }
 
                 override fun onDisconnected(camera: CameraDevice) {
-                    cont.resume(camera)
+                    Log.w(TAG, "Camera $cameraId has been disconnected")
+                    CameraActivity().finish()
                 }
 
                 override fun onError(camera: CameraDevice, error: Int) {
@@ -220,8 +228,9 @@ class CameraBase(val context: Context): CameraModule {
                         setDefaultCameraParam()
                         // if there is no active surface, do not set setRepeatingRequest.
                         if (streamSurfaceList.isNotEmpty()) session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
+                        isCameraReady = true
+                        Log.i(TAG, "isCameraReady true")
                     }
-
                     override fun onConfigureFailed(s: CameraCaptureSession) =
                             s.device.close()
                 })
@@ -440,9 +449,11 @@ class CameraBase(val context: Context): CameraModule {
             session.stopRepeating()
             session.abortCaptures()
         }
-        camera.close()
-        synchronized(closeSync) {
-            closeSync.wait()
+        if (::camera.isInitialized) {
+            camera.close()
+            synchronized(closeSync) {
+                closeSync.wait(CLOSESYNC_TIMEOUT)
+            }
         }
         streamConfigOpMode = 0x00
         Log.i(TAG, "close exit")
@@ -817,6 +828,7 @@ class CameraBase(val context: Context): CameraModule {
             override fun close() = image.close()
         }
 
+        private const val CLOSESYNC_TIMEOUT = 1000L
         private const val IMAGE_BUFFER_SIZE: Int = 3
         private const val IMAGE_CAPTURE_TIMEOUT_MILLIS: Long = 5000
         private const val IMAGE_JPEG_QUALITY: Byte = 85

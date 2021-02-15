@@ -56,7 +56,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.example.android.camera.utils.AutoFitSurfaceView
 import com.example.android.camera.utils.OrientationLiveData
-import com.example.android.camera.utils.getDisplaySmartSize
 import com.example.android.camera.utils.getPreviewOutputSize
 import com.example.android.camera2.video.*
 import com.example.android.camera2.video.CameraActivity.Companion.printAppVersion
@@ -68,7 +67,7 @@ import kotlinx.android.synthetic.main.fragment_camera_multicam.recorder_button
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class CameraFragmentMultiCam : Fragment() {
+class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
     private val cameraManager: CameraManager by lazy {
         val context = requireContext().applicationContext
         context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -99,6 +98,8 @@ class CameraFragmentMultiCam : Fragment() {
     private val camera1Id = "1"
     private val camera2Id = "2"
 
+    var readyCount = 0
+
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -111,7 +112,9 @@ class CameraFragmentMultiCam : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         printAppVersion(requireContext().applicationContext)
         cameraBase0 = CameraBase(requireContext().applicationContext)
+        cameraBase0.listeners.add(this)
         cameraBase1 = CameraBase(requireContext().applicationContext)
+        cameraBase1.listeners.add(this)
         settings = CameraSettingsUtil.getCameraSettings(requireContext().applicationContext)
 
         // Make Snapshot button invisible if there is no snapshot stream
@@ -124,6 +127,7 @@ class CameraFragmentMultiCam : Fragment() {
 
         if (settings.threeCamUse) {
             cameraBase2 = CameraBase(requireContext().applicationContext)
+            cameraBase2.listeners.add(this)
             characteristics2 = cameraManager.getCameraCharacteristics(camera2Id)
         }
 
@@ -589,6 +593,23 @@ class CameraFragmentMultiCam : Fragment() {
     override fun onDestroy() {
         Log.i(TAG, "onDestroy")
         super.onDestroy()
+    }
+
+    override fun onIsCameraReadyUpdated(oldIsCameraReady: Boolean, newIsCameraReady: Boolean) {
+        Log.i(TAG, "onIsCameraReadyUpdated $oldIsCameraReady to $newIsCameraReady")
+        readyCount++
+        when (readyCount) {
+            2 -> {
+                if (!CameraSettingsUtil.getCameraSettings(requireContext().applicationContext).threeCamUse) {
+                    readyCount = 0
+                    (CameraActivity.mActivity?.get() as CameraActivity).enableTabs()
+                }
+            }
+            3 -> {
+                readyCount = 0
+                (CameraActivity.mActivity?.get() as CameraActivity).enableTabs()
+            }
+        }
     }
 
     companion object {
