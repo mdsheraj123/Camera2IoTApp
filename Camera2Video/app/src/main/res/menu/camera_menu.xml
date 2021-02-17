@@ -52,6 +52,11 @@
         android:title="@string/adrc_mode" />
 
     <item
+        android:id="@+id/defog"
+        android:checkable="true"
+        android:title="@string/defog" />
+
+    <item
         android:id="@+id/exp_table"
         android:checkable="true"
         android:title="@string/exposure_table" />
@@ -301,12 +306,6 @@
             </group>
         </menu>
     </item>
-
-<!--    <item-->
-<!--        android:id="@+id/defog"-->
-<!--        android:checkable="true"-->
-<!--        android:title="@string/defog" />-->
-
 </menu>
 
 

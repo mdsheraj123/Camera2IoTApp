@@ -63,10 +63,13 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MotionEventCompat
-import androidx.preference.PreferenceManager
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import com.example.android.camera2.video.fragments.*
+import androidx.preference.PreferenceManager
+import com.example.android.camera2.video.fragments.CameraFragmentMultiCam
+import com.example.android.camera2.video.fragments.CameraFragmentSettings
+import com.example.android.camera2.video.fragments.CameraFragmentVideo
+import com.example.android.camera2.video.fragments.PermissionsFragment
 import com.google.android.material.tabs.TabLayout
 import java.lang.ref.WeakReference
 

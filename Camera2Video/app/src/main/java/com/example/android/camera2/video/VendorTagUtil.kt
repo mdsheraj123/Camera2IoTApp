@@ -93,8 +93,6 @@ data class DefogParams(
         val hdr_trigparam_start_range: List<Float>,
         val hdr_trigparam_end_range: List<Float>,
         val hdr_trigparam_fog_range: List<Int>,
-        val isSettled: Int,
-        val algo_fog_scene_probability: Int,
         val ce_en: Byte,
         val convergence_mode: Int,
         val guc_en: Byte,

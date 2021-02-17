@@ -323,11 +323,11 @@ class CameraMenu(context: Context?, view: View) {
                     cameraMenuListener?.onSetZoom(8)
                     true
                 }
-//                R.id.defog -> {
-//                    item.isChecked = !item.isChecked
-//                    cameraMenuListener?.onDefog(item.isChecked)
-//                    true
-//                }
+                R.id.defog -> {
+                    item.isChecked = !item.isChecked
+                    cameraMenuListener?.onDefog(item.isChecked)
+                    true
+                }
                 R.id.exp_table -> {
                 item.isChecked = !item.isChecked
                 cameraMenuListener?.onExposureTable(item.isChecked)
