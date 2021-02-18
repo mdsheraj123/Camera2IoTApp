@@ -244,22 +244,24 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
                 Log.d(TAG, "Zoom value: $value")
             }
 
-            override fun onDefog(value: Boolean) {
-                cameraBase0.setDefog(value)
-                cameraBase1.setDefog(value)
+            override fun onDefog(value: Boolean): Boolean {
                 Log.d(TAG, "Defog value: $value")
+                return (cameraBase0.setDefog(value) && cameraBase1.setDefog(value))
             }
 
-            override fun onExposureTable(value: Boolean) {
-                cameraBase0.setExposureTable(value)
-                cameraBase1.setExposureTable(value)
+            override fun onExposureTable(value: Boolean): Boolean {
                 Log.d(TAG, "Exposure value: $value")
+                return (cameraBase0.setExposureTable(value) && cameraBase1.setExposureTable(value))
             }
 
-            override fun onANRTable(value: Boolean) {
-                cameraBase0.setANRTable(value)
-                cameraBase1.setANRTable(value)
+            override fun onANRTable(value: Boolean): Boolean {
                 Log.d(TAG, "ANR value: $value")
+                return (cameraBase0.setANRTable(value) && cameraBase1.setANRTable(value))
+            }
+
+            override fun onLTMTable(value: Boolean): Boolean {
+                Log.d(TAG, "LTM value: $value")
+                return (cameraBase0.setLTMTable(value) && cameraBase1.setLTMTable(value))
             }
 
             override fun onSaturationLevel(value: Int) {

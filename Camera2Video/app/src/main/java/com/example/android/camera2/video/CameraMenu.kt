@@ -58,9 +58,10 @@ class CameraMenu(context: Context?, view: View) {
         fun onExpMeteringMode(value: Int)
         fun onISOMode(value: Long)
         fun onSetZoom(value: Int)
-        fun onDefog(value: Boolean)
-        fun onExposureTable(value: Boolean)
-        fun onANRTable(value: Boolean)
+        fun onDefog(value: Boolean): Boolean
+        fun onExposureTable(value: Boolean): Boolean
+        fun onANRTable(value: Boolean): Boolean
+        fun onLTMTable(value: Boolean): Boolean
         fun onSaturationLevel(value: Int)
         fun onSharpnessLevel(value: Int)
     }
@@ -324,18 +325,23 @@ class CameraMenu(context: Context?, view: View) {
                     true
                 }
                 R.id.defog -> {
-                    item.isChecked = !item.isChecked
-                    cameraMenuListener?.onDefog(item.isChecked)
+                    val status = cameraMenuListener?.onDefog(!item.isChecked)
+                    if (status!!) item.isChecked = !item.isChecked
                     true
                 }
                 R.id.exp_table -> {
-                item.isChecked = !item.isChecked
-                cameraMenuListener?.onExposureTable(item.isChecked)
-                true
+                    val status = cameraMenuListener?.onExposureTable(!item.isChecked)
+                    if (status!!) item.isChecked = !item.isChecked
+                    true
                 }
                 R.id.ANR_table -> {
-                    item.isChecked = !item.isChecked
-                    cameraMenuListener?.onANRTable(item.isChecked)
+                    val status = cameraMenuListener?.onANRTable(!item.isChecked)
+                    if (status!!) item.isChecked = !item.isChecked
+                    true
+                }
+                R.id.LTM_table -> {
+                    val status = cameraMenuListener?.onLTMTable(!item.isChecked)
+                    if (status!!) item.isChecked = !item.isChecked
                     true
                 }
                 R.id.Sat_Level_0 -> {

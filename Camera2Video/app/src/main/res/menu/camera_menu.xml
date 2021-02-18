@@ -67,6 +67,11 @@
         android:title="@string/ANR_table" />
 
     <item
+        android:id="@+id/LTM_table"
+        android:checkable="true"
+        android:title="@string/LTM" />
+
+    <item
         android:id="@+id/ae_mode"
         android:title="@string/ae_mode" >
         <menu>

@@ -709,62 +709,88 @@ class CameraBase(val context: Context): CameraModule {
         }
     }
 
-    override fun setDefog(value: Boolean) {
+    override fun setDefog(value: Boolean): Boolean {
         Log.d(TAG, "Defog: $value")
+        var jsonString: String? = null
         if (value) {
-            val jsonString = getJsonString("Defog_Table.json")
+            jsonString = getJsonString("Defog_Table.json")
             if (jsonString != null) {
                 showTextDialog("/Defog_Table.json")
-                VendorTagUtil.setDefog(previewRequest, jsonString)
-                VendorTagUtil.setDefog(captureRequest, jsonString)
-                updateRepeatingRequest()
             } else {
                 Log.e(TAG, "Defog Data is not available")
                 Toast.makeText(context, "Please push Defog_Table.json file to device.", Toast.LENGTH_SHORT).show()
+                return false
             }
         } else {
-            val jsonString = "{\"enable\" : 0}"
-            VendorTagUtil.setDefog(previewRequest, jsonString)
-            VendorTagUtil.setDefog(captureRequest, jsonString)
-            updateRepeatingRequest()
+            jsonString = "{\"enable\" : 0}"
         }
+        VendorTagUtil.setDefog(previewRequest, jsonString)
+        VendorTagUtil.setDefog(captureRequest, jsonString)
+        updateRepeatingRequest()
+        return true
     }
 
-    override fun setExposureTable(value: Boolean) {
+    override fun setExposureTable(value: Boolean): Boolean {
         Log.d(TAG, "ExposureTable: $value")
+        var jsonString: String? = null
         if (value) {
-            val jsonString = getJsonString("Exposure_Table.json")
+            jsonString = getJsonString("Exposure_Table.json")
             if (jsonString != null) {
                 showTextDialog("/Exposure_Table.json")
-                VendorTagUtil.setExposureTable(previewRequest, jsonString)
-                VendorTagUtil.setExposureTable(captureRequest, jsonString)
-                updateRepeatingRequest()
             } else {
                 Log.e(TAG, "Exposure Table is not available")
                 Toast.makeText(context, "Please push Exposure_Table.json file to device.", Toast.LENGTH_SHORT).show()
+                return false
             }
         } else {
-            val jsonString = "{\"isValid\" : 0}"
-            VendorTagUtil.setExposureTable(previewRequest, jsonString)
-            VendorTagUtil.setExposureTable(captureRequest, jsonString)
-            updateRepeatingRequest()
+            jsonString = "{\"isValid\" : 0}"
         }
+        VendorTagUtil.setExposureTable(previewRequest, jsonString)
+        VendorTagUtil.setExposureTable(captureRequest, jsonString)
+        updateRepeatingRequest()
+        return true
     }
 
-    override fun setANRTable(value: Boolean) {
+    override fun setANRTable(value: Boolean): Boolean {
         Log.d(TAG, "ANR: $value")
+        var jsonString: String? = null
         if (value) {
-            val jsonString = getJsonString("ANR_Table.json")
+            jsonString = getJsonString("ANR_Table.json")
             if (jsonString != null) {
                 showTextDialog("/ANR_Table.json")
-                VendorTagUtil.setANRTable(previewRequest, jsonString)
-                VendorTagUtil.setANRTable(captureRequest, jsonString)
-                updateRepeatingRequest()
             } else {
                 Log.e(TAG, "ANR Table is not available")
                 Toast.makeText(context, "Please push ANR_Table.json file to device.", Toast.LENGTH_SHORT).show()
+                return false
             }
+        } else {
+            jsonString = "{\n\"anr_intensity\" : 0.0,\n\"anr_motion_sensitivity\" : 0.0\n}"
         }
+        VendorTagUtil.setANRTable(previewRequest, jsonString)
+        VendorTagUtil.setANRTable(captureRequest, jsonString)
+        updateRepeatingRequest()
+        return true
+    }
+
+    override fun setLTMTable(value: Boolean): Boolean {
+        Log.d(TAG, "LTM: $value")
+        var jsonString: String? = null
+        if (value) {
+            jsonString = getJsonString("LTM_Table.json")
+            if (jsonString != null) {
+                showTextDialog("/LTM_Table.json")
+            } else {
+                Log.e(TAG, "LTM Table is not available")
+                Toast.makeText(context, "Please push LTM_Table.json file to device.", Toast.LENGTH_SHORT).show()
+                return false
+            }
+        } else {
+            jsonString = "{\n\"ltmDynamicContrastStrength\" : 0.0,\n\"ltmDarkBoostStrength\" : 0.0,\n\"ltmBrightSupressStrength\" : 0.0\n}"
+        }
+        VendorTagUtil.setLTMTable(previewRequest, jsonString)
+        VendorTagUtil.setLTMTable(captureRequest, jsonString)
+        updateRepeatingRequest()
+        return true
     }
 
     override fun setSaturationLevel(value: Int) {

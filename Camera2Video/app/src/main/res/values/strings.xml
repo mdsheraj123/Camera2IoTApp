@@ -69,6 +69,7 @@
     <string name="defog">Defog</string>
     <string name="exposure_table">Exposure Table</string>
     <string name="ANR_table">ANR Table</string>
+    <string name="LTM">LTM Table</string>
     <string name="saturation">Saturation Level</string>
     <string name="sharpness">Sharpness Level</string>
 </resources>

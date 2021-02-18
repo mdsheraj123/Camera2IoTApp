@@ -128,6 +128,18 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
             true
         }
 
+        val ltmPref = screen.findPreference<Preference>("ltm_file")
+        ltmPref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            val chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.addCategory(Intent.CATEGORY_OPENABLE)
+            chooseFile.type = "application/json"
+            startActivityForResult(
+                    Intent.createChooser(chooseFile, "Choose a file"),
+                    PICKFILE_RESULT_CODE4
+            )
+            true
+        }
+
         updateCameraPreferences()
         updateEncodePreference()
     }
@@ -137,10 +149,12 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICKFILE_RESULT_CODE1 && resultCode == Activity.RESULT_OK) {
             copyToFile(data, "/Defog_Table.json")
-        } else if(requestCode == PICKFILE_RESULT_CODE2 && resultCode == Activity.RESULT_OK) {
+        } else if (requestCode == PICKFILE_RESULT_CODE2 && resultCode == Activity.RESULT_OK) {
             copyToFile(data, "/Exposure_Table.json")
-        } else if(requestCode == PICKFILE_RESULT_CODE3 && resultCode == Activity.RESULT_OK) {
+        } else if (requestCode == PICKFILE_RESULT_CODE3 && resultCode == Activity.RESULT_OK) {
             copyToFile(data, "/ANR_Table.json")
+        } else if (requestCode == PICKFILE_RESULT_CODE4 && resultCode == Activity.RESULT_OK) {
+            copyToFile(data, "/LTM_Table.json")
         }
     }
 
@@ -369,6 +383,8 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         const val PICKFILE_RESULT_CODE1 = 1
         const val PICKFILE_RESULT_CODE2 = 2
         const val PICKFILE_RESULT_CODE3 = 3
+        const val PICKFILE_RESULT_CODE4 = 4
+
         private data class CameraInfo(
                 val orientation: String,
                 val cameraId: String,

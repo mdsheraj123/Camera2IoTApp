@@ -119,6 +119,12 @@ data class ANRTable(
         val anr_tuning_range: List<Float>
 )
 
+data class LTMTable(
+        val ltmDynamicContrastStrength: Float,
+        val ltmDarkBoostStrength: Float,
+        val ltmBrightSupressStrength: Float
+)
+
 object VendorTagUtil {
     private const val TAG = "VendorTagUtil"
 
@@ -408,6 +414,10 @@ object VendorTagUtil {
 
     fun setANRTable(builder: CaptureRequest.Builder, ANRData: String) {
         GenericSetVendorEntries(builder, ANRData, "ANR Table", "org.quic.camera.anr_tuning.", ANRTable::class.java, ANRTable::class.memberProperties).setVendorEntries()
+    }
+
+    fun setLTMTable(builder: CaptureRequest.Builder, LTMData: String) {
+        GenericSetVendorEntries(builder, LTMData, "LTM Table", "org.quic.camera.ltmDynamicContrast.", LTMTable::class.java, LTMTable::class.memberProperties).setVendorEntries()
     }
 
     class GenericSetVendorEntries<T> (private val builder: CaptureRequest.Builder, private val jsonString: String, private val type: String, private val keyText: String, private val f1: Class<T>, private val f2: Collection<KProperty1<T, *>>){

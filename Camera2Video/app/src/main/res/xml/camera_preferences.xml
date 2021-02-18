@@ -484,6 +484,9 @@
         <Preference
             android:title="ANR Data"
             android:key="anr_file" />
+        <Preference
+            android:title="Local Tone Mapping"
+            android:key="ltm_file" />
         <androidx.preference.ListPreference
             android:key="exposure_value"
             android:title="Exposure"

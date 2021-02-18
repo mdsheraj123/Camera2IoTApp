@@ -195,19 +195,24 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
                 cameraBase.setZoom(value)
                 Log.d(TAG, "Zoom value: $value")
             }
-            override fun onDefog(value: Boolean) {
-                cameraBase.setDefog(value)
+            override fun onDefog(value: Boolean): Boolean {
                 Log.d(TAG, "Defog value: $value")
+                return cameraBase.setDefog(value)
             }
 
-            override fun onExposureTable(value: Boolean) {
-                cameraBase.setExposureTable(value)
+            override fun onExposureTable(value: Boolean): Boolean {
                 Log.d(TAG, "Exposure value: $value")
+                return cameraBase.setExposureTable(value)
             }
 
-            override fun onANRTable(value: Boolean) {
-                cameraBase.setANRTable(value)
+            override fun onANRTable(value: Boolean): Boolean {
                 Log.d(TAG, "ANR value: $value")
+                return cameraBase.setANRTable(value)
+            }
+
+            override fun onLTMTable(value: Boolean): Boolean {
+                Log.d(TAG, "LTM value: $value")
+                return cameraBase.setLTMTable(value)
             }
 
             override fun onSaturationLevel(value: Int) {
