@@ -55,8 +55,6 @@ import android.util.Range
 import android.view.Surface
 import android.widget.Toast
 import com.example.android.camera.utils.OrientationLiveData.Companion.getOrientationValueForRotation
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.*
 import java.nio.MappedByteBuffer
@@ -66,7 +64,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executor
-import java.util.concurrent.TimeoutException
+import java.util.concurrent.Semaphore
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -121,6 +119,8 @@ class CameraBase(val context: Context): CameraModule {
     var currentSnapshotFilePath: String? = null
 
     val closeSync = Object()
+
+    val takeSnapshotSemaphore  = Semaphore(1)
 
     var listeners = mutableListOf<CameraReadyListener>()
 
@@ -345,68 +345,52 @@ class CameraBase(val context: Context): CameraModule {
         }
     }
 
-    override suspend fun takeSnapshot(orientation: Int?):
-        CombinedCaptureResult = suspendCoroutine { cont ->
-            @Suppress("ControlFlowWithEmptyBody")
-            Log.i(TAG, "takeSnapshot")
-            while (imageReader.acquireNextImage() != null) {}
+    override fun takeSnapshot(orientation: Int?): CombinedCaptureResult {
+        @Suppress("ControlFlowWithEmptyBody")
+        Log.i(TAG, "takeSnapshot")
+        while (imageReader.acquireNextImage() != null) {
+        }
 
-            val imageQueue = ArrayBlockingQueue<Image>(IMAGE_BUFFER_SIZE)
-            imageReader.setOnImageAvailableListener({ reader ->
-                val image = reader.acquireNextImage()
-                Log.d(TAG, "Image available in queue: ${image.timestamp}")
-                imageQueue.add(image)
-            }, imageReaderHandler)
+        val imageQueue = ArrayBlockingQueue<Image>(IMAGE_BUFFER_SIZE)
+        imageReader.setOnImageAvailableListener({ reader ->
+            val image = reader.acquireNextImage()
+            Log.d(TAG, "Image available in queue: ${image.timestamp}")
+            imageQueue.add(image)
+        }, imageReaderHandler)
+        lateinit var combinedCaptureResult: CombinedCaptureResult
+        takeSnapshotSemaphore.acquire()
+        session.capture(captureRequest.build(), object : CameraCaptureSession.CaptureCallback() {
+            override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult) {
+                super.onCaptureCompleted(session, request, result)
+                val resultTimestamp = result.get(CaptureResult.SENSOR_TIMESTAMP)
+                Log.d(TAG, "Capture result received: $resultTimestamp")
 
-            session.capture(captureRequest.build(), object : CameraCaptureSession.CaptureCallback() {
+                var image:Image
+                do {
+                    image = imageQueue.take()
+                } while (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                        image.format != ImageFormat.DEPTH_JPEG &&
+                        image.timestamp != resultTimestamp)
+                Log.d(TAG, "Matching image dequeued: ${image.timestamp}")
 
-                override fun onCaptureStarted(
-                        session: CameraCaptureSession,
-                        request: CaptureRequest,
-                        timestamp: Long,
-                        frameNumber: Long) {
-                    super.onCaptureStarted(session, request, timestamp, frameNumber)
+                imageReader.setOnImageAvailableListener(null, null)
+                while (imageQueue.size > 0) {
+                    imageQueue.take().close()
                 }
-
-                override fun onCaptureCompleted(
-                        session: CameraCaptureSession,
-                        request: CaptureRequest,
-                        result: TotalCaptureResult) {
-                    super.onCaptureCompleted(session, request, result)
-                    val resultTimestamp = result.get(CaptureResult.SENSOR_TIMESTAMP)
-                    Log.d(TAG, "Capture result received: $resultTimestamp")
-
-                    val exc = TimeoutException("Image dequeuing took too long")
-                    val timeoutRunnable = Runnable { cont.resumeWithException(exc) }
-                    imageReaderHandler.postDelayed(timeoutRunnable, IMAGE_CAPTURE_TIMEOUT_MILLIS)
-
-                    @Suppress("BlockingMethodInNonBlockingContext")
-                    GlobalScope.launch(cont.context) {
-                        while (true) {
-                            val image = imageQueue.take()
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                                    image.format != ImageFormat.DEPTH_JPEG &&
-                                    image.timestamp != resultTimestamp) continue
-                            Log.d(TAG, "Matching image dequeued: ${image.timestamp}")
-
-                            imageReaderHandler.removeCallbacks(timeoutRunnable)
-                            imageReader.setOnImageAvailableListener(null, null)
-
-                            while (imageQueue.size > 0) {
-                                imageQueue.take().close()
-                            }
-
-                            // Compute EXIF orientation metadata
-                            val exifOrientation = getOrientationValueForRotation(orientation?:0)
-
-                            cont.resume(CombinedCaptureResult(
-                                    image, result, exifOrientation, imageReader.imageFormat))
-                        }
-                    }
-                }
-            }, cameraHandler)
+                // Compute EXIF orientation metadata
+                val exifOrientation = getOrientationValueForRotation(orientation ?: 0)
+                combinedCaptureResult = CombinedCaptureResult(image, result, exifOrientation, imageReader.imageFormat)
+                takeSnapshotSemaphore.release()
+            }
+        }, cameraHandler)
+        takeSnapshotSemaphore.acquire()
+        takeSnapshotSemaphore.release()
+        return combinedCaptureResult
     }
+
 
     suspend fun saveResult(result: CombinedCaptureResult): String? = suspendCoroutine { cont ->
         Log.i(TAG, "saveResult")
@@ -906,7 +890,7 @@ class CameraBase(val context: Context): CameraModule {
         }
 
         private const val CLOSESYNC_TIMEOUT = 1000L
-        private const val IMAGE_BUFFER_SIZE: Int = 3
+        private const val IMAGE_BUFFER_SIZE: Int = 8
         private const val IMAGE_CAPTURE_TIMEOUT_MILLIS: Long = 5000
         private const val IMAGE_JPEG_QUALITY: Byte = 85
 

@@ -90,7 +90,7 @@ interface CameraModule {
     fun startRecording(value: Int?)
     fun isRecording() : Boolean
     fun stopRecording()
-    suspend fun takeSnapshot(value: Int?): CombinedCaptureResult
+    fun takeSnapshot(value: Int?): CombinedCaptureResult
     fun close()
     fun setEISEnable(value: Boolean)
     fun setLDCEnable(value: Boolean)
