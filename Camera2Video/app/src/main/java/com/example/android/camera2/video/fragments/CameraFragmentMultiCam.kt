@@ -462,82 +462,44 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
                         Log.d(TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
                     }
                 } else {
-                    Log.i(TAG, "startRecording enter")
-                    sound.play(MediaActionSound.START_VIDEO_RECORDING)
-                    cameraBase0.startRecording(relativeOrientation0.value)
-                    cameraBase1.startRecording(relativeOrientation1.value)
-                    recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
-                    startChronometer()
-                    recording = true
-                    Log.i(TAG, "startRecording exit")
+                    if (CameraActivity.enoughStorageAvailable()) {
+                        Log.i(TAG, "startRecording enter")
+                        sound.play(MediaActionSound.START_VIDEO_RECORDING)
+                        cameraBase0.startRecording(relativeOrientation0.value)
+                        cameraBase1.startRecording(relativeOrientation1.value)
+                        recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
+                        startChronometer()
+                        recording = true
+                        Log.i(TAG, "startRecording exit")
+                    }
                 }
             }
         }
         capture_button.setOnClickListener {
             Log.i(TAG, "capture_button pressed")
-            it.isEnabled = false
-            Log.i(TAG, "capture_button disabled")
-            var snapshot0Flag = false
-            var snapshot1Flag = false
-            var snapshot2Flag = false
+            if (CameraActivity.enoughStorageAvailable()) {
+                it.isEnabled = false
+                Log.i(TAG, "capture_button disabled")
+                var snapshot0Flag = false
+                var snapshot1Flag = false
+                var snapshot2Flag = false
 
-            if (!settings.threeCamUse) snapshot2Flag = true
+                if (!settings.threeCamUse) snapshot2Flag = true
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                cameraBase0.takeSnapshot(relativeOrientation0.value).use { result ->
-                    Log.d(TAG, "Result received: $result")
-                    val outputFilePath = cameraBase0.saveResult(result)
-
-                    // If the result is a JPEG file, update EXIF metadata with orientation info
-                    if (outputFilePath?.substring(outputFilePath!!.lastIndexOf(".")) == ".jpg") {
-                        val exif = ExifInterface(outputFilePath)
-                        exif.setAttribute(ExifInterface.TAG_ORIENTATION, result.orientation.toString())
-                        exif.saveAttributes()
-                        Log.d(TAG, "EXIF metadata saved: $outputFilePath")
-                    }
-                }
-                snapshot0Flag = true
-                if (snapshot0Flag and snapshot1Flag and snapshot2Flag) {
-                    it.post {
-                        if (settings.snapshotInfo.encoding == "JPEG") {
-                            thumbnailButton3.setImageDrawable(createRoundThumb(cameraBase0.currentSnapshotFilePath, THUMBNAIL_TYPE_IMAGE))
-                        }
-                        it.isEnabled = true
-                        Log.i(TAG, "capture_button enabled")
-                    }
-                }
-            }
-            lifecycleScope.launch(Dispatchers.IO) {
-                cameraBase1.takeSnapshot(relativeOrientation1.value).use { result ->
-                    Log.d(TAG, "Result received: $result")
-                    val outputFilePath = cameraBase1.saveResult(result)
-
-                    // If the result is a JPEG file, update EXIF metadata with orientation info
-                    if (outputFilePath?.substring(outputFilePath!!.lastIndexOf(".")) == ".jpg") {
-                        val exif = ExifInterface(outputFilePath)
-                        exif.setAttribute(ExifInterface.TAG_ORIENTATION, result.orientation.toString())
-                        exif.saveAttributes()
-                        Log.d(TAG, "EXIF metadata saved: $outputFilePath")
-                    }
-                }
-                snapshot1Flag = true
-                if (snapshot0Flag and snapshot1Flag and snapshot2Flag) {
-                    it.post {
-                        if (settings.snapshotInfo.encoding == "JPEG") {
-                            thumbnailButton3.setImageDrawable(createRoundThumb(cameraBase0.currentSnapshotFilePath, THUMBNAIL_TYPE_IMAGE))
-                        }
-                        it.isEnabled = true
-                        Log.i(TAG, "capture_button enabled")
-                    }
-                }
-            }
-            if (settings.threeCamUse) {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    cameraBase2.takeSnapshot(0).use { result ->
+                    cameraBase0.takeSnapshot(relativeOrientation0.value).use { result ->
                         Log.d(TAG, "Result received: $result")
-                        val outputFilePath = cameraBase2.saveResult(result)
+                        val outputFilePath = cameraBase0.saveResult(result)
+
+                        // If the result is a JPEG file, update EXIF metadata with orientation info
+                        if (outputFilePath?.substring(outputFilePath!!.lastIndexOf(".")) == ".jpg") {
+                            val exif = ExifInterface(outputFilePath)
+                            exif.setAttribute(ExifInterface.TAG_ORIENTATION, result.orientation.toString())
+                            exif.saveAttributes()
+                            Log.d(TAG, "EXIF metadata saved: $outputFilePath")
+                        }
                     }
-                    snapshot2Flag = true
+                    snapshot0Flag = true
                     if (snapshot0Flag and snapshot1Flag and snapshot2Flag) {
                         it.post {
                             if (settings.snapshotInfo.encoding == "JPEG") {
@@ -548,8 +510,50 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
                         }
                     }
                 }
+                lifecycleScope.launch(Dispatchers.IO) {
+                    cameraBase1.takeSnapshot(relativeOrientation1.value).use { result ->
+                        Log.d(TAG, "Result received: $result")
+                        val outputFilePath = cameraBase1.saveResult(result)
+
+                        // If the result is a JPEG file, update EXIF metadata with orientation info
+                        if (outputFilePath?.substring(outputFilePath!!.lastIndexOf(".")) == ".jpg") {
+                            val exif = ExifInterface(outputFilePath)
+                            exif.setAttribute(ExifInterface.TAG_ORIENTATION, result.orientation.toString())
+                            exif.saveAttributes()
+                            Log.d(TAG, "EXIF metadata saved: $outputFilePath")
+                        }
+                    }
+                    snapshot1Flag = true
+                    if (snapshot0Flag and snapshot1Flag and snapshot2Flag) {
+                        it.post {
+                            if (settings.snapshotInfo.encoding == "JPEG") {
+                                thumbnailButton3.setImageDrawable(createRoundThumb(cameraBase0.currentSnapshotFilePath, THUMBNAIL_TYPE_IMAGE))
+                            }
+                            it.isEnabled = true
+                            Log.i(TAG, "capture_button enabled")
+                        }
+                    }
+                }
+                if (settings.threeCamUse) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        cameraBase2.takeSnapshot(0).use { result ->
+                            Log.d(TAG, "Result received: $result")
+                            val outputFilePath = cameraBase2.saveResult(result)
+                        }
+                        snapshot2Flag = true
+                        if (snapshot0Flag and snapshot1Flag and snapshot2Flag) {
+                            it.post {
+                                if (settings.snapshotInfo.encoding == "JPEG") {
+                                    thumbnailButton3.setImageDrawable(createRoundThumb(cameraBase0.currentSnapshotFilePath, THUMBNAIL_TYPE_IMAGE))
+                                }
+                                it.isEnabled = true
+                                Log.i(TAG, "capture_button enabled")
+                            }
+                        }
+                    }
+                }
+                sound.play(MediaActionSound.SHUTTER_CLICK)
             }
-            sound.play(MediaActionSound.SHUTTER_CLICK)
         }
 
         thumbnailButton3.setOnClickListener {

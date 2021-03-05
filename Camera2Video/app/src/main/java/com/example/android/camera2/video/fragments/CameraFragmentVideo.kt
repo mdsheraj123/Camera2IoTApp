@@ -366,7 +366,7 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
         cameraBase.startCamera()
 
         val sound = MediaActionSound()
-        if(settings.snapshotOn) {
+        if (settings.snapshotOn) {
             capture_button.setOnClickListener {
                 Log.i(TAG, "capture_button pressed")
                 if(settings.mjpegOn) {
@@ -381,7 +381,7 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
                         } else {
                             Log.d(TAG, "Cannot record mjpeg less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
                         }
-                    } else {
+                    } else if (CameraActivity.enoughStorageAvailable()) {
                         Log.i(TAG, "recordingMJPEG started")
                         recordingMJPEG = true
                         sound.play(MediaActionSound.SHUTTER_CLICK)
@@ -389,7 +389,7 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
                         cameraBase.takeMJPEG(true)
                         startChronometer()
                     }
-                } else {
+                } else if (CameraActivity.enoughStorageAvailable()) {
                     sound.play(MediaActionSound.SHUTTER_CLICK)
                     it.isEnabled = false
                     Log.i(TAG, "capture_button disabled")
@@ -435,13 +435,15 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
                         Log.d(TAG, "Cannot record a video less than $MIN_REQUIRED_RECORDING_TIME_MILLIS ms")
                     }
                 } else {
-                    Log.i(TAG, "startRecording enter")
-                    sound.play(MediaActionSound.START_VIDEO_RECORDING)
-                    cameraBase.startRecording(relativeOrientation.value)
-                    recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
-                    startChronometer()
-                    recording = true
-                    Log.i(TAG, "startRecording exit")
+                    if (CameraActivity.enoughStorageAvailable()) {
+                        Log.i(TAG, "startRecording enter")
+                        sound.play(MediaActionSound.START_VIDEO_RECORDING)
+                        cameraBase.startRecording(relativeOrientation.value)
+                        recorder_button.setBackgroundResource(android.R.drawable.presence_video_busy)
+                        startChronometer()
+                        recording = true
+                        Log.i(TAG, "startRecording exit")
+                    }
                 }
             }
         }

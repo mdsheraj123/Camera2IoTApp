@@ -56,11 +56,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
+import android.os.StatFs
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MotionEventCompat
 import androidx.fragment.app.commit
@@ -168,6 +171,7 @@ class CameraActivity : AppCompatActivity() {
         Log.i(TAG, "onBackPressed")
         val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
         if (tabLayout.selectedTabPosition == 2) {
+            disableTabs() // Disabling before tab switch
             tabLayout.getTabAt(lastNonSettingTab)?.select()
         } else {
             super.onBackPressed()
@@ -228,6 +232,18 @@ class CameraActivity : AppCompatActivity() {
                 Log.i(TAG, "Camera2Video App version: ${version.toString()}")
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
+            }
+        }
+        fun enoughStorageAvailable(): Boolean {
+            val path = Environment.getDataDirectory()
+            val stat = StatFs(path.path)
+            val blockSize = stat.blockSizeLong
+            val availableBlocks = stat.availableBlocksLong
+            return if((availableBlocks * blockSize < 100*1024*1024)) {
+                Toast.makeText(mActivity?.get(), "Less than 100MB available in storage, please free some space", Toast.LENGTH_SHORT).show()
+                false
+            } else {
+                true
             }
         }
     }
