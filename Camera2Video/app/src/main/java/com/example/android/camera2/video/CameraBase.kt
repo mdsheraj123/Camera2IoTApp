@@ -89,6 +89,8 @@ class CameraBase(val context: Context): CameraModule {
 
     lateinit var session: CameraCaptureSession
 
+    lateinit var sessionHFR: CameraConstrainedHighSpeedCaptureSession
+
     lateinit var previewRequest: CaptureRequest.Builder
 
     lateinit var captureRequest: CaptureRequest.Builder
@@ -215,6 +217,7 @@ class CameraBase(val context: Context): CameraModule {
         if (isEISEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_EIS_MODE
         if (isSHDREnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_ZZHDR_MODE
         if (isLDCEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_LDC_MODE
+        if (previewFps == 120) streamConfigOpMode = streamConfigOpMode or HIGH_SPEED_SESSION
 
         Log.d(TAG, "Operation Mode: $streamConfigOpMode")
 
@@ -222,15 +225,33 @@ class CameraBase(val context: Context): CameraModule {
                 streamConfigOpMode, outConfigurations, HandlerExecutor(cameraHandler),
                 object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(s: CameraCaptureSession) {
-                        Log.d(TAG, "onConfigured session")
-                        session = s
                         // Set Default Camera Param
                         setDefaultCameraParam()
-                        // if there is no active surface, do not set setRepeatingRequest.
-                        if (streamSurfaceList.isNotEmpty()) session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
+
+                        if (previewFps == 120) {
+                            Log.i(TAG, "onConfigured HFR session")
+                            sessionHFR = s as CameraConstrainedHighSpeedCaptureSession
+                            // if there is no active surface, do not set setRepeatingBurst.
+                            if (streamSurfaceList.isNotEmpty()) {
+                                var requestList = sessionHFR.createHighSpeedRequestList(previewRequest.build())
+                                sessionHFR.setRepeatingBurst(requestList, null, cameraHandler)
+                            }
+                        } else {
+                            Log.i(TAG, "onConfigured session")
+                            session = s
+                            // if there is no active surface, do not set setRepeatingRequest.
+                            if (streamSurfaceList.isNotEmpty()) {
+                                if ((streamSurfaceList.size == 2) && (previewFps == 60 || previewFps == 90)) {
+                                    optimizePreviewFPS(previewFps)
+                                } else {
+                                    session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
+                                }
+                            }
+                        }
                         isCameraReady = true
                         Log.i(TAG, "isCameraReady true")
                     }
+
                     override fun onConfigureFailed(s: CameraCaptureSession) =
                             s.device.close()
                 })
@@ -449,6 +470,12 @@ class CameraBase(val context: Context): CameraModule {
             session.stopRepeating()
             session.abortCaptures()
         }
+
+        if (::sessionHFR.isInitialized) {
+            sessionHFR.stopRepeating()
+            sessionHFR.abortCaptures()
+        }
+
         if (::camera.isInitialized) {
             camera.close()
             synchronized(closeSync) {
@@ -709,6 +736,30 @@ class CameraBase(val context: Context): CameraModule {
         }
     }
 
+    private fun optimizePreviewFPS(previewFps: Int) {
+        when (previewFps) {
+            60 -> {
+                var burstList = mutableListOf<CaptureRequest>()
+                burstList.add(previewRequest.build())
+                // First Surface is always display.
+                previewRequest.removeTarget(streamSurfaceList[0])
+                burstList.add(previewRequest.build())
+                session.setRepeatingBurst(burstList, null, cameraHandler)
+                previewRequest.addTarget(streamSurfaceList[0])
+            }
+            90 -> {
+                var burstList = mutableListOf<CaptureRequest>()
+                burstList.add(previewRequest.build())
+                // First Surface is always display.
+                previewRequest.removeTarget(streamSurfaceList[0])
+                burstList.add(previewRequest.build())
+                burstList.add(previewRequest.build())
+                session.setRepeatingBurst(burstList, null, cameraHandler)
+                previewRequest.addTarget(streamSurfaceList[0])
+            }
+        }
+    }
+
     override fun setDefog(value: Boolean): Boolean {
         Log.d(TAG, "Defog: $value")
         var jsonString: String? = null
@@ -863,6 +914,7 @@ class CameraBase(val context: Context): CameraModule {
         private const val STREAM_CONFIG_ZZHDR_MODE: Int = 0xF002
         private const val STREAM_CONFIG_EIS_MODE: Int = 0xF200
         private const val STREAM_CONFIG_LDC_MODE: Int = 0xF800
+        private const val HIGH_SPEED_SESSION: Int = 1
 
         private fun createFile(context: Context, extension: String): File {
             val dir = File(Environment.getExternalStoragePublicDirectory(

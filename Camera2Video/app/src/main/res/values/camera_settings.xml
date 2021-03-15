@@ -66,6 +66,8 @@
         <item>24</item>
         <item>30</item>
         <item>60</item>
+        <item>90</item>
+        <item>120</item>
     </string-array>
 
     <string-array name="video_bitrates">
@@ -134,6 +136,8 @@
         <item>15</item>
         <item>30</item>
         <item>60</item>
+        <item>90</item>
+        <item>120</item>
     </string-array>
 
     <string-array name="video_resolutions">
