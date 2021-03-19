@@ -35,7 +35,6 @@
 package com.example.android.camera2.video
 
 import android.content.Context
-import android.view.Surface
 import androidx.preference.PreferenceManager
 
 object CameraSettingsUtil {
@@ -154,6 +153,7 @@ object CameraSettingsUtil {
                 sharedPref.getString("camera_id", null)!!,
                 sharedPref.getBoolean("display_enable", false),
                 sharedPref.getBoolean("snapshot_enable", false),
+                sharedPref.getBoolean("mjpeg_enable", false),
                 sharedPref.getBoolean("three_camera", false)
         )
     }

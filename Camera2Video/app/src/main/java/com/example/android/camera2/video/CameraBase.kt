@@ -71,6 +71,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
+
 class CameraBase(val context: Context): CameraModule {
 
     private val cameraManager: CameraManager by lazy {
@@ -121,12 +122,16 @@ class CameraBase(val context: Context): CameraModule {
     val closeSync = Object()
 
     val takeSnapshotSemaphore  = Semaphore(1)
+    private val takeMJPEGSemaphore  = Semaphore(1)
 
     var listeners = mutableListOf<CameraReadyListener>()
 
     var isCameraReady: Boolean by Delegates.observable(false) { _, old, new ->
         listeners.forEach { it.onIsCameraReadyUpdated(old, new) }
     }
+    var mjpegBufferStream: BufferedOutputStream? = null
+    var mjpegFileStream: FileOutputStream? = null
+    var mjpegRecording = false
 
     override fun getAvailableCameras(): Array<String> = cameraManager.cameraIdList
 
@@ -345,6 +350,53 @@ class CameraBase(val context: Context): CameraModule {
         }
     }
 
+    override fun takeMJPEG(start: Boolean) {
+        Log.i(TAG, "takeMJPEG start:$start")
+        if (start) {
+            takeMJPEGSemaphore.acquire()
+            mjpegRecording = true
+            val mjpegOutputFile = createFile(context, "mjpeg")
+            mjpegFileStream = FileOutputStream(mjpegOutputFile)
+            mjpegBufferStream = BufferedOutputStream(mjpegFileStream)
+            // Clear imageReader
+            var image: Image? = null
+            do {
+                image?.close()
+                image = imageReader.acquireNextImage()
+            } while (image != null)
+            session.stopRepeating()
+            session.setRepeatingRequest(captureRequest.build(), null, cameraHandler)
+            var count = 0
+            var initialTime: Long = 0
+            imageReader.setOnImageAvailableListener({ reader ->
+                image = reader.acquireNextImage()
+                if (count == 0) {
+                    initialTime = image!!.timestamp
+                }
+                count++
+                val buffer = image?.planes?.get(0)?.buffer
+                val bytes = ByteArray(buffer!!.remaining()).apply { buffer.get(this) }
+                mjpegBufferStream!!.write(bytes)
+                mjpegBufferStream!!.flush()
+                if (!mjpegRecording) {
+                    imageReader.setOnImageAvailableListener(null, null)
+                    session.stopRepeating()
+                    session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
+                    // Save the mjpeg file
+                    mjpegBufferStream?.flush()
+                    mjpegBufferStream?.close()
+                    val finalTime = image!!.timestamp
+                    Log.i(TAG, "saved mjpeg file with fps = ${count / ((finalTime - initialTime) / 1000000000.0)}")
+                    takeMJPEGSemaphore.release()
+                }
+                image?.close()
+            }, imageReaderHandler)
+        } else {
+            mjpegRecording = false
+            takeMJPEGSemaphore.acquire()
+            takeMJPEGSemaphore.release()
+        }
+    }
     override fun takeSnapshot(orientation: Int?): CombinedCaptureResult {
         @Suppress("ControlFlowWithEmptyBody")
         Log.i(TAG, "takeSnapshot")
@@ -357,8 +409,8 @@ class CameraBase(val context: Context): CameraModule {
             Log.d(TAG, "Image available in queue: ${image.timestamp}")
             imageQueue.add(image)
         }, imageReaderHandler)
-        lateinit var combinedCaptureResult: CombinedCaptureResult
         takeSnapshotSemaphore.acquire()
+        lateinit var combinedCaptureResult: CombinedCaptureResult
         session.capture(captureRequest.build(), object : CameraCaptureSession.CaptureCallback() {
             override fun onCaptureCompleted(
                     session: CameraCaptureSession,
@@ -368,7 +420,7 @@ class CameraBase(val context: Context): CameraModule {
                 val resultTimestamp = result.get(CaptureResult.SENSOR_TIMESTAMP)
                 Log.d(TAG, "Capture result received: $resultTimestamp")
 
-                var image:Image
+                var image: Image
                 do {
                     image = imageQueue.take()
                 } while (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
@@ -563,9 +615,9 @@ class CameraBase(val context: Context): CameraModule {
         }
 
         // Set Exposure Value
-        previewRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION , exposureValue)
+        previewRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureValue)
         if (::captureRequest.isInitialized) {
-            captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION , exposureValue)
+            captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureValue)
         }
     }
 
@@ -903,9 +955,11 @@ class CameraBase(val context: Context): CameraModule {
         private fun createFile(context: Context, extension: String): File {
             val dir = File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DCIM), "Camera")
+            if (!dir.exists()) {
+                dir.mkdirs()
+            }
             return File.createTempFile(createFileName(), ".$extension", dir)
         }
-
         private fun createFileName(): String {
             val sdf = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US)
             return "IMG_${sdf.format(Date())}"

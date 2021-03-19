@@ -73,6 +73,7 @@ data class CameraSettings(var previewInfo: StreamInfo,
                           var cameraId: String,
                           var displayOn: Boolean,
                           var snapshotOn: Boolean,
+                          var mjpegOn: Boolean,
                           var threeCamUse: Boolean)
 
 interface CameraModule {
@@ -91,6 +92,7 @@ interface CameraModule {
     fun isRecording() : Boolean
     fun stopRecording()
     fun takeSnapshot(value: Int?): CombinedCaptureResult
+    fun takeMJPEG(start: Boolean)
     fun close()
     fun setEISEnable(value: Boolean)
     fun setLDCEnable(value: Boolean)
