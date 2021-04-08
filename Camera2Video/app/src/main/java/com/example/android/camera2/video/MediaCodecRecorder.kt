@@ -112,6 +112,10 @@ class MediaCodecRecorder(private val context: Context,
             }
             // Real Time Priority
             setInteger(MediaFormat.KEY_PRIORITY, 0)
+            // Enable hier-p for resolution greater than 5.7k
+            if (streamInfo.width >= 5760 && streamInfo.height >= 2880) {
+                setString(MediaFormat.KEY_TEMPORAL_LAYERING, "android.generic.2")
+            }
 
             setInteger("vendor.qti-ext-enc-qp-range.qp-i-min", streamInfo.minqp_i_frame);
             setInteger("vendor.qti-ext-enc-qp-range.qp-i-max", streamInfo.maxqp_i_frame);
