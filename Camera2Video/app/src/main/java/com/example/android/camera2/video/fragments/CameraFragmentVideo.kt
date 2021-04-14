@@ -126,9 +126,15 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
                     height: Int) = Unit
 
             override fun surfaceCreated(holder: SurfaceHolder) {
-                previewSize = getPreviewOutputSize(
-                        viewFinder.display, characteristics, SurfaceHolder::class.java)
-
+                previewSize = if (settings.previewInfo.fps > 30 && settings.cameraId != "4") {
+                    Size(1280, 720)
+                } else if (settings.cameraId == "4") {
+                    // For logical camera keep w X h into 2:1.
+                    Size(1440, 720)
+                } else {
+                    getPreviewOutputSize(
+                            viewFinder.display, characteristics, SurfaceHolder::class.java)
+                }
                 Log.d(TAG, "View finder size: ${viewFinder.width} x ${viewFinder.height}")
                 Log.d(TAG, "Selected preview size: $previewSize")
                 viewFinder.setAspectRatio(previewSize.width, previewSize.height)
