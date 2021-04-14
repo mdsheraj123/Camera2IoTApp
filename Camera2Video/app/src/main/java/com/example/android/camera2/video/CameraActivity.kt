@@ -98,8 +98,13 @@ class CameraActivity : AppCompatActivity() {
                 disableTabs()
                 tabUpdate(tab)
             }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                if (currentTab == 2) {
+                    Log.i(TAG, "onTabReselected")
+                    disableTabs()
+                    tabUpdate(tab)
+                }
+            }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
         })
     }
