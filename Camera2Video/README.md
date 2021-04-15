@@ -37,8 +37,8 @@ IoT APK Camera2Video for QCS610 and QCS605 Platforms
 
 ## Description
 --------------
-Camera2Video is an Android application (app) that is developed for use in QCS610 and QCS605 platforms.<br />
-The current version of the Camera2Video application is 3.0.0.<br />
+Camera2Video is an Android application (app) that is developed for QCS610 and QCS605 platforms.<br />
+The current version of the Camera2Video application is 3.2.0.<br />
 This is a generic Android application based on the [Camera2 API][1] and written in Kotlin supported on Android 10. This application is designed to help end users in terms of use case realization for IoT domain.<br />
 
 [1]: https://developer.android.com/reference/android/hardware/camera2/package-summary.html
@@ -80,6 +80,7 @@ Camera2Video is the QTI-modified project for implementing IoT use cases.
 --------------
 
 Code release history:
+* [IoT APK release 3.1.0][8]
 * [IoT APK release 1.4.0][7]
 * [IoT APK release 1.3.0][2]
 * [IoT APK release 1.2.0][3]
@@ -91,6 +92,7 @@ Code release history:
 [4]: https://source.codeaurora.org/quic/la/camera-samples/commit/?h=iot-concam-apk.lnx.1.1&id=ab668319c9b16fb064225550a518b072708f115f
 [5]: https://source.codeaurora.org/quic/la/camera-samples/commit/?h=iot-concam-apk.lnx.1.1&id=95d1b0d493e35cf044077f0057f17093a008647a
 [7]: https://source.codeaurora.org/quic/la/camera-samples/commit/?h=iot-concam-apk.lnx.1.1&id=fe56b515b7fe1f603404c5805df2fcff18aad6be
+[8]: https://source.codeaurora.org/quic/la/camera-samples/commit/?h=iot-concam-apk.lnx.1.1&id=dc952a895fea5ee387b0f240c2348496589655c1
 
 
 
@@ -174,7 +176,7 @@ The setting tab helps to configure various options for the app. Please find the 
 - **EIS Enable**: Toggle Electronic Image Stabilization feature (Note: Platform and hardware should support EIS capabilty for this to work).
 - **LDC Enable**: Toggle Lens Distortion Correction (Dewarping) of Wide Angle lens (Note : Platform and hardware should support LDC capabilty for this to work).
 - **SHDR Enable**: Staggered High Dynamic Range
-- **FPS**: This field is used to select HFR vs. Non-HFR. Only Non-HFR, (30 fps) is tested now.
+- **FPS**: This field is used to select camera FPS on which camera sensor will be configured.
 
 ##### Display
 
@@ -184,6 +186,7 @@ The setting tab helps to configure various options for the app. Please find the 
 ##### Snapshot
 
 - **Snapshot Enable**: This field helps to enable or disable the snapshot on all tabs.
+- **MJPEG Enable**: This field helps to enable or disable the MJPEG feature.
 - **Snapshot Size**: This field helps to select snapshot resolution for the available camera.
 - **Snapshot Format**: Currently, it supports JPEG and RAW.
 - **HAL-ZSL**: This field helps to enable or disable HAL-ZSL.
@@ -420,6 +423,14 @@ User must tap the LDC Enable button from the SETTINGS tab and run the use case.<
 Only the following streams should be created.
 ```
 Preview + Snap || Preview + One Encode || 2 Encode
+```
+NOTE:	Tested with IoT APK.
+
+### EIS
+User must tap the EIS Enable button from the SETTINGS tab and run the use case.<br />
+Only the following streams should be created.
+```
+Preview + Stream 0 1080p + Snapshot 1080p
 ```
 NOTE:	Tested with IoT APK.
 
