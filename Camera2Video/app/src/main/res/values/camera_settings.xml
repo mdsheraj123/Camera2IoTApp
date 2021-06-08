@@ -161,6 +161,14 @@
         <item>OPUS</item>
     </string-array>
 
+    <string-array name="overlay_type">
+        <item>None</item>
+        <item>Text</item>
+        <item>Image</item>
+        <item>Date And Time</item>
+        <item>Rectangle</item>
+    </string-array>
+
     <string-array name="video_recorder_type">
         <item>0</item>
         <item>1</item>

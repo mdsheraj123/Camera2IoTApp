@@ -34,19 +34,23 @@
 
 package com.example.android.camera2.video.overlay
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.opengl.*
+import android.opengl.Matrix
 import android.util.Log
 import android.view.Surface
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.Semaphore
 import kotlin.concurrent.thread
 import kotlin.math.roundToLong
+
+enum class OverlayType {
+    None, Image, Text, DateTime, Rectangle
+}
 
 class EglCore {
     var eglDisplay: EGLDisplay = EGL14.EGL_NO_DISPLAY
@@ -155,6 +159,7 @@ class OverlayRenderer {
     private var overlayUpdate = false
     private var rotationAngle = 0.0f
     private lateinit var overlayImage: Bitmap
+    private var typeOverlay: OverlayType = OverlayType.None
 
 
     constructor() {
@@ -314,8 +319,25 @@ class OverlayRenderer {
         GLES20.glUniformMatrix4fv(stMatrixHandle, 1, false, stMatrix, 0)
 
         if (::overlayImage.isInitialized && overlayUpdate) {
+            if (typeOverlay != OverlayType.DateTime) {
+                overlayUpdate = false
+            } else {
+                // Update Data and Time
+                overlayImage.eraseColor(Color.BLACK)
+                val canvas = Canvas(overlayImage)
+                val paint = Paint()
+                paint.textAlign = Paint.Align.LEFT
+                paint.isAntiAlias = true
+                paint.textSize = 100.0f
+                paint.color = Color.WHITE
+                paint.alpha = (0.5f * 255.0f).toInt()
+                val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                val currentDate = sdf.format(Date())
+                canvas.drawText(currentDate, 0.0f, 100.0f, paint)
+                canvas.save()
+                canvas.restore()
+            }
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, overlayImage, 0)
-            overlayUpdate = false
         }
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
@@ -327,8 +349,9 @@ class OverlayRenderer {
         rotationAngle = rotation
     }
 
-    fun setImageOverlay(bitmap: Bitmap) {
+    fun setImageOverlay(bitmap: Bitmap, type: OverlayType) {
         overlayImage = bitmap
+        typeOverlay = type
         overlayUpdate = true
     }
 
@@ -388,14 +411,14 @@ class VideoOverlay {
     private val overlayThread: Thread
     private val outputFrameInterval: Long
     private var outputTimestamp = 0L
-    private val textOverlayBitmap: Bitmap
+    private val overlayBitmap: Bitmap
 
     constructor(surface: Surface, width: Int, height: Int, fps: Float, rotation: Float) {
         overlayRunning = true
         widthImage = width
         heightImage = height
         outputFrameInterval = (1000000000.0f / fps).toLong()
-        textOverlayBitmap = Bitmap.createBitmap(widthImage, heightImage, Bitmap.Config.ARGB_8888)
+        overlayBitmap = Bitmap.createBitmap(widthImage, heightImage, Bitmap.Config.ARGB_8888)
         overlayThread = thread {
             handlerThread(surface, width, height, rotation)
         }
@@ -456,12 +479,14 @@ class VideoOverlay {
         outputSurface.release()
     }
 
-    fun setImageOverlay(bitmap: Bitmap) {
-        overlayRenderer.setImageOverlay(bitmap)
+    fun setImageOverlay(bitmap: Bitmap, left: Float, top: Float) {
+        val canvas = Canvas(overlayBitmap)
+        canvas.drawBitmap(bitmap, left, top, null)
+        overlayRenderer.setImageOverlay(overlayBitmap, OverlayType.Image)
     }
 
     fun setTextOverlay(msg: String, x: Float, y: Float, textSize: Float, color: Int, alpha: Float) {
-        val canvas = Canvas(textOverlayBitmap)
+        val canvas = Canvas(overlayBitmap)
         val paint = Paint()
         paint.textAlign = Paint.Align.LEFT
         paint.isAntiAlias = true
@@ -471,7 +496,35 @@ class VideoOverlay {
         canvas.drawText(msg, x, y, paint)
         canvas.save()
         canvas.restore()
-        overlayRenderer.setImageOverlay(textOverlayBitmap)
+        overlayRenderer.setImageOverlay(overlayBitmap, OverlayType.Text)
+    }
+
+    fun setDateAndTimeOverlay(x: Float, y: Float, size: Float, color: Int, alpha: Float) {
+        val canvas = Canvas(overlayBitmap)
+        val paint = Paint()
+        paint.textAlign = Paint.Align.LEFT
+        paint.isAntiAlias = true
+        paint.textSize = size
+        paint.color = color
+        paint.alpha = (alpha * 255.0f).toInt()
+        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val currentDate = sdf.format(Date())
+        canvas.drawText(currentDate, x, y, paint)
+        canvas.save()
+        canvas.restore()
+        overlayRenderer.setImageOverlay(overlayBitmap, OverlayType.DateTime)
+    }
+
+    fun setRectOverlay(width: Int, height: Int, color: Int, alpha: Float) {
+        val rect = Rect(0, 0, width, height)
+        val canvas = Canvas(overlayBitmap)
+        val paint = Paint()
+        paint.color = color
+        paint.alpha = (alpha * 255.0f).toInt()
+        canvas.drawRect(rect, paint)
+        canvas.save()
+        canvas.restore()
+        overlayRenderer.setImageOverlay(overlayBitmap, OverlayType.Rectangle)
     }
 
     companion object {

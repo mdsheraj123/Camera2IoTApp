@@ -38,6 +38,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
@@ -283,9 +284,17 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
         var availableCameraStreams = MAX_CAMERA_STREAMS
 
         if (settings.displayOn) {
-            if (settings.previewInfo.overlayEnable) {
-                val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height, settings.previewInfo.fps.toFloat(),0.0f)
-                previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+            if (settings.previewInfo.overlayType != "None") {
+                val previewOverlay = VideoOverlay(viewFinder.holder.surface, previewSize.width, previewSize.height, settings.previewInfo.fps.toFloat(), 0.0f)
+                when (settings.previewInfo.overlayType) {
+                    "Text" -> previewOverlay.setTextOverlay("Preview overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                    "Image" -> {
+                        val bitmap = BitmapFactory.decodeFile("/storage/emulated/0/DCIM/Camera/overlay_test.jpg")
+                        previewOverlay.setImageOverlay(bitmap, 50.0f, 50.0f)
+                    }
+                    "Date And Time" -> previewOverlay.setDateAndTimeOverlay(0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                    "Rectangle" -> previewOverlay.setRectOverlay(200, 400, Color.RED, 0.5f)
+                }
                 videoOverlayList.add(previewOverlay)
                 camBase.addPreviewStream(previewOverlay.getInputSurface())
                 Log.i(TAG, "addCameraStreams preview ${settings.previewInfo}")
@@ -317,7 +326,7 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
         for ((streamCount, stream) in settings.recorderInfo.withIndex()) {
             val recorder = VideoRecorderFactory(requireContext().applicationContext, stream, stream.videoRecorderType)
             camBase.addVideoRecorder(recorder)
-            if (stream.overlayEnable) {
+            if (stream.overlayType != "None") {
                 lateinit var videoOverlay: VideoOverlay
                 if (availableCameraStreams > 1) {
                     videoOverlay = VideoOverlay(recorder.getRecorderSurface(), stream.width, stream.height, stream.fps.toFloat(), camBase.getSensorOrientation().toFloat())
@@ -329,8 +338,16 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
                     sharedStreamSurfaces.add(videoOverlay.getInputSurface())
                     Log.i(TAG, "addCameraStreams encoded stream$streamCount $stream")
                 }
-                videoOverlay.setTextOverlay("Stream $streamCount overlay",
-                        0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                when (stream.overlayType) {
+                    "Text" -> videoOverlay.setTextOverlay("Stream $streamCount overlay", 0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                    "Image" -> {
+                        val bitmap = BitmapFactory.decodeFile("/storage/emulated/0/DCIM/Camera/overlay_test.jpg")
+                        videoOverlay.setImageOverlay(bitmap, 50.0f, 50.0f)
+                    }
+                    "Date And Time" -> videoOverlay.setDateAndTimeOverlay(0.0f, 100.0f, 100.0f, Color.WHITE, 0.5f)
+                    "Rectangle" -> videoOverlay.setRectOverlay(200, 400, Color.RED, 0.5f)
+                }
+
                 videoOverlayList.add(videoOverlay)
             } else {
                 if (availableCameraStreams > 1) {

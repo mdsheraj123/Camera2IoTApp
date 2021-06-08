@@ -57,7 +57,7 @@ data class StreamInfo(
         val interval_iframe: Int = 0,
         val storageEnable: Boolean = true,
         val videoRecorderType: Int = 0,
-        val overlayEnable: Boolean = false
+        val overlayType: String? = ""
 )
 
 data class CameraParameters(val eis_enable: Boolean = false,

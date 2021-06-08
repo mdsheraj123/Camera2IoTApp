@@ -72,11 +72,13 @@
             android:title="Display"
             android:summary="Enable Display"
             android:defaultValue="true"/>
-        <androidx.preference.SwitchPreference
+        <androidx.preference.ListPreference
             android:key="preview_overlay"
             android:title="Preview overlay"
-            android:summary="Preview overlay"
-            android:defaultValue="false"/>
+            android:summary="%s"
+            android:entries="@array/overlay_type"
+            android:entryValues="@array/overlay_type"
+            android:defaultValue="None"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Snapshot" >
@@ -124,11 +126,13 @@
             android:title="Stream 0 Enable"
             android:summary="Enable Stream 0 Recording"
             android:defaultValue="true"/>
-        <androidx.preference.SwitchPreference
+        <androidx.preference.ListPreference
             android:key="vid_0_overlay"
             android:title="Stream 0 overlay"
-            android:summary="Stream 0 overlay"
-            android:defaultValue="false"/>
+            android:summary="%s"
+            android:entries="@array/overlay_type"
+            android:entryValues="@array/overlay_type"
+            android:defaultValue="None"/>
         <androidx.preference.ListPreference
             android:key="vid_0_format"
             android:title="Stream 0 Format"
@@ -237,11 +241,13 @@
             android:title="Stream 1 Enable"
             android:summary="Enable Stream 1 Recording"
             android:defaultValue="false" />
-        <androidx.preference.SwitchPreference
+        <androidx.preference.ListPreference
             android:key="vid_1_overlay"
             android:title="Stream 1 overlay"
-            android:summary="Stream 1 overlay"
-            android:defaultValue="false"/>
+            android:summary="%s"
+            android:entries="@array/overlay_type"
+            android:entryValues="@array/overlay_type"
+            android:defaultValue="None"/>
         <androidx.preference.ListPreference
             android:key="vid_1_format"
             android:title="Stream 1 Format"
@@ -350,11 +356,13 @@
             android:title="Stream 2 Enable"
             android:summary="Enable Stream 2 Recording"
             android:defaultValue="false" />
-        <androidx.preference.SwitchPreference
+        <androidx.preference.ListPreference
             android:key="vid_2_overlay"
             android:title="Stream 2 overlay"
-            android:summary="Stream 2 overlay"
-            android:defaultValue="false"/>
+            android:summary="%s"
+            android:entries="@array/overlay_type"
+            android:entryValues="@array/overlay_type"
+            android:defaultValue="None"/>
         <androidx.preference.ListPreference
             android:key="vid_2_format"
             android:title="Stream 2 Format"
