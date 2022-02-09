@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2022 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -50,6 +50,9 @@ import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
 import android.view.*
+import android.widget.Chronometer
+import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.fragment.app.Fragment
@@ -62,9 +65,6 @@ import com.example.android.camera2.video.*
 import com.example.android.camera2.video.CameraActivity.Companion.printAppVersion
 import com.example.android.camera2.video.MediaCodecRecorder.Companion.MIN_REQUIRED_RECORDING_TIME_MILLIS
 import com.example.android.camera2.video.overlay.VideoOverlay
-import kotlinx.android.synthetic.main.fragment_camera_multicam.*
-import kotlinx.android.synthetic.main.fragment_camera_multicam.capture_button
-import kotlinx.android.synthetic.main.fragment_camera_multicam.recorder_button
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -100,6 +100,11 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
     private val camera2Id = "2"
 
     var readyCount = 0
+
+    val capture_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.capture_button) }
+    val recorder_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.recorder_button) }
+    val chronometer_dual by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Chronometer>(R.id.chronometer_dual) }
+    val thumbnailButton3 by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageView>(R.id.thumbnailButton3) }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -577,7 +582,7 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
             Log.d(TAG, "Thumbnail icon pressed")
             val intent = Intent()
             intent.action = Intent.ACTION_VIEW
-            intent.type = "image/*"
+            intent.type = "image/* video/*"
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }

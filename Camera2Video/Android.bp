@@ -1,0 +1,98 @@
+
+android_library {
+  name: "utils",
+  manifest: "utils/src/main/AndroidManifest.xml",
+  platform_apis: true,
+
+  srcs: [
+    "utils/src/main/java/com/example/android/camera/utils/*.kt",
+  ],
+
+  resource_dirs: [
+    "utils/src/main/res/",
+  ],
+
+  static_libs: [
+    "androidx-constraintlayout_constraintlayout",
+    "androidx.appcompat_appcompat",
+    "androidx.localbroadcastmanager_localbroadcastmanager",
+    "com.google.android.material_material",
+    "androidx.exifinterface_exifinterface",
+    "androidx.core_core",
+    "androidx.core_core-ktx",
+    "androidx.preference_preference",
+    "androidx.fragment_fragment",
+    "androidx.fragment_fragment-ktx",
+    "androidx.navigation_navigation-fragment-ktx",
+    "androidx.navigation_navigation-ui-ktx",
+    "androidx.recyclerview_recyclerview",
+    "androidx.lifecycle_lifecycle-runtime-ktx",
+    "androidx.lifecycle_lifecycle-runtime",
+    "androidx.lifecycle_lifecycle-extensions",
+    "kotlin-stdlib",
+    "kotlin-reflect",
+    "kotlinx_coroutines",
+    "kotlinx_coroutines_android",
+    "gson-prebuilt-jar",
+  ],
+
+  optimize: {
+    enabled: false,
+  },
+  dex_preopt: {
+    enabled: false,
+  },
+}
+
+
+
+
+android_app {
+  name: "Camera2Video",
+  manifest: "app/src/main/AndroidManifest.xml",
+  privileged: true,
+  platform_apis: true,
+  certificate: "platform",
+
+  srcs: [
+    "app/src/main/java/com/example/android/camera2/video/*.kt",
+    "app/src/main/java/com/example/android/camera2/video/fragments/*.kt",
+    "app/src/main/java/com/example/android/camera2/video/overlay/*.kt",
+  ],
+
+  resource_dirs: [
+    "app/src/main/res/",
+  ],
+
+  static_libs: [
+    "androidx-constraintlayout_constraintlayout",
+    "androidx.appcompat_appcompat",
+    "androidx.localbroadcastmanager_localbroadcastmanager",
+    "com.google.android.material_material",
+    "androidx.exifinterface_exifinterface",
+    "androidx.core_core",
+    "androidx.core_core-ktx",
+    "androidx.preference_preference",
+    "androidx.fragment_fragment",
+    "androidx.fragment_fragment-ktx",
+    "androidx.navigation_navigation-fragment-ktx",
+    "androidx.navigation_navigation-ui-ktx",
+    "androidx.recyclerview_recyclerview",
+    "androidx.lifecycle_lifecycle-runtime-ktx",
+    "androidx.lifecycle_lifecycle-runtime",
+    "androidx.lifecycle_lifecycle-extensions",
+    "kotlin-stdlib",
+    "kotlin-reflect",
+    "kotlinx_coroutines",
+    "kotlinx_coroutines_android",
+    "gson-prebuilt-jar",
+    "utils",
+  ],
+
+  optimize: {
+    enabled: false,
+  },
+  dex_preopt: {
+    enabled: false,
+  },
+}
