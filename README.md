@@ -13,3 +13,9 @@ started with the [Camera APIs](https://developer.android.com/guide/topics/media/
 | [Camera2SlowMotion](Camera2SlowMotion)    | Demostrates capturing high-speed video in a constrained camera capture session. |
 | [Camera2Video](Camera2Video)              | Demonstrates recording video using the Camera2 API and MediaRecorder. |
 | [HdrViewfinder](HdrViewfinder)            | Demonstrates use of RenderScript to display a live HDR feed from camera frames using Camera2 API. |
+
+## Source
+
+You can browse the code at http://source.codeaurora.org/quic/la/camera-samples  
+If you want to clone from there  
+git clone https://source.codeaurora.org/quic/la/camera-samples -b iot-concam-apk.lnx.1.1  
