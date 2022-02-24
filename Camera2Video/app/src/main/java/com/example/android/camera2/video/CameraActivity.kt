@@ -1,7 +1,7 @@
 /*
 # Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2022 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -215,6 +215,8 @@ class CameraActivity : AppCompatActivity() {
     }
 
     companion object {
+        var thumbnailPath: String? = null
+        var thumbnailType: Int = 0
         var currentTab: Int = 100
         var mActivity: WeakReference<Activity>? = null
         /** Combination of all flags required to put activity into immersive mode */
@@ -229,6 +231,11 @@ class CameraActivity : AppCompatActivity() {
         const val ANIMATION_SLOW_MILLIS = 100L
         private const val IMMERSIVE_FLAG_TIMEOUT = 500L
         private val TAG = CameraActivity::class.simpleName
+
+        fun saveThumbnailData(path: String?, type: Int) {
+            thumbnailPath = path
+            thumbnailType = type
+        }
 
         fun printAppVersion(context: Context) {
             try {
