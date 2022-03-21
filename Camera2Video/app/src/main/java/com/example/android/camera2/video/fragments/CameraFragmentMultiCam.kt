@@ -328,11 +328,12 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
         }
     }
 
-    private fun createRoundThumb(path: String?, type: Int) : RoundedBitmapDrawable {
+    private fun createRoundThumb(path: String?, type: Int) : RoundedBitmapDrawable? {
         Log.i(TAG, "createRoundThumb path=$path type=$type")
-        val drawable = RoundedBitmapDrawableFactory.create(resources, createThumb(path,type))
-        drawable.isCircular = true
-        return drawable
+        CameraActivity.saveThumbnailData(path, type)
+        return createThumb(path, type)?.let {
+            RoundedBitmapDrawableFactory.create(resources, it).apply { this.isCircular = true }
+        }
     }
 
     private fun addCameraStreams(camBase: CameraBase, settings: CameraSettings, previewSurface: Surface, previewSize: Size) {
@@ -591,6 +592,12 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
     override fun onResume() {
         Log.i(TAG, "onResume")
         super.onResume()
+        createRoundThumb(
+                CameraActivity.thumbnailPath,
+                CameraActivity.thumbnailType
+        )?.let { thumbnailButton3.setImageDrawable(it) } ?: run {
+            thumbnailButton3.setImageDrawable(resources.getDrawable(R.drawable.ic_camera_thumbnail))
+        }
     }
 
     override fun onPause() {
