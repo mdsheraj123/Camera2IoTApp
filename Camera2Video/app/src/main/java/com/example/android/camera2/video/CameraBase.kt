@@ -45,6 +45,7 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
 import android.media.ImageReader
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
@@ -129,8 +130,9 @@ class CameraBase(val context: Context): CameraModule {
     var isCameraReady: Boolean by Delegates.observable(false) { _, old, new ->
         listeners.forEach { it.onIsCameraReadyUpdated(old, new) }
     }
-    var mjpegBufferStream: BufferedOutputStream? = null
-    var mjpegFileStream: FileOutputStream? = null
+    private lateinit var mjpegContentValues: ContentValues
+    private var mjpegUri: Uri? = null
+    private var mjpegBufferStream: BufferedOutputStream? = null
     var mjpegRecording = false
 
     override fun getAvailableCameras(): Array<String> = cameraManager.cameraIdList
@@ -139,6 +141,7 @@ class CameraBase(val context: Context): CameraModule {
         return characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
     }
 
+    @SuppressLint("MissingPermission")
     override suspend fun openCamera(cameraId: String) {
         Log.i(TAG, "openCamera")
         camera = suspendCancellableCoroutine { cont ->
@@ -355,16 +358,22 @@ class CameraBase(val context: Context): CameraModule {
         if (start) {
             takeMJPEGSemaphore.acquire()
             mjpegRecording = true
-            val mjpegOutputFile = createFile(context, "mjpeg")
-            mjpegFileStream = FileOutputStream(mjpegOutputFile)
-            mjpegBufferStream = BufferedOutputStream(mjpegFileStream)
+
+            val mjpegOutputFile = "${createFileName()}.mjpeg"
+            mjpegContentValues = ContentValues()
+            mjpegContentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, mjpegOutputFile)
+            mjpegContentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS)
+            mjpegContentValues.put(MediaStore.MediaColumns.IS_PENDING, 1)
+            mjpegUri = context.contentResolver.insert(MediaStore.Files.getContentUri("external"), mjpegContentValues)
+            val imageOutStream = mjpegUri?.let { context.contentResolver.openOutputStream(it) }
+            mjpegBufferStream = BufferedOutputStream(imageOutStream)
+
             // Clear imageReader
             var image: Image? = null
             do {
                 image?.close()
                 image = imageReader.acquireNextImage()
             } while (image != null)
-            session.stopRepeating()
             session.setRepeatingRequest(captureRequest.build(), null, cameraHandler)
             var count = 0
             var initialTime: Long = 0
@@ -376,15 +385,18 @@ class CameraBase(val context: Context): CameraModule {
                 count++
                 val buffer = image?.planes?.get(0)?.buffer
                 val bytes = ByteArray(buffer!!.remaining()).apply { buffer.get(this) }
-                mjpegBufferStream!!.write(bytes)
-                mjpegBufferStream!!.flush()
+                mjpegBufferStream?.write(bytes)
                 if (!mjpegRecording) {
                     imageReader.setOnImageAvailableListener(null, null)
-                    session.stopRepeating()
                     session.setRepeatingRequest(previewRequest.build(), null, cameraHandler)
                     // Save the mjpeg file
                     mjpegBufferStream?.flush()
                     mjpegBufferStream?.close()
+
+                    mjpegContentValues.clear()
+                    mjpegContentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+                    mjpegUri?.let {context.contentResolver.update(it, mjpegContentValues, null, null)}
+
                     val finalTime = image!!.timestamp
                     Log.i(TAG, "saved mjpeg file with fps = ${count / ((finalTime - initialTime) / 1000000000.0)}")
                     takeMJPEGSemaphore.release()
@@ -468,14 +480,21 @@ class CameraBase(val context: Context): CameraModule {
             }
 
             ImageFormat.RAW10 -> {
+                val buffer = result.image.planes[0].buffer
+                val bytes = ByteArray(buffer.remaining()).apply { buffer.get(this) }
                 try {
-                    val output = createFile(context, "raw")
-                    currentSnapshotFilePath = output.absolutePath
-                    val buffer = result.image.planes[0].buffer
-                    val bytes = ByteArray(buffer.remaining()).apply { buffer.get(this) }
-                    val out = FileOutputStream(output)
-                    out.write(bytes)
-                    out.close()
+                    val filename = "${createFileName()}.raw"
+                    val values = ContentValues()
+                    values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                    values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS)
+                    values.put(MediaStore.MediaColumns.IS_PENDING, 1)
+                    val uri = context.contentResolver.insert(MediaStore.Files.getContentUri("external"), values)
+                    val imageOutStream = uri?.let { context.contentResolver.openOutputStream(it) };
+                    imageOutStream?.write(bytes)
+
+                    values.clear()
+                    values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    uri?.let {context.contentResolver.update(it, values, null, null)}
                     cont.resume(currentSnapshotFilePath)
                 } catch (exc: IOException) {
                     Log.e(TAG, "Unable to write raw image to file", exc)

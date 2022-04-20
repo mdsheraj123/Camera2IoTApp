@@ -34,6 +34,7 @@
 
 package com.example.android.camera2.video
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.media.*
@@ -56,6 +57,7 @@ import java.util.concurrent.Semaphore
 import kotlin.concurrent.thread
 
 
+@SuppressLint("MissingPermission")
 class MediaCodecRecorder(private val context: Context,
                          streamInfo: StreamInfo) : VideoRecorder {
 
